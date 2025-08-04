@@ -30,7 +30,7 @@ jobs:
       - name: Get changed markdown files (excluding all i18n variants)
         if: steps.check-committer.outputs.is_bot_commit == 'false'
         id: changed-files
-        uses: tj-actions/changed-files@v40
+        uses: tj-actions/changed-files@v46
         with:
           since_last_remote_commit: true
           separator: ","
