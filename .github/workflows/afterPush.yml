@@ -10,7 +10,7 @@ jobs:
   process-markdown:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2  # 需要获取至少2个提交以便比较
 
