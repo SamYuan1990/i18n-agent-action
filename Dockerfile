@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --user -r requirements.txt
 
 # 第二阶段：生产环境
-FROM python:3.13-slim
+FROM python:3.13.7-slim
 WORKDIR /app
 
 # 从builder阶段复制已安装的包
