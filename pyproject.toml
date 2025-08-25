@@ -45,7 +45,7 @@ docs = [
 flet = {extras = ["all"], version = "^0.28.3"}
 pyttsx3 = "^2.99"
 sounddevice = "^0.5.2"
-sherpa-onnx = "^1.12.9"
+sherpa-onnx = "^1.12.10"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.1"
