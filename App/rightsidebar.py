@@ -6,6 +6,7 @@ class RightSidebar(ft.Container):
         super().__init__()
         self.app = app
         self.visible = True
+        self.translate_count = 3
 
         # 切换侧边栏按钮
         self.toggle_button = ft.IconButton(
@@ -21,32 +22,11 @@ class RightSidebar(ft.Container):
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     ),
                     ft.Divider(),
-                    ft.Text("总翻译次数: 1"),
-                    ft.Text("收藏翻译: 1"),
+                    ft.Text("总翻译次数: " + str(self.translate_count)),
+                    ft.Text("请求大模型总耗时: " + str(self.translate_count)),
+                    ft.Text("命中本地cache次数: " + str(self.translate_count)),
+                    ft.Text("Token使用情况: " + str(self.translate_count)),
                     ft.Text("最近使用情况:"),
-                    ft.Container(
-                        content=ft.BarChart(
-                            bar_groups=app.generate_bar_chart_data(),
-                            border=ft.border.all(1, ft.Colors.GREY_400),
-                            left_axis=ft.ChartAxis(
-                                labels_size=40, title=ft.Text("次数")
-                            ),
-                            bottom_axis=ft.ChartAxis(
-                                title=ft.Text("日期"),
-                                labels=app.generate_bottom_axis_labels(),
-                            ),
-                            horizontal_grid_lines=ft.ChartGridLines(
-                                color=ft.Colors.GREY_300, width=1, dash_pattern=[3, 3]
-                            ),
-                            tooltip_bgcolor=ft.Colors.with_opacity(
-                                0.8, ft.Colors.BLUE_GREY
-                            ),
-                            max_y=10,
-                            interactive=True,
-                            expand=True,
-                        ),
-                        height=200,
-                    ),
                     ft.Text("常用翻译语言:"),
                     ft.DataTable(
                         columns=[
@@ -57,7 +37,7 @@ class RightSidebar(ft.Container):
                             ft.DataRow(
                                 cells=[
                                     ft.DataCell(ft.Text("英语")),
-                                    ft.DataCell(ft.Text("28")),
+                                    ft.DataCell(ft.Text("280")),
                                 ]
                             ),
                             ft.DataRow(
