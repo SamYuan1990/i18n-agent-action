@@ -11,10 +11,11 @@ However, since we rely on cutting-edge AI translation technologies, we cannot gu
 ### Manual(for dev, or you should take your own security as it not running in sandbox)
 
 ```
-pip3 install -r ./requirements.txt
+uv sync
 export api_key={your_key}
-//python3 main.py {your config file} {your docs folder} {Reserved Word} {optional if you have a file list}
-python3 main.py {full_path_to_your_repo}/mkdocs.yml {full_path_to_your_repo}/docs kepler {optional if you have a file list}
+// uv run main.py {i18n rule of your project} {your docs folder} {Reserved Word, separated by comma} {optional if you have a file list}
+// Below is an example that translate this project's docs (kepler is a resesrved word)
+uv rn main.py mkdocs.yml docs kepler
 ```
 
 and you shoud run linting by yourself.
