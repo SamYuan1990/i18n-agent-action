@@ -627,6 +627,36 @@ desktop = ["flet-desktop (==0.28.3) ; platform_system == \"Darwin\" or platform_
 web = ["flet-web (==0.28.3)"]
 
 [[package]]
+name = "flet-audio"
+version = "0.1.0"
+description = "Audio control for Flet"
+optional = false
+python-versions = ">=3.8"
+groups = ["app"]
+files = [
+    {file = "flet_audio-0.1.0-py3-none-any.whl", hash = "sha256:717e1da0fc1cfc941e9b715abb8e93e6f8cccad0fe48dc90c26dd4ce70bed182"},
+    {file = "flet_audio-0.1.0.tar.gz", hash = "sha256:675ed25042c8dd011aad6ae224939e05fd3c1cd7bca5050cdb003e5aec3db83c"},
+]
+
+[package.dependencies]
+flet = ">=0.25.1"
+
+[[package]]
+name = "flet-audio-recorder"
+version = "0.1.0"
+description = "AudioRecorder control for Flet"
+optional = false
+python-versions = ">=3.8"
+groups = ["app"]
+files = [
+    {file = "flet_audio_recorder-0.1.0-py3-none-any.whl", hash = "sha256:59d173458b52e45d8021906141e27eb5f2cbbebbe17421f04704c34d52415cf1"},
+    {file = "flet_audio_recorder-0.1.0.tar.gz", hash = "sha256:11c5a29833274b4394d5a7e76af740859694fb602867afce5f1077b4c493eb80"},
+]
+
+[package.dependencies]
+flet = ">=0.25.2"
+
+[[package]]
 name = "flet-cli"
 version = "0.28.3"
 description = "Flet CLI"
@@ -6225,4 +6255,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "984d8ff9895259d59f0e1e0f2921818d9f4e972aed28a4d505e6a172ab23f944"
+content-hash = "51e9e4f7a67163c8c86854cbe061d1b16600502fc36b0483665298a2e1939462"
