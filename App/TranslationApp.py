@@ -3,6 +3,7 @@ import os
 import sys
 
 import flet as ft
+import flet_audio_recorder as ftar
 import pyttsx3
 from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
@@ -21,10 +22,37 @@ class TranslationApp:
         self.page = page
         self.page.title = "i18n agent"
         self.page.theme_mode = ft.ThemeMode.LIGHT
-        self.setup_ui()
         self.log_contents = []
+        self.recording_path = ""
+        self.audio_rec = ftar.AudioRecorder(
+            audio_encoder=ftar.AudioEncoder.WAV,
+            on_state_changed=self.handle_state_change,
+        )
+        self.setup_ui()
+
+    def handle_state_change(self, e):
+        print(f"State Changed: {e.data}")
+
+    def handle_start_recording(self, e):
+        self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
+        logging.info(f"StartRecording: {self.recording_path}")
+        self.audio_rec.start_recording(self.recording_path)
+
+    def handle_stop_recording(self, e):
+        try:
+            output_path = self.audio_rec.stop_recording(wait_timeout=30)
+            logging.info(f"StopRecording: {output_path}")
+        except Exception as ex:
+            logging.info(f"Error stopping recording: {ex}")
 
     def setup_ui(self):
+
+        self.record_btn = ft.ElevatedButton(
+            "Start Audio Recorder", on_click=self.handle_start_recording
+        )
+        self.stp_record_btn = ft.ElevatedButton(
+            "Stop Audio Recorder", on_click=self.handle_stop_recording
+        )
         # 创建文本输入框
         self.text_input = ft.TextField(
             multiline=True,
@@ -94,6 +122,8 @@ class TranslationApp:
                 ft.Container(height=10),
                 self.translate_btn,
                 ft.Container(height=20),
+                self.record_btn,
+                self.stp_record_btn,
                 ft.Text("Translate result:", style=ft.TextThemeStyle.HEADLINE_SMALL),
                 ft.Container(
                     content=ft.Text(
@@ -119,7 +149,7 @@ class TranslationApp:
         )
 
         self.page.overlay.append(self.log_dialog)
-
+        self.page.overlay.append(self.audio_rec)
         # 设置页面布局
         self.page.add(
             ft.Row(

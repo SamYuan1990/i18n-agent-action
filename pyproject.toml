@@ -50,6 +50,8 @@ pyttsx3 = "^2.99"
 sounddevice = "^0.5.2"
 sherpa-onnx = "^1.12.9"
 cryptography = "^45.0.6"
+flet-audio-recorder = "^0.1.0"
+flet-audio = "^0.1.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.1"
