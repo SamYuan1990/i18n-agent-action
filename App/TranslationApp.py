@@ -1,10 +1,17 @@
 import logging
 import os
 import sys
+import threading
 
 import flet as ft
-import flet_audio_recorder as ftar
+import numpy as np
+
+# import flet_audio_recorder as ftar
 import pyttsx3
+import sherpa_onnx
+import sounddevice as sd
+import soundfile as sf
+from FileDownloader import FileDownloader
 from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
 
@@ -23,29 +30,170 @@ class TranslationApp:
         self.page.title = "i18n agent"
         self.page.theme_mode = ft.ThemeMode.LIGHT
         self.log_contents = []
+        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.recording_path = ""
-        self.audio_rec = ftar.AudioRecorder(
-            audio_encoder=ftar.AudioEncoder.WAV,
-            on_state_changed=self.handle_state_change,
-        )
+        self.recording_stream = None
+        # self.audio_rec = ftar.AudioRecorder(
+        #    audio_encoder=ftar.AudioEncoder.WAV,
+        #    on_state_changed=self.handle_state_change,
+        # )
+        self.recognizer = self._create_recognizer()
+
+        # 初始化文件下载器
+        self.file_downloader = FileDownloader(page, self.app_data_path)
+
+        # 定义需要下载的文件URL
+        self.file_urls = {
+            "base-encoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-encoder.onnx?download=true",  # 替换为实际URL1
+            "base-decoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-decoder.onnx?download=true",  # 替换为实际URL2
+            "base-tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-tokens.txt?download=true",  # 替换为实际URL3
+        }
+
         self.setup_ui()
+
+    def _create_recognizer(self):
+        """创建并返回语音识别器"""
+        # 检查文件是否存在，如果不存在则提示下载
+        required_files = ["base-encoder.onnx", "base-decoder.onnx", "base-tokens.txt"]
+        missing_files = []
+
+        for file in required_files:
+            file_path = os.path.join(self.app_data_path, file)
+            if not os.path.exists(file_path):
+                missing_files.append(file)
+
+        if missing_files:
+            logging.warning(f"缺少必要的模型文件: {missing_files}")
+            # 这里可以添加自动下载逻辑或提示用户
+            return None
+
+        return sherpa_onnx.OfflineRecognizer.from_whisper(
+            encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
+            decoder=os.path.join(self.app_data_path, "base-decoder.onnx"),
+            tokens=os.path.join(self.app_data_path, "base-tokens.txt"),
+            language="",
+        )
 
     def handle_state_change(self, e):
         print(f"State Changed: {e.data}")
 
+    def audio_callback(self, indata, frames, time, status):
+        """音频回调函数，实时收集音频数据"""
+        if status:
+            logging.warning(f"Audio stream status: {status}")
+        if self.is_recording:
+            self.recording.append(indata.copy())
+
     def handle_start_recording(self, e):
         self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
         logging.info(f"StartRecording: {self.recording_path}")
-        self.audio_rec.start_recording(self.recording_path)
+        self.recording = []
+        self.is_recording = True
+        self.recording_stream = sd.InputStream(
+            samplerate=16000,
+            channels=1,  # 单声道
+            dtype="float32",
+            callback=self.audio_callback,
+        )
+        self.recording_stream.start()
+        # self.audio_rec.start_recording(self.recording_path)
 
     def handle_stop_recording(self, e):
+        # try:
+        #    output_path = self.audio_rec.stop_recording(wait_timeout=30)
+        #    logging.info(f"StopRecording: {output_path}")
+        # except Exception as ex:
+        #    logging.info(f"Error stopping recording: {ex}")
+        """停止录音并保存文件"""
         try:
-            output_path = self.audio_rec.stop_recording(wait_timeout=30)
-            logging.info(f"StopRecording: {output_path}")
+            if self.recording_stream is not None:
+                # 停止录音流
+                self.recording_stream.stop()
+                self.recording_stream.close()
+                self.recording_stream = None
+
+            self.is_recording = False
+
+            if self.recording:
+                # 合并所有录音数据
+                audio_data = np.concatenate(self.recording, axis=0)
+
+                # 保存为WAV文件
+                sf.write(self.recording_path, audio_data, 16000)
+
+                logging.info(f"StopRecording: {self.recording_path}")
+                return self.recording_path
+            else:
+                logging.warning("No audio data was recorded")
+                return None
+
         except Exception as ex:
-            logging.info(f"Error stopping recording: {ex}")
+            logging.error(f"Error stopping recording: {ex}")
+            return None
+
+    def handle_stt(self, e):
+        # 检查必要的模型文件是否存在
+        required_files = ["base-encoder.onnx", "base-decoder.onnx", "base-tokens.txt"]
+        for file in required_files:
+            file_path = os.path.join(self.app_data_path, file)
+            if not os.path.exists(file_path):
+                self.show_message(f"请先下载必要的模型文件: {file}")
+                return
+
+        self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
+        audio, sample_rate = sf.read(
+            self.recording_path, dtype="float32", always_2d=True
+        )
+        audio = audio[:, 0]
+        if self.recognizer is None:
+            self.recognizer = self._create_recognizer()
+        stream = self.recognizer.create_stream()
+        stream.accept_waveform(sample_rate, audio)
+        self.recognizer.decode_stream(stream)
+        self.text_input.value = stream.result.text
+        logging.info(self.text_input.value)
+        self.page.update()
+
+    def start_download(self, e):
+        """开始下载所有文件"""
+        if not self.file_downloader.downloading:
+            # 重置取消标志
+            self.file_downloader.cancelled = False
+            thread = threading.Thread(
+                target=self.file_downloader.download_files,
+                args=(self.file_urls,),
+                daemon=True,
+            )
+            thread.start()
+
+    def cancel_download(self, e):
+        """取消下载"""
+        if self.file_downloader.downloading:
+            self.file_downloader.cancel_download()
+
+    def show_message(self, message):
+        """显示消息"""
+
+        def _show():
+            self.download_status_text.value = message
+            self.page.update()
+
+        self.page.run_task(_show)
 
     def setup_ui(self):
+        # 创建下载相关的UI控件
+        self.download_progress_bar = ft.ProgressBar(value=0, width=300)
+        self.download_progress_text = ft.Text("0%")
+        self.download_status_text = ft.Text("等待下载模型文件...")
+
+        # 将UI控件关联到下载器
+        self.file_downloader.download_progress_bar = self.download_progress_bar
+        self.file_downloader.download_progress_text = self.download_progress_text
+        self.file_downloader.download_status_text = self.download_status_text
+
+        self.stt_btn = ft.ElevatedButton(
+            "Start sound to text", on_click=self.handle_stt
+        )
 
         self.record_btn = ft.ElevatedButton(
             "Start Audio Recorder", on_click=self.handle_start_recording
@@ -53,6 +201,16 @@ class TranslationApp:
         self.stp_record_btn = ft.ElevatedButton(
             "Stop Audio Recorder", on_click=self.handle_stop_recording
         )
+
+        # 创建下载按钮
+        self.download_btn = ft.ElevatedButton(
+            "下载模型文件", icon=ft.Icons.DOWNLOAD, on_click=self.start_download
+        )
+
+        self.cancel_download_btn = ft.OutlinedButton(
+            "取消下载", on_click=self.cancel_download
+        )
+
         # 创建文本输入框
         self.text_input = ft.TextField(
             multiline=True,
@@ -71,27 +229,26 @@ class TranslationApp:
             style=ft.ButtonStyle(padding=20),
         )
 
-        # 创建左侧边栏切换按钮（放在主内容区域）
+        # 创建左侧边栏切换按钮
         self.left_sidebar_toggle = ft.IconButton(
             icon=ft.Icons.MENU,
             tooltip="显示/隐藏设置",
             on_click=self.toggle_left_sidebar,
         )
 
-        # 创建右侧边栏切换按钮（放在主内容区域）
+        # 创建右侧边栏切换按钮
         self.right_sidebar_toggle = ft.IconButton(
             icon=ft.Icons.BAR_CHART,
             tooltip="显示/隐藏统计",
             on_click=self.toggle_right_sidebar,
         )
 
-        # 创建日志查看按钮（放在右侧边栏按钮的右边）
+        # 创建日志查看按钮
         self.log_view_toggle = ft.IconButton(
             icon=ft.Icons.LIST_ALT, tooltip="查看日志", on_click=self.show_logs
         )
 
         # 创建左侧边栏
-        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
         self.storage = ExpiringDictStorage(
             filename=self.storage_file_path, expiry_days=7
@@ -118,12 +275,39 @@ class TranslationApp:
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 ),
+                # 下载区域
+                ft.Card(
+                    content=ft.Container(
+                        content=ft.Column(
+                            [
+                                ft.Text(
+                                    "模型文件下载", style=ft.TextThemeStyle.TITLE_MEDIUM
+                                ),
+                                self.download_status_text,
+                                ft.Row(
+                                    [
+                                        self.download_progress_bar,
+                                        self.download_progress_text,
+                                    ],
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                ),
+                                ft.Row(
+                                    [self.download_btn, self.cancel_download_btn],
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                ),
+                            ],
+                            spacing=10,
+                        ),
+                        padding=15,
+                    )
+                ),
                 self.text_input,
                 ft.Container(height=10),
                 self.translate_btn,
                 ft.Container(height=20),
                 self.record_btn,
                 self.stp_record_btn,
+                self.stt_btn,
                 ft.Text("Translate result:", style=ft.TextThemeStyle.HEADLINE_SMALL),
                 ft.Container(
                     content=ft.Text(
@@ -137,6 +321,7 @@ class TranslationApp:
             ],
             alignment=ft.MainAxisAlignment.START,
             expand=True,
+            spacing=15,
         )
 
         # 创建日志弹窗
@@ -149,7 +334,8 @@ class TranslationApp:
         )
 
         self.page.overlay.append(self.log_dialog)
-        self.page.overlay.append(self.audio_rec)
+        # self.page.overlay.append(self.audio_rec)
+
         # 设置页面布局
         self.page.add(
             ft.Row(
@@ -166,9 +352,7 @@ class TranslationApp:
 
     def toggle_left_sidebar(self, e=None):
         self.left_sidebar.visible = not self.left_sidebar.visible
-        # 更新分割线的可见性
         self.page.controls[0].controls[1].visible = self.left_sidebar.visible
-        # 更新按钮图标
         self.left_sidebar_toggle.icon = (
             ft.Icons.MENU if not self.left_sidebar.visible else ft.Icons.ARROW_BACK
         )
@@ -176,9 +360,7 @@ class TranslationApp:
 
     def toggle_right_sidebar(self, e=None):
         self.right_sidebar.visible = not self.right_sidebar.visible
-        # 更新分割线的可见性
         self.page.controls[0].controls[3].visible = self.right_sidebar.visible
-        # 更新按钮图标
         self.right_sidebar_toggle.icon = (
             ft.Icons.BAR_CHART
             if not self.right_sidebar.visible
@@ -187,7 +369,6 @@ class TranslationApp:
         self.page.update()
 
     def show_logs(self, e):
-        # 读取日志文件并显示最近30条
         app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         log_file_path = (
             os.path.join(app_data_path, "app.log") if app_data_path else "app.log"
@@ -198,7 +379,6 @@ class TranslationApp:
             try:
                 with open(log_file_path, "r", encoding="utf-8") as f:
                     lines = f.readlines()
-                    # 获取最后30行
                     recent_lines = lines[-10:] if len(lines) > 10 else lines
                     self.log_contents = [
                         ft.Text(line.strip(), size=5) for line in recent_lines
@@ -217,6 +397,14 @@ class TranslationApp:
         self.page.open(self.log_dialog)
 
     def translate_text(self, e):
+        # 检查必要的模型文件是否存在
+        required_files = ["base-encoder.onnx", "base-decoder.onnx", "base-tokens.txt"]
+        for file in required_files:
+            file_path = os.path.join(self.app_data_path, file)
+            if not os.path.exists(file_path):
+                self.show_message(f"请先下载必要的模型文件: {file}")
+                return
+
         # 模拟翻译功能
         LLM_client = self.left_sidebar.GenClient()
         storage = self.left_sidebar.get_storage()

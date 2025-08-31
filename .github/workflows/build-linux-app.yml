@@ -1,4 +1,4 @@
-name: Build macOS Flet App
+name: Build Liunx Flet App
 
 on:
   pull_request:
@@ -13,15 +13,12 @@ env:
   FLET_CLI_NO_RICH_OUTPUT: 1
 
 jobs:
-  build-macos-app:
-    runs-on: macos-13  # 使用最新的 macOS 运行器
+  build-linux-app:
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    #- name: Install Rosetta 2
-    #  run: sudo softwareupdate --install-rosetta --agree-to-license
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -33,20 +30,21 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet
 
-    - name: Install CocoaPods
+    - name: Patch for linux build
       run: |
-        sudo gem install cocoapods -v 1.16.0
+        sudo apt-get update -y
+        sudo apt-get install -y ninja-build libgtk-3-dev
 
-    - name: Build macOS app with Flet
+    - name: Build Linux app with Flet
       run: |
         cp -r AgentUtils App/AgentUtils
         cp -r Business App/Business
         cp pyproject.toml ./App
-        flet build macos ./App --output=build/macos -v --arch x86_64
+        flet build linux ./App --output=build/macos -v
 
-    - name: Upload macOS app artifact (on push only)
+    - name: Upload Linux app artifact (on push only)
       uses: actions/upload-artifact@v4
       with:
-        name: macOS-Flet-App
-        path: build/macos/**/*.app
+        name: Linux-Flet-App
+        path: build/linux/**/*.app
         retention-days: 1

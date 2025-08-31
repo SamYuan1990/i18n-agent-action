@@ -16,7 +16,7 @@
 
 - The project contains two main packages: `Business` and `AgentUtils`
 - Use `import Business` or `import AgentUtils` to access package functionality
-- The project requires Python 3.12+ (specified in pyproject.toml)
+- The project requires Python 3.12+ (specified in pyproject.toml) for example `poetry env use python3.12`
 
 ## Testing instructions
 

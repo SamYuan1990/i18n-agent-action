@@ -1,4 +1,4 @@
-name: Build macOS Flet App
+name: Build macOS Flet App Arm
 
 on:
   pull_request:
@@ -14,12 +14,16 @@ env:
 
 jobs:
   build-macos-app:
-    runs-on: macos-13  # 使用最新的 macOS 运行器
+    runs-on: macos-latest  # 使用最新的 macOS 运行器
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install FFmpeg via Homebrew
+      run: |
+        brew update
+        brew install ffmpeg
     #- name: Install Rosetta 2
     #  run: sudo softwareupdate --install-rosetta --agree-to-license
 
@@ -42,11 +46,11 @@ jobs:
         cp -r AgentUtils App/AgentUtils
         cp -r Business App/Business
         cp pyproject.toml ./App
-        flet build macos ./App --output=build/macos -v --arch x86_64
+        flet build macos ./App --output=build/macos -v
 
     - name: Upload macOS app artifact (on push only)
       uses: actions/upload-artifact@v4
       with:
-        name: macOS-Flet-App
+        name: macOS-Flet-App-Arm
         path: build/macos/**/*.app
         retention-days: 1
