@@ -1,7 +1,6 @@
+import logging
 import os
-import random
 import sys
-from datetime import datetime, timedelta
 
 import flet as ft
 import pyttsx3
@@ -12,6 +11,7 @@ from rightsidebar import RightSidebar
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 
+from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 from AgentUtils.span import Span_Mgr  # noqa: E402
 from Business.translate import translateAgent  # noqa: E402
 
@@ -23,10 +23,6 @@ class TranslationApp:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         self.setup_ui()
         self.log_contents = []
-        # 模拟统计数据
-        self.translation_count = 42
-        self.favorite_translations = 7
-        self.generate_usage_data()
 
     def setup_ui(self):
         # 创建文本输入框
@@ -67,7 +63,12 @@ class TranslationApp:
         )
 
         # 创建左侧边栏
-        self.left_sidebar = LeftSidebar(self)
+        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
+        self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
+        self.storage = ExpiringDictStorage(
+            filename=self.storage_file_path, expiry_days=7
+        )
+        self.left_sidebar = LeftSidebar(self, self.storage)
 
         # 创建右侧边栏
         self.right_sidebar = RightSidebar(self)
@@ -113,7 +114,7 @@ class TranslationApp:
             title=ft.Text("查看日志"),
             content=ft.Text(""),
             alignment=ft.alignment.center,
-            on_dismiss=lambda e: print("Dialog dismissed!"),
+            on_dismiss=lambda e: logging.info("Dialog dismissed!"),
             title_padding=ft.padding.all(25),
         )
 
@@ -194,7 +195,7 @@ class TranslationApp:
         root_span = span_mgr.create_span("Root operation")
         TsAgent = translateAgent(LLM_client, span_mgr)
         text = self.text_input.value
-        print(text)
+        logging.info(text)
         engine = pyttsx3.init()
 
         if text:
@@ -202,65 +203,11 @@ class TranslationApp:
             result = TsAgent.translate(
                 context, context.target_language, text, root_span
             )
-            print(result)
+            logging.info(result)
             # 更新翻译结果
             self.main_content.controls[-1].content.value = result
             self.page.update()
+            self.left_sidebar.AppendHistory(text, result)
             engine.say(result)
             # play the speech
             engine.runAndWait()
-
-    def generate_usage_data(self):
-        # 生成模拟的使用数据
-        self.usage_data = []
-        for i in range(7):
-            date = datetime.now() - timedelta(days=6 - i)
-            count = random.randint(1, 10)
-            self.usage_data.append((date, count))
-
-    def generate_bar_chart_data(self):
-        # 生成柱状图数据
-        groups = []
-        colors = [
-            ft.Colors.BLUE,
-            ft.Colors.GREEN,
-            ft.Colors.ORANGE,
-            ft.Colors.RED,
-            ft.Colors.PURPLE,
-            ft.Colors.PINK,
-            ft.Colors.INDIGO,
-        ]
-        self.usage_data = []
-        for i in range(7):
-            date = datetime.now() - timedelta(days=6 - i)
-            count = random.randint(1, 10)
-            self.usage_data.append((date, count))
-        for i, (date, count) in enumerate(self.usage_data):
-            groups.append(
-                ft.BarChartGroup(
-                    x=i,
-                    bar_rods=[
-                        ft.BarChartRod(
-                            from_y=0,
-                            to_y=count,
-                            width=15,
-                            color=colors[i],
-                            tooltip=f"{date.strftime('%m/%d')}: {count}次",
-                            border_radius=0,
-                        )
-                    ],
-                )
-            )
-        return groups
-
-    def generate_bottom_axis_labels(self):
-        # 生成底部轴标签
-        labels = []
-        for date, _ in self.usage_data:
-            labels.append(
-                ft.ChartAxisLabel(
-                    value=self.usage_data.index((date, _)),
-                    label=ft.Text(date.strftime("%m/%d")),
-                )
-            )
-        return labels

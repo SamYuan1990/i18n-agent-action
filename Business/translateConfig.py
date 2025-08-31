@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Optional
 
@@ -75,10 +76,10 @@ class TranslationContext:
                 with open(config_path, "r", encoding="utf-8") as f:
                     return yaml.safe_load(f)
             else:
-                print(f"配置文件 {config_path} 不存在，使用默认配置")
+                logging.info(f"配置文件 {config_path} 不存在，使用默认配置")
                 return default_config
         except Exception as e:
-            print(f"加载配置文件时出错: {e}，使用默认配置")
+            logging.info(f"加载配置文件时出错: {e}，使用默认配置")
             return default_config
 
     # ----------------------
@@ -135,11 +136,11 @@ class TranslationContext:
         参数:
             verbose (bool): 是否显示详细路径信息，默认为False
         """
-        print("\nTranslation Context Configuration:")
-        print(f"  Target Language: {self._target_language}")
-        print(f"  File list:' {self._file_list}")
-        print(f"  configfile path: {self._configfile_path}")
-        print(f"  doc folder: {self._doc_folder}")
-        print(f"  reserved words: {self._reserved_word}")
-        print(f"  max doc limits: {self._max_files}")
-        print(f"  disclaimers: {self._disclaimers}")
+        logging.info("\nTranslation Context Configuration:")
+        logging.info(f"  Target Language: {self._target_language}")
+        logging.info(f"  File list:' {self._file_list}")
+        logging.info(f"  configfile path: {self._configfile_path}")
+        logging.info(f"  doc folder: {self._doc_folder}")
+        logging.info(f"  reserved words: {self._reserved_word}")
+        logging.info(f"  max doc limits: {self._max_files}")
+        logging.info(f"  disclaimers: {self._disclaimers}")

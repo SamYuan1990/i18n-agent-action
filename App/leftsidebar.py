@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 
@@ -9,30 +10,30 @@ from flet.security import decrypt, encrypt
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 from AgentUtils.clientInfo import clientInfo  # noqa: E402
-from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 from Business.translateConfig import TranslationContext  # noqa: E402
 
 
 class LeftSidebar(ft.Container):
-    def __init__(self, app):
+    def __init__(self, app, storage):
         super().__init__()
         self.app = app
         self.visible = True
-        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
-        self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
-        self.storage = ExpiringDictStorage(
-            filename=self.storage_file_path, expiry_days=7
-        )
+        self.storage = storage
+        self.Trans_History = []
+        if "history" in self.storage:
+            self.Trans_History = self.storage.get("history")
 
         # 获取应用数据存储路径
-        self.config_file_path = os.path.join(self.app_data_path, "app_config.json")
+        self.config_file_path = os.path.join(app.app_data_path, "app_config.json")
 
         # 获取或创建加密密钥
         self.secret_key = os.getenv("MY_APP_SECRET_KEY")
         if not self.secret_key:
             # 如果没有设置环境变量，使用默认密钥（生产环境中应使用更安全的方式）
             self.secret_key = "DEFAULT_SECRET_KEY_CHANGE_IN_PRODUCTION"
-            print("警告: 使用默认加密密钥，生产环境中应设置MY_APP_SECRET_KEY环境变量")
+            logging.info(
+                "警告: 使用默认加密密钥，生产环境中应设置MY_APP_SECRET_KEY环境变量"
+            )
 
         # 尝试加载保存的配置
         saved_config = self.load_config()
@@ -155,20 +156,16 @@ class LeftSidebar(ft.Container):
                 ft.ListView(
                     controls=[
                         ft.ListTile(
-                            title=ft.Text("你好"),
-                            subtitle=ft.Text("Hello"),
-                            trailing=ft.IconButton(icon=ft.Icons.DELETE_OUTLINE),
-                        ),
-                        ft.ListTile(
-                            title=ft.Text("谢谢"),
-                            subtitle=ft.Text("Thank you"),
-                            trailing=ft.IconButton(icon=ft.Icons.DELETE_OUTLINE),
-                        ),
-                        ft.ListTile(
-                            title=ft.Text("再见"),
-                            subtitle=ft.Text("Goodbye"),
-                            trailing=ft.IconButton(icon=ft.Icons.DELETE_OUTLINE),
-                        ),
+                            title=ft.Text(item["original"]),
+                            subtitle=ft.Text(item["translated"]),
+                            trailing=ft.IconButton(
+                                icon=ft.Icons.DELETE_OUTLINE,
+                                on_click=lambda e, idx=index: self.delete_history_item(
+                                    idx
+                                ),
+                            ),
+                        )
+                        for index, item in enumerate(self.Trans_History)
                     ],
                     expand=True,
                 ),
@@ -207,6 +204,31 @@ class LeftSidebar(ft.Container):
             expand=True,
         )
 
+    def AppendHistory(self, text, translate):
+        self.Trans_History.append({"original": text, "translated": translate})
+        self.storage["history"] = self.Trans_History
+        self.update_history_display()
+
+    def update_history_display(self):
+        # 清空现有控件
+        self.history_content.controls[2].controls.clear()
+
+        # 重新生成所有历史记录项
+        for index, item in enumerate(self.Trans_History):
+            self.history_content.controls[2].controls.append(
+                ft.ListTile(
+                    title=ft.Text(item["original"]),
+                    subtitle=ft.Text(item["translated"]),
+                    trailing=ft.IconButton(
+                        icon=ft.Icons.DELETE_OUTLINE,
+                        on_click=lambda e, idx=index: self.delete_history_item(idx),
+                    ),
+                )
+            )
+
+        # 刷新页面
+        self.page.update()
+
     def load_config(self):
         """从本地文件加载配置，如果文件不存在则返回空字典"""
         config = {}
@@ -219,7 +241,9 @@ class LeftSidebar(ft.Container):
                         decrypted_data = decrypt(encrypted_data, self.secret_key)
                         config = json.loads(decrypted_data)
         except Exception as e:
-            print(f"加载配置时出错: {e}")
+            logging.info(f"加载配置时出错: {e}")
+
+        logging.info("load data from config file.")
         return config
 
     def save_config(self, config):
@@ -237,7 +261,7 @@ class LeftSidebar(ft.Container):
                 f.write(encrypted_data)
             return True
         except Exception as e:
-            print(f"保存配置时出错: {e}")
+            logging.info(f"保存配置时出错: {e}")
             return False
 
     def nav_change(self, e):
@@ -272,16 +296,15 @@ class LeftSidebar(ft.Container):
                 self.app.page.snack_bar.open = True
                 self.app.page.update()
 
-            print("=== 配置已保存 ===")
-            print(f"API Key: {self.api_key_field.value}")
-            print(f"Base URL: {self.base_url_field.value}")
-            print(f"Model: {self.model_field.value}")
-            print(f"Target Language: {self.target_language_field.value}")
-            print(f"Reserved Word: {self.reserved_word_field.value}")
-            print(f"自动检测语言: {self.auto_detect_switch.value}")
-            print(f"发音功能: {self.pronunciation_switch.value}")
-            print(f"保存翻译历史: {self.save_history_switch.value}")
-            print("=================")
+            logging.info("=== 配置已保存 ===")
+            logging.info(f"Base URL: {self.base_url_field.value}")
+            logging.info(f"Model: {self.model_field.value}")
+            logging.info(f"Target Language: {self.target_language_field.value}")
+            logging.info(f"Reserved Word: {self.reserved_word_field.value}")
+            logging.info(f"自动检测语言: {self.auto_detect_switch.value}")
+            logging.info(f"发音功能: {self.pronunciation_switch.value}")
+            logging.info(f"保存翻译历史: {self.save_history_switch.value}")
+            logging.info("=================")
         else:
             # 显示保存失败的提示
             if self.app.page:
@@ -298,9 +321,9 @@ class LeftSidebar(ft.Container):
             local_cache=self.storage,
             usecache=True,
         )
-        print(f"自动检测语言: {self.auto_detect_switch.value}")
-        print(f"发音功能: {self.pronunciation_switch.value}")
-        print("=================")
+        logging.info(f"自动检测语言: {self.auto_detect_switch.value}")
+        logging.info(f"发音功能: {self.pronunciation_switch.value}")
+        logging.info("=================")
         return LLM_Client
 
     def get_storage(self):

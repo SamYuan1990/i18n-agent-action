@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 from datetime import datetime
@@ -200,7 +201,7 @@ class Span_Mgr:
                     self.all_spans = temp_spans
 
                 except Exception as e:
-                    print(f"Error loading span data: {e}")
+                    logging.info(f"Error loading span data: {e}")
                     self.root_spans = []
                     self.all_spans = {}
 
