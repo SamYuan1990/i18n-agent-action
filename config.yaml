@@ -3,6 +3,7 @@ prompts:
     According to config file below:
     - Which i18n does the project cover?
     - What's the naming rule or file path rule for i18n mapping between different language editions?
+    - What's default language file?
     
   json_schema: |
     Please result in mapping as default language file, target file.
@@ -20,6 +21,17 @@ prompts:
         }
       ]
     }
+    Note: if source_file is default language, your output should be:
+    {
+      "todo": [
+        {
+          "source_file": "/path_to_default_language_file",
+          "target_file": "/path_to_default_language_file",
+          "target_language": "defualt_language"
+        }
+      ]
+    }
+
     
   translator: |
     Your expertise encompasses software engineering, system administration, data science, and emerging technologies.

@@ -12,6 +12,8 @@ However, since we rely on cutting-edge AI translation technologies, we cannot gu
 
 ```
 uv sync
+#or
+#pip install --no-cache-dir .
 export api_key={your_key}
 // uv run main.py {i18n rule of your project} {your docs folder} {Reserved Word, separated by comma} {optional if you have a file list}
 // Below is an example that translate this project's docs (kepler is a resesrved word)
