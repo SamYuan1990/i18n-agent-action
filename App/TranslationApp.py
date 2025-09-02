@@ -4,7 +4,7 @@ import sys
 import threading
 
 import flet as ft
-import numpy as np
+#import numpy as np
 
 # import flet_audio_recorder as ftar
 import pyttsx3
@@ -116,10 +116,10 @@ class TranslationApp:
 
             if self.recording:
                 # 合并所有录音数据
-                audio_data = np.concatenate(self.recording, axis=0)
+                #audio_data = np.concatenate(self.recording, axis=0)
 
                 # 保存为WAV文件
-                sf.write(self.recording_path, audio_data, 16000)
+                #sf.write(self.recording_path, audio_data, 16000)
 
                 logging.info(f"StopRecording: {self.recording_path}")
                 return self.recording_path
