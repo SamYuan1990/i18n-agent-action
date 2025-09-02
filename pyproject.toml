@@ -24,10 +24,7 @@ dependencies = [
     "onnxruntime (==1.17.1)",
     "sherpa-onnx (>=1.12.10,<2.0.0)",
     "asyncio (>=4.0.0,<5.0.0)",
-    "sounddevice (>=0.5.2,<0.6.0)",
-    "soundfile (>=0.13.1,<0.14.0)",
     "requests (>=2.32.5,<3.0.0)",
-    "numpy (==2.1.1)",
 ]
 
 [project.urls]
