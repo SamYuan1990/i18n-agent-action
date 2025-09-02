@@ -46,5 +46,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Linux-Flet-App
-        path: build/linux/**/*.app
+        path: build/linux
         retention-days: 1
