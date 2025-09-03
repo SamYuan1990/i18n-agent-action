@@ -21,7 +21,7 @@ https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateCon
 > You may encounter trust issues with the signature. Try a few times if needed.  
 
 2. Configure a DeepSeek API key.  
-Please refer to https://api-docs.deepseek.com/zh-cn/ or create one via the web platform. 
+Please refer to https://api-docs.deepseek.com/zh-cn/ or create one via the web platform.  
 ![](./img/step1.png)  
 
 
