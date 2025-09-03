@@ -3,7 +3,8 @@ import os
 import sys
 
 import flet as ft
-import flet_audio_recorder as ftar
+
+# import flet_audio_recorder as ftar
 import pyttsx3
 from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
@@ -24,10 +25,10 @@ class TranslationApp:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         self.log_contents = []
         self.recording_path = ""
-        self.audio_rec = ftar.AudioRecorder(
-            audio_encoder=ftar.AudioEncoder.WAV,
-            on_state_changed=self.handle_state_change,
-        )
+        # self.audio_rec = ftar.AudioRecorder(
+        #     audio_encoder=ftar.AudioEncoder.WAV,
+        #    on_state_changed=self.handle_state_change,
+        # )
         self.setup_ui()
 
     def handle_state_change(self, e):
@@ -36,14 +37,15 @@ class TranslationApp:
     def handle_start_recording(self, e):
         self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
         logging.info(f"StartRecording: {self.recording_path}")
-        self.audio_rec.start_recording(self.recording_path)
+        # .start_recording(self.recording_path)
 
     def handle_stop_recording(self, e):
-        try:
-            output_path = self.audio_rec.stop_recording(wait_timeout=30)
-            logging.info(f"StopRecording: {output_path}")
-        except Exception as ex:
-            logging.info(f"Error stopping recording: {ex}")
+        logging.info("tbd")
+        # try:
+        #    output_path = self.audio_rec.stop_recording(wait_timeout=30)
+        #    logging.info(f"StopRecording: {output_path}")
+        # except Exception as ex:
+        #    logging.info(f"Error stopping recording: {ex}")
 
     def setup_ui(self):
 
@@ -149,7 +151,7 @@ class TranslationApp:
         )
 
         self.page.overlay.append(self.log_dialog)
-        self.page.overlay.append(self.audio_rec)
+        # self.page.overlay.append(self.audio_rec)
         # 设置页面布局
         self.page.add(
             ft.Row(
