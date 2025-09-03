@@ -60,7 +60,7 @@ jobs:
         with:
           name: macos-arm-app
           path: build/macos/**/*.app
-          retention-days: 1
+          retention-days: 7
           overwrite: true
 
   # 构建Linux应用
@@ -97,7 +97,7 @@ jobs:
         with:
           name: linux-app
           path: build/linux
-          retention-days: 1
+          retention-days: 7
           overwrite: true
 
   # 构建macOS x86_64应用
@@ -138,7 +138,7 @@ jobs:
         with:
           name: macos-x86-app
           path: build/macos/**/*.app
-          retention-days: 1
+          retention-days: 7
           overwrite: true
 
   # 创建Release并上传所有构建产物
