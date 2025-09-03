@@ -30,7 +30,8 @@ Por favor, consulta https://api-docs.deepseek.com/zh-cn/ o crea una a través de
 3. Configurar la información de acceso del modelo de lenguaje grande y guardarla.  
 ![](./img/step2.png) 
 
-4. Ingresar el contenido a traducir y hacer clic en "Traducir" para esperar el resultado (nota: la entrada de voz está habilitada por defecto).  
+4. 
+Ingresa el contenido a traducir, haz clic en "Traducir" y espera el resultado (Nota: la salida de voz está habilitada por defecto)
 ![](./img/step3.png) 
 
 5. Característica opcional: Palabras reservadas.  

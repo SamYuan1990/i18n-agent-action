@@ -30,7 +30,8 @@ Veuillez vous référer à https://api-docs.deepseek.com/zh-cn/ ou en créer une
 3. Configurer les informations d'accès au modèle de langage volumineux et les enregistrer.  
 ![](./img/step2.png)  
 
-4. Entrer le contenu à traduire et cliquer sur "Traduire" pour attendre le résultat (note : la saisie vocale est activée par défaut).  
+4. 
+Entrez le contenu à traduire, cliquez sur « Traduction » et attendez le résultat (Remarque : la sortie vocale est activée par défaut)
 ![](./img/step3.png)  
 
 5. Fonctionnalité optionnelle : Mots réservés.  
