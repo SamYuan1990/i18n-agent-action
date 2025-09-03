@@ -1,0 +1,170 @@
+name: Release
+
+on:
+  workflow_dispatch:  # 允许手动触发
+  push:
+    tags:
+      - 'v*'  # 当推送v开头的tag时触发
+
+env:
+  PYTHONUTF8: 1
+  FLET_CLI_NO_RICH_OUTPUT: 1
+
+jobs:
+  # 构建Docker镜像
+  build-docker-image:
+    uses: ./.github/workflows/image.yml
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 构建macOS Arm应用
+  build-macos-arm-app:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg via Homebrew
+        run: |
+          brew update
+          brew install ffmpeg
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet
+
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods -v 1.16.0
+
+      - name: Build macOS app with Flet
+        run: |
+          cp -r AgentUtils App/AgentUtils
+          cp -r Business App/Business
+          cp pyproject.toml ./App
+          flet build macos ./App --output=build/macos -v
+
+      - name: Prepare artifact
+        run: |
+          cd build/macos
+          zip -r ../macos-arm-app.zip .
+
+      - name: Upload macOS Arm app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm-app
+          path: build/macos-arm-app.zip
+
+  # 构建Linux应用
+  build-linux-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet
+
+      - name: Patch for linux build
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev
+
+      - name: Build Linux app with Flet
+        run: |
+          cp -r AgentUtils App/AgentUtils
+          cp -r Business App/Business
+          cp pyproject.toml ./App
+          flet build linux ./App --output=build/linux -v
+
+      - name: Prepare artifact
+        run: |
+          cd build/linux
+          zip -r ../linux-app.zip .
+
+      - name: Upload Linux app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-app
+          path: build/linux-app.zip
+
+  # 构建macOS x86_64应用
+  build-macos-x86-app:
+    runs-on: macos-13
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg via Homebrew
+        run: |
+          brew update
+          brew install ffmpeg
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet
+
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods -v 1.16.0
+
+      - name: Build macOS app with Flet
+        run: |
+          cp -r AgentUtils App/AgentUtils
+          cp -r Business App/Business
+          cp pyproject.toml ./App
+          flet build macos ./App --output=build/macos-x86 -v --arch x86_64
+
+      - name: Prepare artifact
+        run: |
+          cd build/macos-x86
+          zip -r ../macos-x86-app.zip .
+
+      - name: Upload macOS x86 app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x86-app
+          path: build/macos-x86-app.zip
+
+  # 创建Release并上传所有构建产物
+  create-release:
+    needs: [build-docker-image, build-macos-arm-app, build-linux-app, build-macos-x86-app]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/macos-arm-app/macos-arm-app.zip
+            artifacts/linux-app/linux-app.zip
+            artifacts/macos-x86-app/macos-x86-app.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

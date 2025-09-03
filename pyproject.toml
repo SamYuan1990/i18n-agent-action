@@ -20,7 +20,7 @@ dependencies = [
     "pyyaml (>=6.0.2,<7.0.0)",
     "pyttsx3 (>=2.99,<3.0)",
     "flet (>=0.28.3,<0.29.0)",
-    "cryptography (>=45.0.6,<46.0.0)",
+    "cryptography (>=43.0.1)",
 ]
 
 [project.urls]
