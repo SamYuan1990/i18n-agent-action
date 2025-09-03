@@ -177,26 +177,38 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create zip archives
+        run: |
+          cd artifacts/macos-arm-app && zip -r ../macos-arm-app.zip . && cd ../..
+          cd artifacts/linux-app && zip -r ../linux-app.zip . && cd ../..
+          cd artifacts/macos-x86-app && zip -r ../macos-x86-app.zip . && cd ../..
+
       - name: Upload macOS Arm Release Asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/macos-arm-app
-          asset_name: macos-arm-app
+          asset_path: artifacts/macos-arm-app.zip
+          asset_name: macos-arm-app.zip
           asset_content_type: application/zip
 
       - name: Upload Linux Release Asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/linux-app
-          asset_name: linux-desktop
+          asset_path: artifacts/linux-app.zip
+          asset_name: linux-app.zip
           asset_content_type: application/zip
 
       - name: Upload macOS x86 Release Asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/macos-x86-app
-          asset_name: macos-x86-app
+          asset_path: artifacts/macos-x86-app.zip
+          asset_name: macos-x86-app.zip
           asset_content_type: application/zip
