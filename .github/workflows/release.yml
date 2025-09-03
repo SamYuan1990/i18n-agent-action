@@ -89,13 +89,13 @@ jobs:
           cp -r AgentUtils App/AgentUtils
           cp -r Business App/Business
           cp pyproject.toml ./App
-          flet build linux ./App --output=build/linux -v
+          flet build linux ./App -v
 
       - name: Upload Linux app artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-app
-          path: build/linux/x64/release/bundle/i18n_agent_action
+          path: build/linux
           retention-days: 1
 
   # 构建macOS x86_64应用
