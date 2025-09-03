@@ -169,13 +169,34 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
+        id: create_release
         with:
           tag_name: latest
           draft: false
           prerelease: false
-          files: |
-            artifacts/macos-arm-app
-            artifacts/linux-app/*
-            artifacts/macos-x86-app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS Arm Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/macos-arm-app
+          asset_name: macos-arm-app
+          asset_content_type: application/zip
+
+      - name: Upload Linux Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/linux-app
+          asset_name: linux-desktop
+          asset_content_type: application/zip
+
+      - name: Upload macOS x86 Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/macos-x86-app
+          asset_name: macos-x86-app
+          asset_content_type: application/zip
