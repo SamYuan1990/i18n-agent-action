@@ -68,6 +68,3 @@ pytest-cov = "^6.2.1"
 
 [tool.flit.sdist]
 include = ["AgentUtils/**/*","Business/**/*"]
-
-[tool.flet.template]
-url = "git@github.com:flet-dev/flet-build-template.git"
