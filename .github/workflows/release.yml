@@ -143,7 +143,7 @@ jobs:
 
   # 创建Release并上传所有构建产物
   create-release:
-    needs: [build-docker-image, build-macos-arm-app, build-linux-app, build-macos-x86-app]
+    needs: [build-macos-arm-app, build-linux-app, build-macos-x86-app]
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
