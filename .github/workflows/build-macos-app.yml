@@ -36,7 +36,7 @@ jobs:
         cp -r AgentUtils App/AgentUtils
         cp -r Business App/Business
         cp pyproject.toml ./App
-        flet build macos ./App --output=build/macos -v
+        flet build macos ./App --output=build/macos -v --arch x86_64
 
     - name: Upload macOS app artifact (on push only)
       uses: actions/upload-artifact@v4
