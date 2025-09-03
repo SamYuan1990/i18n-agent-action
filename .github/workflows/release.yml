@@ -90,7 +90,7 @@ jobs:
           cp -r AgentUtils App/AgentUtils
           cp -r Business App/Business
           cp pyproject.toml ./App
-          flet build linux ./App -v
+          flet build linux ./App --output=build/linux -v
 
       - name: Upload Linux app artifact
         uses: actions/upload-artifact@v4
@@ -146,10 +146,26 @@ jobs:
     needs: [build-macos-arm-app, build-linux-app, build-macos-x86-app]
     runs-on: ubuntu-latest
     steps:
-      - name: Download all artifacts
+      - name: Download macOS Arm artifact
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          name: macos-arm-app
+          path: artifacts/macos-arm-app
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-app
+          path: artifacts/linux-app
+
+      - name: Download macOS x86 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-x86-app
+          path: artifacts/macos-x86-app
+
+      - name: List downloaded artifacts (for debugging)
+        run: ls -la artifacts/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -159,8 +175,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            artifacts/macos-arm-app/macos-arm-app.zip
-            artifacts/linux-app/linux-app.zip
-            artifacts/macos-x86-app/macos-x86-app.zip
+            artifacts/macos-arm-app/*
+            artifacts/linux-app/*
+            artifacts/macos-x86-app/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
