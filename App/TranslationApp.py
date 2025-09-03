@@ -9,13 +9,13 @@ import flet as ft
 import pyttsx3
 import sherpa_onnx
 
-# import sounddevice as sd
-# import soundfile as sf
+import sounddevice as sd
+import soundfile as sf
 from FileDownloader import FileDownloader
 from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
 
-# import numpy as np
+import numpy as np
 
 
 # 添加项目根目录到Python路径
@@ -92,21 +92,21 @@ class TranslationApp:
         logging.info(f"StartRecording: {self.recording_path}")
         self.recording = []
         self.is_recording = True
-        # self.recording_stream = #sd.InputStream(
-        # samplerate=16000,
-        # channels=1,  # 单声道
-        # dtype="float32",
-        # callback=self.audio_callback,
-        # )
-        # self.recording_stream.start()
-        # self.audio_rec.start_recording(self.recording_path)
+        self.recording_stream = sd.InputStream(
+         samplerate=16000,
+         channels=1,  # 单声道
+         dtype="float32",
+         callback=self.audio_callback,
+         )
+        self.recording_stream.start()
+        self.audio_rec.start_recording(self.recording_path)
 
     def handle_stop_recording(self, e):
-        # try:
-        #    output_path = self.audio_rec.stop_recording(wait_timeout=30)
-        #    logging.info(f"StopRecording: {output_path}")
-        # except Exception as ex:
-        #    logging.info(f"Error stopping recording: {ex}")
+        try:
+            output_path = self.audio_rec.stop_recording(wait_timeout=30)
+            logging.info(f"StopRecording: {output_path}")
+        except Exception as ex:
+            logging.info(f"Error stopping recording: {ex}")
         """停止录音并保存文件"""
         try:
             if self.recording_stream is not None:
@@ -119,10 +119,10 @@ class TranslationApp:
 
             if self.recording:
                 # 合并所有录音数据
-                # audio_data = np.concatenate(self.recording, axis=0)
+                audio_data = np.concatenate(self.recording, axis=0)
 
                 # 保存为WAV文件
-                # sf.write(self.recording_path, audio_data, 16000)
+                sf.write(self.recording_path, audio_data, 16000)
 
                 logging.info(f"StopRecording: {self.recording_path}")
                 return self.recording_path
@@ -144,14 +144,14 @@ class TranslationApp:
                 return
 
         self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
-        # audio, sample_rate = sf.read(
-        #    self.recording_path, dtype="float32", always_2d=True
-        # )
-        # audio = audio[:, 0]
+        audio, sample_rate = sf.read(
+            self.recording_path, dtype="float32", always_2d=True
+         )
+        audio = audio[:, 0]
         if self.recognizer is None:
             self.recognizer = self._create_recognizer()
         stream = self.recognizer.create_stream()
-        # stream.accept_waveform(sample_rate, audio)
+        stream.accept_waveform(sample_rate, audio)
         self.recognizer.decode_stream(stream)
         self.text_input.value = stream.result.text
         logging.info(self.text_input.value)

@@ -79,4 +79,4 @@ entitlement."com.apple.security.device.audio-input" = true
 
 [tool.flet.compile]
 app = true            # Corresponds to --compile-app
-packages = true       # Corresponds to --compile-packages
+packages = false       # Corresponds to --compile-packages
