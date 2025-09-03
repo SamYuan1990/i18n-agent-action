@@ -175,8 +175,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            artifacts/macos-arm-app/*
+            artifacts/macos-arm-app
             artifacts/linux-app/*
-            artifacts/macos-x86-app/*
+            artifacts/macos-x86-app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
