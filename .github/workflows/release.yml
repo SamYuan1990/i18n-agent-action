@@ -6,6 +6,13 @@ on:
     tags:
       - 'v*'  # 当推送v开头的tag时触发
 
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+  id-token: write
+  attestations: write
+
 env:
   PYTHONUTF8: 1
   FLET_CLI_NO_RICH_OUTPUT: 1
@@ -14,8 +21,6 @@ jobs:
   # 构建Docker镜像
   build-docker-image:
     uses: ./.github/workflows/image.yml
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # 构建macOS Arm应用
   build-macos-arm-app:
