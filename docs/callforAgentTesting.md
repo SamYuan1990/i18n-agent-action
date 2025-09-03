@@ -30,7 +30,7 @@ Please refer to https://api-docs.deepseek.com/zh-cn/ or create one via the web p
 3. Configure the large language model access information and save it.  
 ![](./img/step2.png) 
 
-4. Enter the content to be translated and click "Translate" to wait for the result (note: voice input is enabled by default).  
+4. Enter the content to be translated and click "Translate" to wait for the result (note: voice output is enabled by default).  
 ![](./img/step3.png) 
 
 5. Optional feature: Reserved words.  

@@ -30,7 +30,7 @@ https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateCon
 3. 配置大语言模型访问信息并保存。  
 ![](./img/step2.png)  
 
-4. 输入要翻译的内容，点击“翻译”等待结果（注意：默认启用语音输入）。  
+4. 输入要翻译的内容，点击“翻译”等待结果（注意：默认启用语音输出）。  
 ![](./img/step3.png)  
 
 5. 可选功能：保留字。  
