@@ -22,6 +22,39 @@ jobs:
   build-docker-image:
     uses: ./.github/workflows/image.yml
 
+
+  # 构建macOS Arm应用
+  build-windows-app:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flet
+
+      - name: Build macOS app with Flet
+        run: |
+          cp -r AgentUtils App/AgentUtils
+          cp -r Business App/Business
+          cp pyproject.toml ./App
+          flet build windows ./App --output=build/windows -v
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: build/windows
+          retention-days: 7
+          overwrite: true
+
   # 构建macOS Arm应用
   build-macos-arm-app:
     runs-on: macos-latest
