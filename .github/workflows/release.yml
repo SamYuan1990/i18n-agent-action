@@ -24,6 +24,9 @@ on:
   # PR 触发条件 - 只针对 main 分支
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
 
 permissions:
   contents: write
