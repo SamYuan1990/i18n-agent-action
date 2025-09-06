@@ -1,10 +1,29 @@
-name: Release
+name: Release Multi-Platform Build
 
 on:
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
+    inputs:
+      build_platforms:
+        description: 'Platforms to build (comma-separated: windows,macos-arm,macos-x86,linux)'
+        type: string
+        default: 'windows,macos-arm,macos-x86,linux'
+      python_version:
+        description: 'Python version to use'
+        type: string
+        default: '3.11'
+      retention_days:
+        description: 'Artifact retention days'
+        type: number
+        default: 7
   push:
     tags:
-      - 'v*'  # 当推送v开头的tag时触发
+      - 'v*'
+  # 每7天自动构建一次
+  schedule:
+    - cron: '0 0 */7 * *'
+  # PR 触发条件 - 只针对 main 分支
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -16,16 +35,36 @@ permissions:
 env:
   PYTHONUTF8: 1
   FLET_CLI_NO_RICH_OUTPUT: 1
+  APP_DIR: App
+  BUILD_DIR: build
 
 jobs:
-  # 构建Docker镜像
-  build-docker-image:
-    uses: ./.github/workflows/image.yml
-
-
-  # 构建macOS Arm应用
-  build-windows-app:
-    runs-on: windows-latest
+  build-apps:
+    strategy:
+      matrix:
+        include:
+          - platform: windows
+            runs-on: windows-latest
+            flet-platform: windows
+            base-artifact-name: windows-app
+            artifact-path: build/windows  # 直接使用路径，不使用 env 变量
+          - platform: macos-arm
+            runs-on: macos-latest
+            flet-platform: macos
+            base-artifact-name: macos-arm-app
+            artifact-path: build/macos/**/*.app  # 直接使用路径，不使用 env 变量
+          - platform: macos-x86
+            runs-on: macos-13
+            flet-platform: macos
+            base-artifact-name: macos-x86-app
+            artifact-path: build/macos/**/*.app  # 直接使用路径，不使用 env 变量
+          - platform: linux
+            runs-on: ubuntu-latest
+            flet-platform: linux
+            base-artifact-name: linux-app
+            artifact-path: build/linux  # 直接使用路径，不使用 env 变量
+  
+    runs-on: ${{ matrix.runs-on }}    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,215 +72,71 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          # 对于schedule触发，使用默认的Python版本
+          python-version: ${{ github.event.inputs.python_version || '3.11' }}
 
-      - name: Install dependencies
+      - name: Install platform-specific dependencies
+        shell: bash
+        run: |
+          # Windows不需要特殊依赖
+          if [ "${{ matrix.platform }}" = "macos-arm" ] || [ "${{ matrix.platform }}" = "macos-x86" ]; then
+            echo "Installing dependencies for macOS..."
+            brew update
+            brew install ffmpeg
+            sudo gem install cocoapods -v 1.16.0
+          elif [ "${{ matrix.platform }}" = "linux" ]; then
+            echo "Installing dependencies for Linux..."
+            sudo apt-get update -y
+            sudo apt-get install -y ninja-build libgtk-3-dev
+          else
+            echo "No additional dependencies needed for Windows."
+          fi
+
+      - name: Install Python dependencies
+        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install flet
 
-      - name: Build macOS app with Flet
+      - name: Prepare application directory
+        shell: bash
         run: |
-          cp -r AgentUtils App/AgentUtils
-          cp -r Business App/Business
-          cp pyproject.toml ./App
-          flet build windows ./App --output=build/windows -v
+          cp -r AgentUtils ${{ env.APP_DIR }}/AgentUtils
+          cp -r Business ${{ env.APP_DIR }}/Business
+          cp pyproject.toml ./${{ env.APP_DIR }}
 
-      - name: Upload Windows Artifact
+      - name: Build application with Flet
+        shell: bash
+        run: |
+          # 构建命令根据平台有所不同
+          if [ "${{ matrix.platform }}" = "macos-arm" ]; then
+            echo "Building macOS ARM app"
+            flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch arm64
+          elif [ "${{ matrix.platform }}" = "macos-x86" ]; then
+            echo "Building macOS x86_64 app"
+            flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch x86_64
+          else
+            echo "Building ${{ matrix.platform }} app"
+            flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -v
+          fi
+
+      - name: Determine artifact name and retention days
+        id: artifact-info
+        shell: bash
+        run: |
+          # 如果是PR触发，在artifact名称中添加PR ID并设置保留时间为1天
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "artifact_name=${{ matrix.base-artifact-name }}-pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "retention_days=1" >> $GITHUB_OUTPUT
+          else
+            echo "artifact_name=${{ matrix.base-artifact-name }}" >> $GITHUB_OUTPUT
+            echo "retention_days=${{ github.event.inputs.retention_days || 7 }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-app
-          path: build/windows
-          retention-days: 7
+          name: ${{ steps.artifact-info.outputs.artifact_name }}
+          path: ${{ matrix.artifact-path }}
+          retention-days: ${{ steps.artifact-info.outputs.retention_days }}
           overwrite: true
-
-  # 构建macOS Arm应用
-  build-macos-arm-app:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install FFmpeg via Homebrew
-        run: |
-          brew update
-          brew install ffmpeg
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flet
-
-      - name: Install CocoaPods
-        run: |
-          sudo gem install cocoapods -v 1.16.0
-
-      - name: Build macOS app with Flet
-        run: |
-          cp -r AgentUtils App/AgentUtils
-          cp -r Business App/Business
-          cp pyproject.toml ./App
-          flet build macos ./App --output=build/macos -v
-
-      - name: Upload macOS Arm app artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-arm-app
-          path: build/macos/**/*.app
-          retention-days: 7
-          overwrite: true
-
-  # 构建Linux应用
-  build-linux-app:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flet
-
-      - name: Patch for linux build
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y ninja-build libgtk-3-dev
-
-      - name: Build Linux app with Flet
-        run: |
-          cp -r AgentUtils App/AgentUtils
-          cp -r Business App/Business
-          cp pyproject.toml ./App
-          flet build linux ./App --output=build/linux -v
-
-      - name: Upload Linux app artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-app
-          path: build/linux
-          retention-days: 7
-          overwrite: true
-
-  # 构建macOS x86_64应用
-  build-macos-x86-app:
-    runs-on: macos-13
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install FFmpeg via Homebrew
-        run: |
-          brew update
-          brew install ffmpeg
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flet
-
-      - name: Install CocoaPods
-        run: |
-          sudo gem install cocoapods -v 1.16.0
-
-      - name: Build macOS app with Flet
-        run: |
-          cp -r AgentUtils App/AgentUtils
-          cp -r Business App/Business
-          cp pyproject.toml ./App
-          flet build macos ./App --output=build/macos -v --arch x86_64
-
-      - name: Upload macOS x86 app artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-x86-app
-          path: build/macos/**/*.app
-          retention-days: 7
-          overwrite: true
-
-  # 创建Release并上传所有构建产物
-  create-release:
-    needs: [build-macos-arm-app, build-linux-app, build-macos-x86-app]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download macOS Arm artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-arm-app
-          path: artifacts/macos-arm-app
-
-      - name: Download Linux artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-app
-          path: artifacts/linux-app
-
-      - name: Download macOS x86 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-x86-app
-          path: artifacts/macos-x86-app
-
-      - name: List downloaded artifacts (for debugging)
-        run: ls -la artifacts/
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        id: create_release
-        with:
-          tag_name: latest
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create zip archives
-        run: |
-          cd artifacts/macos-arm-app && zip -r ../macos-arm-app.zip . && cd ../..
-          cd artifacts/linux-app && zip -r ../linux-app.zip . && cd ../..
-          cd artifacts/macos-x86-app && zip -r ../macos-x86-app.zip . && cd ../..
-
-      - name: Upload macOS Arm Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/macos-arm-app.zip
-          asset_name: macos-arm-app.zip
-          asset_content_type: application/zip
-
-      - name: Upload Linux Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/linux-app.zip
-          asset_name: linux-app.zip
-          asset_content_type: application/zip
-
-      - name: Upload macOS x86 Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/macos-x86-app.zip
-          asset_name: macos-x86-app.zip
-          asset_content_type: application/zip
