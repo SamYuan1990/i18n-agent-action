@@ -1,9 +1,10 @@
 # i18n-agent-action
 
-[![GitHub Super-Linter](https://github.com/actions/hello-world-docker-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+[![Lint Codebase](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/linter.yml/badge.svg)](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/linter.yml)
 ![CI](https://github.com/actions/hello-world-docker-action/actions/workflows/ci.yml/badge.svg)
 [![Deploy Docs](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/deploy.yml/badge.svg)](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/deploy.yml)
 [![Push](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/push.yaml/badge.svg)](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/push.yaml)
+[![Release Multi-Platform Build](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml/badge.svg)](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml)
 
 ## About The Project
 The i18n Agent is an AI-powered tool designed to streamline and automate internationalization (i18n) and localization (l10n) workflows. By leveraging advanced natural language processing (NLP) and machine learning, it helps developers, translators, and product teams efficiently manage multilingual content—eliminating manual errors and accelerating global deployments.
