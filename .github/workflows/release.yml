@@ -76,6 +76,7 @@ jobs:
           python-version: ${{ github.event.inputs.python_version || '3.11' }}
 
       - name: Install platform-specific dependencies
+        shell: bash
         run: |
           # Windows不需要特殊依赖
           if [ "${{ matrix.platform }}" = "macos-arm" ] || [ "${{ matrix.platform }}" = "macos-x86" ]; then
@@ -92,17 +93,20 @@ jobs:
           fi
 
       - name: Install Python dependencies
+        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install flet
 
       - name: Prepare application directory
+        shell: bash
         run: |
           cp -r AgentUtils ${{ env.APP_DIR }}/AgentUtils
           cp -r Business ${{ env.APP_DIR }}/Business
           cp pyproject.toml ./${{ env.APP_DIR }}
 
       - name: Build application with Flet
+        shell: bash
         run: |
           # 构建命令根据平台有所不同
           if [ "${{ matrix.platform }}" = "macos-arm" ]; then
@@ -118,6 +122,7 @@ jobs:
 
       - name: Determine artifact name and retention days
         id: artifact-info
+        shell: bash
         run: |
           # 如果是PR触发，在artifact名称中添加PR ID并设置保留时间为1天
           if [ "${{ github.event_name }}" = "pull_request" ]; then
