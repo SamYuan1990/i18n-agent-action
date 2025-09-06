@@ -21,9 +21,9 @@ on:
   # 每7天自动构建一次
   schedule:
     - cron: '0 0 */7 * *'
-  # PR 触发条件
+  # PR 触发条件 - 只针对 main 分支
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: write
@@ -47,22 +47,22 @@ jobs:
             runs-on: windows-latest
             flet-platform: windows
             base-artifact-name: windows-app
-            artifact-path: ${{ env.BUILD_DIR }}/windows
+            artifact-path: build/windows  # 直接使用路径，不使用 env 变量
           - platform: macos-arm
             runs-on: macos-latest
             flet-platform: macos
             base-artifact-name: macos-arm-app
-            artifact-path: ${{ env.BUILD_DIR }}/macos/**/*.app
+            artifact-path: build/macos/**/*.app  # 直接使用路径，不使用 env 变量
           - platform: macos-x86
             runs-on: macos-13
             flet-platform: macos
             base-artifact-name: macos-x86-app
-            artifact-path: ${{ env.BUILD_DIR }}/macos/**/*.app
+            artifact-path: build/macos/**/*.app  # 直接使用路径，不使用 env 变量
           - platform: linux
             runs-on: ubuntu-latest
             flet-platform: linux
             base-artifact-name: linux-app
-            artifact-path: ${{ env.BUILD_DIR }}/linux
+            artifact-path: build/linux  # 直接使用路径，不使用 env 变量
 
     # 条件执行：手动触发时检查是否选择了该平台，自动触发时全部执行
     # 对于schedule触发，我们也执行所有平台
