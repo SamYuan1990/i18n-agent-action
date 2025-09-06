@@ -43,6 +43,11 @@ jobs:
     strategy:
       matrix:
         include:
+          - platform: apk
+            runs-on: ubuntu-latest
+            flet-platform: apk
+            base-artifact-name: apk
+            artifact-path: build/apk  # 直接使用路径，不使用 env 变量
           - platform: windows
             runs-on: windows-latest
             flet-platform: windows
