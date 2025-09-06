@@ -21,6 +21,9 @@ on:
   # 每7天自动构建一次
   schedule:
     - cron: '0 0 */7 * *'
+  # PR 触发条件
+  pull_request:
+    branches: [ main ]
 
 permissions:
   contents: write
@@ -43,26 +46,27 @@ jobs:
           - platform: windows
             runs-on: windows-latest
             flet-platform: windows
-            artifact-name: windows-app
+            base-artifact-name: windows-app
             artifact-path: ${{ env.BUILD_DIR }}/windows
           - platform: macos-arm
             runs-on: macos-latest
             flet-platform: macos
-            artifact-name: macos-arm-app
+            base-artifact-name: macos-arm-app
             artifact-path: ${{ env.BUILD_DIR }}/macos/**/*.app
           - platform: macos-x86
             runs-on: macos-13
             flet-platform: macos
-            artifact-name: macos-x86-app
+            base-artifact-name: macos-x86-app
             artifact-path: ${{ env.BUILD_DIR }}/macos/**/*.app
           - platform: linux
             runs-on: ubuntu-latest
             flet-platform: linux
-            artifact-name: linux-app
+            base-artifact-name: linux-app
             artifact-path: ${{ env.BUILD_DIR }}/linux
 
     # 条件执行：手动触发时检查是否选择了该平台，自动触发时全部执行
     # 对于schedule触发，我们也执行所有平台
+    # 对于PR触发，执行所有平台
     if: |
       (github.event_name == 'workflow_dispatch' && 
        contains(github.event.inputs.build_platforms, matrix.platform)) ||
@@ -121,11 +125,22 @@ jobs:
             flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -v
           fi
 
+      - name: Determine artifact name and retention days
+        id: artifact-info
+        run: |
+          # 如果是PR触发，在artifact名称中添加PR ID并设置保留时间为1天
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "artifact_name=${{ matrix.base-artifact-name }}-pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "retention_days=1" >> $GITHUB_OUTPUT
+          else
+            echo "artifact_name=${{ matrix.base-artifact-name }}" >> $GITHUB_OUTPUT
+            echo "retention_days=${{ github.event.inputs.retention_days || 7 }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact-name }}
+          name: ${{ steps.artifact-info.outputs.artifact_name }}
           path: ${{ matrix.artifact-path }}
-          # 对于schedule触发，使用默认的7天保留期
-          retention-days: ${{ github.event.inputs.retention_days || 7 }}
+          retention-days: ${{ steps.artifact-info.outputs.retention_days }}
           overwrite: true
