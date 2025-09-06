@@ -2,19 +2,6 @@ name: Release Multi-Platform Build
 
 on:
   workflow_dispatch:
-    inputs:
-      build_platforms:
-        description: 'Platforms to build (comma-separated: windows,macos-arm,macos-x86,linux)'
-        type: string
-        default: 'windows,macos-arm,macos-x86,linux'
-      python_version:
-        description: 'Python version to use'
-        type: string
-        default: '3.11'
-      retention_days:
-        description: 'Artifact retention days'
-        type: number
-        default: 7
   push:
     tags:
       - 'v*'
@@ -46,6 +33,11 @@ jobs:
     strategy:
       matrix:
         include:
+          - platform: ipa
+            runs-on: macos-latest
+            flet-platform: ipa
+            base-artifact-name: ipa
+            artifact-path: build/ipa  # 直接使用路径，不使用 env 变量
           - platform: apk
             runs-on: ubuntu-latest
             flet-platform: apk
