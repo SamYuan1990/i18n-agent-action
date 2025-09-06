@@ -1,0 +1,43 @@
+name: NLG Evaluation
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout current repository
+      uses: actions/checkout@v4
+
+    - name: Checkout nlg-eval repository for examples
+      run: |
+        git clone https://github.com/Maluuba/nlg-eval.git nlg-eval-repo
+        cp -r nlg-eval-repo/examples ./
+        rm -rf nlg-eval-repo
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 'latest'
+
+    - name: Install nlg-eval
+      run: |
+        pip install git+https://github.com/Maluuba/nlg-eval.git@master
+
+    - name: Set environment variable
+      run: echo "OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES" >> $GITHUB_ENV
+
+    - name: Run nlg-eval setup
+      run: nlg-eval --setup
+
+    - name: Run evaluation with example files
+      run: nlg-eval --hypothesis=examples/hyp.txt --references=examples/ref1.txt
