@@ -75,14 +75,6 @@ class TranslationApp:
             on_click=self.send_message_click,
         )
 
-        # 创建翻译按钮（保留原有功能）
-        self.translate_btn = ft.ElevatedButton(
-            "Translate",
-            icon=ft.Icons.TRANSLATE,
-            on_click=self.translate_text,
-            style=ft.ButtonStyle(padding=20),
-        )
-
         # 创建录音按钮（注释掉并隐藏）
         self.record_btn = ft.ElevatedButton(
             "Start Audio Recorder",
@@ -156,8 +148,6 @@ class TranslationApp:
                     ]
                 ),
                 ft.Container(height=10),
-                self.translate_btn,
-                ft.Container(height=20),
                 self.record_btn,
                 self.stp_record_btn,
             ],
