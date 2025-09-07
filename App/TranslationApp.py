@@ -6,6 +6,7 @@ import flet as ft
 
 # import flet_audio_recorder as ftar
 import pyttsx3
+from chatmessage import ChatMessage, Message
 from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
 
@@ -27,7 +28,7 @@ class TranslationApp:
         self.recording_path = ""
         # self.audio_rec = ftar.AudioRecorder(
         #     audio_encoder=ftar.AudioEncoder.WAV,
-        #    on_state_changed=self.handle_state_change,
+        #     on_state_changed=self.handle_state_change,
         # )
         self.setup_ui()
 
@@ -42,30 +43,39 @@ class TranslationApp:
     def handle_stop_recording(self, e):
         logging.info("tbd")
         # try:
-        #    output_path = self.audio_rec.stop_recording(wait_timeout=30)
-        #    logging.info(f"StopRecording: {output_path}")
+        #     output_path = self.audio_rec.stop_recording(wait_timeout=30)
+        #     logging.info(f"StopRecording: {output_path}")
         # except Exception as ex:
-        #    logging.info(f"Error stopping recording: {ex}")
+        #     logging.info(f"Error stopping recording: {ex}")
 
     def setup_ui(self):
-
-        self.record_btn = ft.ElevatedButton(
-            "Start Audio Recorder", on_click=self.handle_start_recording
-        )
-        self.stp_record_btn = ft.ElevatedButton(
-            "Stop Audio Recorder", on_click=self.handle_stop_recording
-        )
-        # 创建文本输入框
-        self.text_input = ft.TextField(
-            multiline=True,
-            min_lines=5,
-            max_lines=5,
-            hint_text="请输入要翻译的文本...",
+        # 创建聊天消息区域
+        self.chat = ft.ListView(
             expand=True,
-            border_color=ft.Colors.BLUE_GREY_200,
+            spacing=10,
+            auto_scroll=True,
         )
 
-        # 创建翻译按钮
+        # 创建消息输入框
+        self.new_message = ft.TextField(
+            hint_text="请输入要翻译的文本...",
+            multiline=True,
+            min_lines=1,
+            max_lines=5,
+            shift_enter=True,
+            filled=True,
+            expand=True,
+            on_submit=self.send_message_click,
+        )
+
+        # 创建发送按钮
+        self.send_button = ft.IconButton(
+            icon=ft.Icons.SEND_ROUNDED,
+            tooltip="发送翻译",
+            on_click=self.send_message_click,
+        )
+
+        # 创建翻译按钮（保留原有功能）
         self.translate_btn = ft.ElevatedButton(
             "Translate",
             icon=ft.Icons.TRANSLATE,
@@ -73,21 +83,33 @@ class TranslationApp:
             style=ft.ButtonStyle(padding=20),
         )
 
-        # 创建左侧边栏切换按钮（放在主内容区域）
+        # 创建录音按钮（注释掉并隐藏）
+        self.record_btn = ft.ElevatedButton(
+            "Start Audio Recorder",
+            on_click=self.handle_start_recording,
+            visible=False,  # 隐藏录音按钮
+        )
+        self.stp_record_btn = ft.ElevatedButton(
+            "Stop Audio Recorder",
+            on_click=self.handle_stop_recording,
+            visible=False,  # 隐藏停止录音按钮
+        )
+
+        # 创建左侧边栏切换按钮
         self.left_sidebar_toggle = ft.IconButton(
             icon=ft.Icons.MENU,
             tooltip="显示/隐藏设置",
             on_click=self.toggle_left_sidebar,
         )
 
-        # 创建右侧边栏切换按钮（放在主内容区域）
+        # 创建右侧边栏切换按钮
         self.right_sidebar_toggle = ft.IconButton(
             icon=ft.Icons.BAR_CHART,
             tooltip="显示/隐藏统计",
             on_click=self.toggle_right_sidebar,
         )
 
-        # 创建日志查看按钮（放在右侧边栏按钮的右边）
+        # 创建日志查看按钮
         self.log_view_toggle = ft.IconButton(
             icon=ft.Icons.LIST_ALT, tooltip="查看日志", on_click=self.show_logs
         )
@@ -120,22 +142,24 @@ class TranslationApp:
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 ),
-                self.text_input,
+                ft.Container(
+                    content=self.chat,
+                    border=ft.border.all(1, ft.Colors.OUTLINE),
+                    border_radius=5,
+                    padding=10,
+                    expand=True,
+                ),
+                ft.Row(
+                    [
+                        self.new_message,
+                        self.send_button,
+                    ]
+                ),
                 ft.Container(height=10),
                 self.translate_btn,
                 ft.Container(height=20),
                 self.record_btn,
                 self.stp_record_btn,
-                ft.Text("Translate result:", style=ft.TextThemeStyle.HEADLINE_SMALL),
-                ft.Container(
-                    content=ft.Text(
-                        "Translate result...", style=ft.TextThemeStyle.BODY_LARGE
-                    ),
-                    padding=10,
-                    border=ft.border.all(1, ft.Colors.BLUE_GREY_200),
-                    border_radius=5,
-                    width=self.page.width,
-                ),
             ],
             alignment=ft.MainAxisAlignment.START,
             expand=True,
@@ -152,6 +176,7 @@ class TranslationApp:
 
         self.page.overlay.append(self.log_dialog)
         # self.page.overlay.append(self.audio_rec)
+
         # 设置页面布局
         self.page.add(
             ft.Row(
@@ -165,6 +190,30 @@ class TranslationApp:
                 expand=True,
             )
         )
+
+    def send_message_click(self, e):
+        if self.new_message.value != "":
+            # 添加用户消息到聊天
+            self.add_message(
+                Message(
+                    user_name="User",
+                    text=self.new_message.value,
+                    message_type="chat_message",
+                )
+            )
+
+            # 调用翻译功能
+            self.translate_text(e)
+
+            self.new_message.value = ""
+            self.new_message.focus()
+            self.page.update()
+
+    def add_message(self, message: Message):
+        if message.message_type == "chat_message":
+            m = ChatMessage(message)
+        self.chat.controls.append(m)
+        self.page.update()
 
     def toggle_left_sidebar(self, e=None):
         self.left_sidebar.visible = not self.left_sidebar.visible
@@ -200,11 +249,11 @@ class TranslationApp:
             try:
                 with open(log_file_path, "r", encoding="utf-8") as f:
                     lines = f.readlines()
-                    # 获取最后30行
-                    recent_lines = lines[-10:] if len(lines) > 10 else lines
-                    self.log_contents = [
-                        ft.Text(line.strip(), size=5) for line in recent_lines
-                    ]
+                # 获取最后30行
+                recent_lines = lines[-10:] if len(lines) > 10 else lines
+                self.log_contents = [
+                    ft.Text(line.strip(), size=5) for line in recent_lines
+                ]
             except Exception as e:
                 self.log_contents = [
                     ft.Text(f"读取日志文件出错: {str(e)}", size=5, color=ft.Colors.RED)
@@ -219,6 +268,19 @@ class TranslationApp:
         self.page.open(self.log_dialog)
 
     def translate_text(self, e):
+        # 获取最后一条用户消息
+        user_message = None
+        for msg in reversed(self.chat.controls):
+            if (
+                isinstance(msg, ChatMessage)
+                and msg.controls[1].controls[0].value == "User"
+            ):
+                user_message = msg.controls[1].controls[1].value
+                break
+
+        if not user_message:
+            return
+
         # 模拟翻译功能
         LLM_client = self.left_sidebar.GenClient()
         storage = self.left_sidebar.get_storage()
@@ -226,20 +288,25 @@ class TranslationApp:
         span_mgr = Span_Mgr(storage)
         root_span = span_mgr.create_span("Root operation")
         TsAgent = translateAgent(LLM_client, span_mgr)
-        text = self.text_input.value
-        logging.info(text)
         engine = pyttsx3.init()
 
-        if text:
+        if user_message:
             # 尝试找到匹配的模拟翻译
             result = TsAgent.translate(
-                context, context.target_language, text, root_span
+                context, context.target_language, user_message, root_span
             )
             logging.info(result)
-            # 更新翻译结果
-            self.main_content.controls[-1].content.value = result
-            self.page.update()
-            self.left_sidebar.AppendHistory(text, result)
+
+            # 添加翻译结果到聊天
+            self.add_message(
+                Message(
+                    user_name="Agent",
+                    text=result,
+                    message_type="chat_message",
+                )
+            )
+
+            self.left_sidebar.AppendHistory(user_message, result)
             engine.say(result)
             # play the speech
             engine.runAndWait()
