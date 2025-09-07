@@ -55,7 +55,7 @@ class TranslationApp:
             spacing=10,
             auto_scroll=True,
         )
-
+        self.engine = pyttsx3.init()
         # 创建消息输入框
         self.new_message = ft.TextField(
             hint_text="请输入要翻译的文本...",
@@ -211,7 +211,7 @@ class TranslationApp:
 
     def add_message(self, message: Message):
         if message.message_type == "chat_message":
-            m = ChatMessage(message)
+            m = ChatMessage(message, self.engine)
         self.chat.controls.append(m)
         self.page.update()
 
@@ -271,11 +271,8 @@ class TranslationApp:
         # 获取最后一条用户消息
         user_message = None
         for msg in reversed(self.chat.controls):
-            if (
-                isinstance(msg, ChatMessage)
-                and msg.controls[1].controls[0].value == "User"
-            ):
-                user_message = msg.controls[1].controls[1].value
+            if isinstance(msg, ChatMessage) and msg.user_name == "User":
+                user_message = msg.text
                 break
 
         if not user_message:
@@ -288,7 +285,6 @@ class TranslationApp:
         span_mgr = Span_Mgr(storage)
         root_span = span_mgr.create_span("Root operation")
         TsAgent = translateAgent(LLM_client, span_mgr)
-        engine = pyttsx3.init()
 
         if user_message:
             # 尝试找到匹配的模拟翻译
@@ -307,6 +303,3 @@ class TranslationApp:
             )
 
             self.left_sidebar.AppendHistory(user_message, result)
-            engine.say(result)
-            # play the speech
-            engine.runAndWait()
