@@ -1,10 +1,12 @@
 import flet as ft
 
+
 class Message:
     def __init__(self, user_name: str, text: str, message_type: str):
         self.user_name = user_name
         self.text = text
         self.message_type = message_type
+
 
 class ChatMessage(ft.Row):
     def __init__(self, message, engine):
@@ -13,7 +15,7 @@ class ChatMessage(ft.Row):
         self.text = message.text  # 保存消息文本
         self.user_name = message.user_name  # 保存用户名
         self.vertical_alignment = ft.CrossAxisAlignment.START
-        
+
         # 创建内容控件
         content = ft.Row(
             controls=[
@@ -32,7 +34,7 @@ class ChatMessage(ft.Row):
                 ),
             ]
         )
-        
+
         # 用GestureDetector包装内容以添加点击事件
         self.controls = [
             ft.GestureDetector(
