@@ -68,11 +68,6 @@ class LeftSidebar(ft.Container):
             value=saved_config.get("auto_detect", True),  # 使用保存的值或默认值
         )
 
-        self.pronunciation_switch = ft.Switch(
-            label="发音功能",
-            value=saved_config.get("pronunciation", False),  # 使用保存的值或默认值
-        )
-
         self.save_history_switch = ft.Switch(
             label="保存翻译历史",
             value=saved_config.get("save_history", True),  # 使用保存的值或默认值
@@ -127,7 +122,6 @@ class LeftSidebar(ft.Container):
                     self.reserved_word_field,
                     # 保留的开关选项
                     self.auto_detect_switch,
-                    self.pronunciation_switch,
                     self.save_history_switch,
                     # 保存按钮固定在底部
                     ft.Container(
@@ -284,7 +278,6 @@ class LeftSidebar(ft.Container):
             "target_language": self.target_language_field.value,
             "reserved_word": self.reserved_word_field.value,
             "auto_detect": self.auto_detect_switch.value,
-            "pronunciation": self.pronunciation_switch.value,
             "save_history": self.save_history_switch.value,
         }
 
@@ -302,7 +295,6 @@ class LeftSidebar(ft.Container):
             logging.info(f"Target Language: {self.target_language_field.value}")
             logging.info(f"Reserved Word: {self.reserved_word_field.value}")
             logging.info(f"自动检测语言: {self.auto_detect_switch.value}")
-            logging.info(f"发音功能: {self.pronunciation_switch.value}")
             logging.info(f"保存翻译历史: {self.save_history_switch.value}")
             logging.info("=================")
         else:
@@ -322,7 +314,6 @@ class LeftSidebar(ft.Container):
             usecache=True,
         )
         logging.info(f"自动检测语言: {self.auto_detect_switch.value}")
-        logging.info(f"发音功能: {self.pronunciation_switch.value}")
         logging.info("=================")
         return LLM_Client
 
