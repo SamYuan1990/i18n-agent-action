@@ -1,12 +1,12 @@
-# Is BLEU Outdated for Translation Tasks?
+# ¿BLEU Puede Estar Obsoleto para Tareas de Traducción?
 
-## What is BLEU?
+## ¿Qué es BLEU?
 
-This was all [Rico Sennrich's idea](https://twitter.com/RicoSennrich/status/883246242763026433)
-Originally written by Matt Post.
-New features and ongoing support provided by Martin Popel (@martinpopel) and Ozan Caglayan (@ozancaglayan).
+Esto fue idea de [Rico Sennrich](https://twitter.com/RicoSennrich/status/883246242763026433)
+Originalmente escrito por Matt Post.
+Nuevas características y soporte continuo proporcionados por Martin Popel (@martinpopel) y Ozan Caglayan (@ozancaglayan).
 
-If you use SacreBLEU, please cite the following:
+Si usas SacreBLEU, por favor cita lo siguiente:
 
 ```
 @inproceedings{post-2018-call,
@@ -22,12 +22,12 @@ If you use SacreBLEU, please cite the following:
 }
 ```
 
-## Show me the code!
+## ¡Muéstrame el código!
 
-I used flores200 and picked the 1st sentence in Chinese and English to test.
-I defined `sys` as the result from DeepSeek, and `sys_0`, **note: `sys_0` is copied from `ref`.**
+Usé flores200 y elegí la primera oración en chino e inglés para probar.
+Definí `sys` como el resultado de DeepSeek, y `sys_0`, **nota: `sys_0` está copiado de `ref`.**
 
-```python
+```
 from sacrebleu import BLEU, CHRF
 
 refs = [
@@ -51,32 +51,32 @@ sys_0 = [
     '主席研究員說，這可能會讓低收入國家的患者及早發現癌症、結核病、愛滋病病毒和瘧疾。在這些國家，乳癌等疾病的生存率可能只有富裕國家的一半。'
 ]
 
-bleu = BLEU(lowercase=True, effective_order=True)
+bleu = BLEU(lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='zh', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='zh',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='char', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='char',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='intl', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='intl',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='flores101', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='flores101',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='flores200', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='flores200',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
@@ -88,14 +88,14 @@ print(chrf.corpus_score(sys, refs))
 print(chrf.get_signature())
 ```
 
-## Show me the vibe and result!
+## ¡Muéstrame el ambiente y el resultado!
 
-For me, the translate result almost same for those sentence, as we focused on 5W-H as
-`On Monday, scientists from the Stanford University School of Medicine announced the invention of a new diagnostic tool that can sort cells by type: a tiny printable chip that can be manufactured using standard inkjet printers for possibly about one U.S. cent each.`
+Para mí, el resultado de la traducción es casi el mismo para esas oraciones, ya que nos enfocamos en las 5W-H como
+`El lunes, científicos de la Escuela de Medicina de la Universidad de Stanford anunciaron la invención de una nueva herramienta de diagnóstico que puede clasificar células por tipo: un pequeño chip imprimible que puede fabricarse utilizando impresoras de inyección de tinta estándar por posiblemente alrededor de un centavo estadounidense cada uno.`
 
-On Monday, scientists from the Stanford University School of Medicine, announced ...
+El lunes, científicos de la Escuela de Medicina de la Universidad de Stanford, anunciaron...
 
-Next, let's see the behavior from BLEU:
+A continuación, veamos el comportamiento de BLEU:
 
 ```
 BLEU = 0.00 0.0/0.0/0.0/0.0 (BP = 1.000 ratio = 2.000 hyp_len = 4 ref_len = 2)
@@ -103,7 +103,7 @@ BLEU = 0.00 0.0/0.0/0.0/0.0 (BP = 1.000 ratio = 3.000 hyp_len = 6 ref_len = 2)
 nrefs:2|case:lc|eff:no|tok:13a|smooth:exp|version:2.5.1
 -----
 ```
-The default result is not good, as BLEU relies on tokenization, which makes sense.
+El resultado predeterminado no es bueno, ya que BLEU depende de la tokenización, lo cual tiene sentido.
 
 ```
 BLEU = 38.75 80.0/49.0/29.8/21.6 (BP = 0.973 ratio = 0.973 hyp_len = 145 ref_len = 149)
@@ -115,7 +115,7 @@ BLEU = 17.42 60.8/29.1/12.2/4.4 (BP = 0.993 ratio = 0.993 hyp_len = 143 ref_len 
 nrefs:2|case:lc|eff:no|tok:char|smooth:exp|version:2.5.1
 -----
 ```
-Well, zh equals to tokenize by character, and yes, it is language-based. But, which makes me think it's weird as `sys_0` is not getting a full score of 100.
+Bueno, zh equivale a tokenizar por carácter, y sí, depende del idioma. Pero, lo cual me hace pensar de manera extraña ya que `sys_0` no obtuvo una puntuación completa de 100.
 
 ```
 BLEU = 8.91 50.0/9.1/5.0/2.8 (BP = 1.000 ratio = 1.091 hyp_len = 24 ref_len = 22)
@@ -131,14 +131,14 @@ BLEU = 9.55 53.2/22.0/7.5/1.0 (BP = 1.000 ratio = 1.009 hyp_len = 111 ref_len = 
 nrefs:2|case:lc|eff:no|tok:flores200|smooth:exp|version:2.5.1
 -----
 ```
-As our test case is from flores200, so let's see BLEU behavior with flores200. Hmm, it's not perfect either.
+Como nuestro caso de prueba es de flores200, veamos el comportamiento de BLEU con flores200. Mmm, tampoco es perfecto.
 
 ```
 80.0/49.0/29.8/21.6
 73.7/37.5/21.8/14.8
 ```
-Well, these four sets of numbers represent the precision of 1-gram, 2-gram, 3-gram, and 4-gram, respectively.
+Bueno, estos cuatro conjuntos de números representan la precisión de 1-gram, 2-gram, 3-gram y 4-gram, respectivamente.
 
-## Why it may be out of date?
+## ¿Por qué puede estar desactualizado?
 
-Which means, if we just compare with word precision... as 1-gram or 2-gram... which looks good but loses the meaning of the sentence. And at the same time, if we switch tokenizers, it influences the result too much.
+Lo cual significa que, si solo comparamos con la precisión de palabras... como 1-gram o 2-gram... lo cual parece bueno pero pierde el significado de la oración. Y al mismo tiempo, si cambiamos el tokenizador, influye demasiado en el resultado.

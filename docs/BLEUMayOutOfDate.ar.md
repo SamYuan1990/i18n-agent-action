@@ -1,12 +1,12 @@
-# Is BLEU Outdated for Translation Tasks?
+# هل قد يكون BLEU قديمًا لمهام الترجمة؟
 
-## What is BLEU?
+## ما هو BLEU؟
 
-This was all [Rico Sennrich's idea](https://twitter.com/RicoSennrich/status/883246242763026433)
-Originally written by Matt Post.
-New features and ongoing support provided by Martin Popel (@martinpopel) and Ozan Caglayan (@ozancaglayan).
+كانت هذه فكرة [Rico Sennrich](https://twitter.com/RicoSennrich/status/883246242763026433) بالكامل.
+كتبها في الأصل Matt Post.
+تم توفير الميزات الجديدة والدعم المستمر بواسطة Martin Popel (@martinpopel) و Ozan Caglayan (@ozancaglayan).
 
-If you use SacreBLEU, please cite the following:
+إذا كنت تستخدم SacreBLEU، يرجى الاستشهاد بما يلي:
 
 ```
 @inproceedings{post-2018-call,
@@ -22,12 +22,12 @@ If you use SacreBLEU, please cite the following:
 }
 ```
 
-## Show me the code!
+## أرني الكود!
 
-I used flores200 and picked the 1st sentence in Chinese and English to test.
-I defined `sys` as the result from DeepSeek, and `sys_0`, **note: `sys_0` is copied from `ref`.**
+استخدمت flores200 واخترت الجملة الأولى بالصينية والإنجليزية للاختبار.
+عرفت `sys` كنتيجة من DeepSeek، و `sys_0`، **ملاحظة: `sys_0` تم نسخه من `ref`.**
 
-```python
+```
 from sacrebleu import BLEU, CHRF
 
 refs = [
@@ -51,32 +51,32 @@ sys_0 = [
     '主席研究員說，這可能會讓低收入國家的患者及早發現癌症、結核病、愛滋病病毒和瘧疾。在這些國家，乳癌等疾病的生存率可能只有富裕國家的一半。'
 ]
 
-bleu = BLEU(lowercase=True, effective_order=True)
+bleu = BLEU(lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='zh', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='zh',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='char', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='char',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='intl', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='intl',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='flores101', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='flores101',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='flores200', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='flores200',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
@@ -88,14 +88,14 @@ print(chrf.corpus_score(sys, refs))
 print(chrf.get_signature())
 ```
 
-## Show me the vibe and result!
+## أظهر لي الشعور والنتيجة!
 
-For me, the translate result almost same for those sentence, as we focused on 5W-H as
-`On Monday, scientists from the Stanford University School of Medicine announced the invention of a new diagnostic tool that can sort cells by type: a tiny printable chip that can be manufactured using standard inkjet printers for possibly about one U.S. cent each.`
+بالنسبة لي، نتيجة الترجمة متشابهة تقريبًا لتلك الجمل، حيث ركزنا على 5W-H (من، ماذا، متى، أين، لماذا، كيف) كما في
+`يوم الاثنين، أعلن علماء من كلية الطب بجامعة ستانفورد اختراع أداة تشخيصية جديدة يمكنها فرز الخلايا حسب النوع: شريحة صغيرة قابلة للطباعة يمكن تصنيعها باستخدام طابعات نفث الحبر القياسية مقابل حوالي سنت أمريكي واحد لكل منها.`
 
-On Monday, scientists from the Stanford University School of Medicine, announced ...
+يوم الاثنين، أعلن علماء من كلية الطب بجامعة ستانفورد...
 
-Next, let's see the behavior from BLEU:
+التالي، دعنا نرى سلوك BLEU:
 
 ```
 BLEU = 0.00 0.0/0.0/0.0/0.0 (BP = 1.000 ratio = 2.000 hyp_len = 4 ref_len = 2)
@@ -103,7 +103,7 @@ BLEU = 0.00 0.0/0.0/0.0/0.0 (BP = 1.000 ratio = 3.000 hyp_len = 6 ref_len = 2)
 nrefs:2|case:lc|eff:no|tok:13a|smooth:exp|version:2.5.1
 -----
 ```
-The default result is not good, as BLEU relies on tokenization, which makes sense.
+النتيجة الافتراضية ليست جيدة، حيث يعتمد BLEU على الترميز، وهو أمر منطقي.
 
 ```
 BLEU = 38.75 80.0/49.0/29.8/21.6 (BP = 0.973 ratio = 0.973 hyp_len = 145 ref_len = 149)
@@ -115,7 +115,7 @@ BLEU = 17.42 60.8/29.1/12.2/4.4 (BP = 0.993 ratio = 0.993 hyp_len = 143 ref_len 
 nrefs:2|case:lc|eff:no|tok:char|smooth:exp|version:2.5.1
 -----
 ```
-Well, zh equals to tokenize by character, and yes, it is language-based. But, which makes me think it's weird as `sys_0` is not getting a full score of 100.
+حسنًا، zh تعادل الترميز بالحرف، ونعم، يعتمد على اللغة. لكن، هذا يجعلني أفكر بشكل غريب لأن `sys_0` لم يحصل على الدرجة الكاملة 100.
 
 ```
 BLEU = 8.91 50.0/9.1/5.0/2.8 (BP = 1.000 ratio = 1.091 hyp_len = 24 ref_len = 22)
@@ -131,14 +131,14 @@ BLEU = 9.55 53.2/22.0/7.5/1.0 (BP = 1.000 ratio = 1.009 hyp_len = 111 ref_len = 
 nrefs:2|case:lc|eff:no|tok:flores200|smooth:exp|version:2.5.1
 -----
 ```
-As our test case is from flores200, so let's see BLEU behavior with flores200. Hmm, it's not perfect either.
+بما أن حالة الاختبار لدينا من flores200، فلنرى سلوك BLEU مع flores200. إمم، إنه ليس مثاليًا أيضًا.
 
 ```
 80.0/49.0/29.8/21.6
 73.7/37.5/21.8/14.8
 ```
-Well, these four sets of numbers represent the precision of 1-gram, 2-gram, 3-gram, and 4-gram, respectively.
+حسنًا، تمثل هذه المجموعات الأربعة من الأرقام دقة 1-gram، 2-gram، 3-gram، و4-gram على التوالي.
 
-## Why it may be out of date?
+## لماذا قد يكون قديمًا؟
 
-Which means, if we just compare with word precision... as 1-gram or 2-gram... which looks good but loses the meaning of the sentence. And at the same time, if we switch tokenizers, it influences the result too much.
+مما يعني، إذا قارنا فقط بدقة الكلمة... مثل 1-gram أو 2-gram... والتي تبدو جيدة لكنها تفقد معنى الجملة. وفي الوقت نفسه، إذا غيرنا المرمز، فإنه يؤثر على النتيجة بشكل كبير.
