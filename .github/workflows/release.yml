@@ -70,7 +70,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           # 对于schedule触发，使用默认的Python版本
           python-version: ${{ github.event.inputs.python_version || '3.11' }}
