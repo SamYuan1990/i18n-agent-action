@@ -103,7 +103,7 @@ class LeftSidebar(ft.Container):
         self.settings_content = ft.Container(
             content=ft.Column(
                 [
-                    ft.Text("Settings", style=ft.TextThemeStyle.HEADLINE_SMALL),
+                    ft.Text("Settings", theme_style=ft.TextThemeStyle.HEADLINE_SMALL),
                     ft.Divider(),
                     # API Key 输入框
                     ft.Text("API Key:"),
@@ -145,7 +145,7 @@ class LeftSidebar(ft.Container):
         # 创建历史内容
         self.history_content = ft.Column(
             [
-                ft.Text("翻译历史", style=ft.TextThemeStyle.HEADLINE_SMALL),
+                ft.Text("翻译历史", theme_style=ft.TextThemeStyle.HEADLINE_SMALL),
                 ft.Divider(),
                 ft.ListView(
                     controls=[

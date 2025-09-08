@@ -111,13 +111,13 @@ jobs:
           # 构建命令根据平台有所不同
           if [ "${{ matrix.platform }}" = "macos-arm" ]; then
             echo "Building macOS ARM app"
-            flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch arm64
+            flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch arm64 --icon ./logo.png
           elif [ "${{ matrix.platform }}" = "macos-x86" ]; then
             echo "Building macOS x86_64 app"
-            flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch x86_64
+            flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch x86_64 --icon ./logo.png
           else
             echo "Building ${{ matrix.platform }} app"
-            flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -v
+            flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -v --icon ./logo.png
           fi
 
       - name: Determine artifact name and retention days
