@@ -1,12 +1,12 @@
-# Is BLEU Outdated for Translation Tasks?
+# BLEUは翻訳タスクで時代遅れかもしれない？
 
-## What is BLEU?
+## BLEUとは？
 
-This was all [Rico Sennrich's idea](https://twitter.com/RicoSennrich/status/883246242763026433)
-Originally written by Matt Post.
-New features and ongoing support provided by Martin Popel (@martinpopel) and Ozan Caglayan (@ozancaglayan).
+これはすべて[Rico Sennrichのアイデア](https://twitter.com/RicoSennrich/status/883246242763026433)でした。
+元々はMatt Postによって書かれました。
+新機能と継続的なサポートはMartin Popel (@martinpopel) とOzan Caglayan (@ozancaglayan) によって提供されています。
 
-If you use SacreBLEU, please cite the following:
+SacreBLEUを使用する場合は、以下を引用してください：
 
 ```
 @inproceedings{post-2018-call,
@@ -22,12 +22,12 @@ If you use SacreBLEU, please cite the following:
 }
 ```
 
-## Show me the code!
+## コードを見せて！
 
-I used flores200 and picked the 1st sentence in Chinese and English to test.
-I defined `sys` as the result from DeepSeek, and `sys_0`, **note: `sys_0` is copied from `ref`.**
+私はflores200を使用し、中国語と英語の最初の文をテストに選びました。
+`sys`をDeepSeekからの結果として定義し、`sys_0`を定義しました。**注意：`sys_0`は`ref`からコピーされました。**
 
-```python
+```
 from sacrebleu import BLEU, CHRF
 
 refs = [
@@ -51,32 +51,32 @@ sys_0 = [
     '主席研究員說，這可能會讓低收入國家的患者及早發現癌症、結核病、愛滋病病毒和瘧疾。在這些國家，乳癌等疾病的生存率可能只有富裕國家的一半。'
 ]
 
-bleu = BLEU(lowercase=True, effective_order=True)
+bleu = BLEU(lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='zh', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='zh',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='char', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='char',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='intl', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='intl',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='flores101', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='flores101',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
-bleu = BLEU(tokenize='flores200', lowercase=True, effective_order=True)
+bleu = BLEU(tokenize='flores200',lowercase=True,effective_order=True)
 print(bleu.corpus_score(sys_0, refs))
 print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
@@ -88,14 +88,14 @@ print(chrf.corpus_score(sys, refs))
 print(chrf.get_signature())
 ```
 
-## Show me the vibe and result!
+## 雰囲気と結果を見せて！
 
-For me, the translate result almost same for those sentence, as we focused on 5W-H as
-`On Monday, scientists from the Stanford University School of Medicine announced the invention of a new diagnostic tool that can sort cells by type: a tiny printable chip that can be manufactured using standard inkjet printers for possibly about one U.S. cent each.`
+私にとって、これらの文の翻訳結果はほぼ同じです。なぜなら、私たちは5W-H（いつ、どこで、誰が、何を、なぜ、どのように）に焦点を当てているからです。
+`月曜日、スタンフォード大学医学部の科学者たちは、細胞を種類別に分類できる新しい診断ツールの発明を発表しました。それは、標準的なインクジェットプリンターを使用して製造可能な小さな印刷可能チップで、おそらく1つあたり約1米セントで作れます。`
 
-On Monday, scientists from the Stanford University School of Medicine, announced ...
+月曜日、スタンフォード大学医学部の科学者たちは、発表しました...
 
-Next, let's see the behavior from BLEU:
+次に、BLEUの挙動を見てみましょう：
 
 ```
 BLEU = 0.00 0.0/0.0/0.0/0.0 (BP = 1.000 ratio = 2.000 hyp_len = 4 ref_len = 2)
@@ -103,7 +103,7 @@ BLEU = 0.00 0.0/0.0/0.0/0.0 (BP = 1.000 ratio = 3.000 hyp_len = 6 ref_len = 2)
 nrefs:2|case:lc|eff:no|tok:13a|smooth:exp|version:2.5.1
 -----
 ```
-The default result is not good, as BLEU relies on tokenization, which makes sense.
+デフォルトの結果は良くありません。BLEUはトークン化に依存しているからです。これは理にかなっています。
 
 ```
 BLEU = 38.75 80.0/49.0/29.8/21.6 (BP = 0.973 ratio = 0.973 hyp_len = 145 ref_len = 149)
@@ -115,7 +115,7 @@ BLEU = 17.42 60.8/29.1/12.2/4.4 (BP = 0.993 ratio = 0.993 hyp_len = 143 ref_len 
 nrefs:2|case:lc|eff:no|tok:char|smooth:exp|version:2.5.1
 -----
 ```
-Well, zh equals to tokenize by character, and yes, it is language-based. But, which makes me think it's weird as `sys_0` is not getting a full score of 100.
+ええと、zhは文字単位でのトークン化に等しく、はい、それは言語に基づいています。しかし、`sys_0`が100点満点を取れなかったことに、私は少し変に思っています。
 
 ```
 BLEU = 8.91 50.0/9.1/5.0/2.8 (BP = 1.000 ratio = 1.091 hyp_len = 24 ref_len = 22)
@@ -131,14 +131,14 @@ BLEU = 9.55 53.2/22.0/7.5/1.0 (BP = 1.000 ratio = 1.009 hyp_len = 111 ref_len = 
 nrefs:2|case:lc|eff:no|tok:flores200|smooth:exp|version:2.5.1
 -----
 ```
-As our test case is from flores200, so let's see BLEU behavior with flores200. Hmm, it's not perfect either.
+私たちのテストケースはflores200からなので、flores200でのBLEUの挙動を見てみましょう。うーん、これも完璧ではありません。
 
 ```
 80.0/49.0/29.8/21.6
 73.7/37.5/21.8/14.8
 ```
-Well, these four sets of numbers represent the precision of 1-gram, 2-gram, 3-gram, and 4-gram, respectively.
+ええと、これらの4つの数字のセットは、それぞれ1-gram、2-gram、3-gram、4-gramの精度を表しています。
 
-## Why it may be out of date?
+## なぜ時代遅れかもしれないのか？
 
-Which means, if we just compare with word precision... as 1-gram or 2-gram... which looks good but loses the meaning of the sentence. And at the same time, if we switch tokenizers, it influences the result too much.
+つまり、単語の精度だけを比較すると... 1-gramや2-gramのように... それは良さそうに見えますが、文の意味が失われます。そして同時に、トークナイザーを切り替えると、結果に影響が大きすぎます。
