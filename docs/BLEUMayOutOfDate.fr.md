@@ -82,7 +82,6 @@ print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
 chrf = CHRF()
-```
 print(chrf.corpus_score(sys_0, refs))
 print(chrf.corpus_score(sys, refs))
 print(chrf.get_signature())

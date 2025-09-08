@@ -1,4 +1,4 @@
-# BLEU 可能过时用于翻译任务？
+# BLEU 用于翻译任务可能过时？
 
 ## 什么是 BLEU？
 
@@ -82,7 +82,6 @@ print(bleu.corpus_score(sys, refs))
 print(bleu.get_signature())
 print("-----")
 chrf = CHRF()
-```
 print(chrf.corpus_score(sys_0, refs))
 print(chrf.corpus_score(sys, refs))
 print(chrf.get_signature())
