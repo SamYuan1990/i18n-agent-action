@@ -63,11 +63,6 @@ class LeftSidebar(ft.Container):
             value=saved_config.get("reserved_word", ""),  # 使用保存的值或空字符串
         )
 
-        self.auto_detect_switch = ft.Switch(
-            label="自动检测语言",
-            value=saved_config.get("auto_detect", True),  # 使用保存的值或默认值
-        )
-
         self.save_history_switch = ft.Switch(
             label="保存翻译历史",
             value=saved_config.get("save_history", True),  # 使用保存的值或默认值
@@ -121,7 +116,6 @@ class LeftSidebar(ft.Container):
                     ft.Text("Reserved Word:"),
                     self.reserved_word_field,
                     # 保留的开关选项
-                    self.auto_detect_switch,
                     self.save_history_switch,
                     # 保存按钮固定在底部
                     ft.Container(
@@ -277,7 +271,6 @@ class LeftSidebar(ft.Container):
             "model": self.model_field.value,
             "target_language": self.target_language_field.value,
             "reserved_word": self.reserved_word_field.value,
-            "auto_detect": self.auto_detect_switch.value,
             "save_history": self.save_history_switch.value,
         }
 
@@ -294,7 +287,6 @@ class LeftSidebar(ft.Container):
             logging.info(f"Model: {self.model_field.value}")
             logging.info(f"Target Language: {self.target_language_field.value}")
             logging.info(f"Reserved Word: {self.reserved_word_field.value}")
-            logging.info(f"自动检测语言: {self.auto_detect_switch.value}")
             logging.info(f"保存翻译历史: {self.save_history_switch.value}")
             logging.info("=================")
         else:
@@ -313,7 +305,6 @@ class LeftSidebar(ft.Container):
             local_cache=self.storage,
             usecache=True,
         )
-        logging.info(f"自动检测语言: {self.auto_detect_switch.value}")
         logging.info("=================")
         return LLM_Client
 
