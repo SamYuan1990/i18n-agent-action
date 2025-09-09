@@ -122,7 +122,9 @@ class TranslationApp:
             [
                 ft.Row(
                     [
-                        ft.Text("i18n agent", style=ft.TextThemeStyle.HEADLINE_LARGE),
+                        ft.Text(
+                            "i18n agent", theme_style=ft.TextThemeStyle.HEADLINE_LARGE
+                        ),
                         ft.Row(
                             [
                                 self.left_sidebar_toggle,
