@@ -68,6 +68,3 @@ pytest-cov = "^6.3.0"
 
 [tool.flit.sdist]
 include = ["AgentUtils/**/*","Business/**/*"]
-
-[tool.flet.macos]
-entitlement."com.apple.security.files.user-selected.read-write" = true
