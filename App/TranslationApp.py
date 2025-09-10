@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from typing import Dict
 
 import flet as ft
 
@@ -26,6 +27,7 @@ class TranslationApp:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         self.log_contents = []
         self.recording_path = ""
+        self.prog_bars: Dict[str, ft.ProgressRing] = {}
         # self.audio_rec = ftar.AudioRecorder(
         #     audio_encoder=ftar.AudioEncoder.WAV,
         #     on_state_changed=self.handle_state_change,
@@ -56,6 +58,7 @@ class TranslationApp:
             auto_scroll=True,
         )
         self.engine = pyttsx3.init()
+        
         # 创建消息输入框
         self.new_message = ft.TextField(
             hint_text="请输入要翻译的文本...",
@@ -74,6 +77,23 @@ class TranslationApp:
             tooltip="发送翻译",
             on_click=self.send_message_click,
         )
+        
+        # 创建文件选择器
+        self.file_picker = ft.FilePicker(
+            on_result=self.file_picker_result, 
+            on_upload=self.on_upload_progress
+        )
+        self.page.overlay.append(self.file_picker)
+        
+        # 创建上传文件按钮
+        self.upload_button = ft.IconButton(
+            icon=ft.Icons.UPLOAD_FILE,
+            tooltip="上传文件",
+            on_click=lambda _: self.file_picker.pick_files(allow_multiple=True),
+        )
+        
+        # 创建文件列表容器
+        self.files_container = ft.Column()
 
         # 创建录音按钮（注释掉并隐藏）
         self.record_btn = ft.ElevatedButton(
@@ -150,9 +170,11 @@ class TranslationApp:
                 ft.Row(
                     [
                         self.new_message,
+                        self.upload_button,  # 添加上传按钮
                         self.send_button,
                     ]
                 ),
+                self.files_container,  # 显示文件上传进度
                 ft.Container(height=10),
                 self.record_btn,
                 self.stp_record_btn,
@@ -186,6 +208,57 @@ class TranslationApp:
                 expand=True,
             )
         )
+    
+    def file_picker_result(self, e: ft.FilePickerResultEvent):
+        self.upload_button.disabled = True if e.files is None else False
+        self.prog_bars.clear()
+        self.files_container.controls.clear()
+        
+        if e.files is not None:
+            for f in e.files:
+                prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
+                self.prog_bars[f.name] = prog
+                self.files_container.controls.append(ft.Row([prog, ft.Text(f.name)]))
+        
+        self.page.update()
+        
+        # 自动开始上传
+        if e.files:
+            self.upload_files()
+
+    def on_upload_progress(self, e: ft.FilePickerUploadEvent):
+        if e.file_name in self.prog_bars:
+            self.prog_bars[e.file_name].value = e.progress
+            self.prog_bars[e.file_name].update()
+            
+            # 当上传完成时记录日志
+            if e.progress >= 1.0:
+                self.log_file_upload(e.file_name)
+
+    def upload_files(self):
+        if self.file_picker.result is not None and self.file_picker.result.files is not None:
+            uf = []
+            for f in self.file_picker.result.files:
+                # 获取上传URL，文件将保存在FLET_APP_STORAGE_TEMP目录中
+                upload_url = self.page.get_upload_url(f.name, 600)
+                uf.append(
+                    ft.FilePickerUploadFile(
+                        f.name,
+                        upload_url=upload_url,
+                    )
+                )
+            self.file_picker.upload(uf)
+
+    def log_file_upload(self, filename):
+        """记录文件上传日志"""
+        temp_path = os.getenv("FLET_APP_STORAGE_DATA")
+        filepath = os.path.join(temp_path, filename) if temp_path else filename
+        
+        log_message = f"文件上传成功: {filename} -> {filepath}"
+        logging.info(log_message)
+        
+        # 这里可以添加后续功能扩展的调用
+        # 例如: self.process_uploaded_file(filepath)
 
     def send_message_click(self, e):
         if self.new_message.value != "":
