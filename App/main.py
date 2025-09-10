@@ -27,4 +27,5 @@ def main(page: ft.Page):
     # app = TranslationApp(page)
     TranslationApp(page)
 
-ft.app(target=main,upload_dir=app_data_path)
+
+ft.app(target=main, upload_dir=app_data_path)

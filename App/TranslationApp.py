@@ -58,7 +58,7 @@ class TranslationApp:
             auto_scroll=True,
         )
         self.engine = pyttsx3.init()
-        
+
         # 创建消息输入框
         self.new_message = ft.TextField(
             hint_text="请输入要翻译的文本...",
@@ -77,21 +77,20 @@ class TranslationApp:
             tooltip="发送翻译",
             on_click=self.send_message_click,
         )
-        
+
         # 创建文件选择器
         self.file_picker = ft.FilePicker(
-            on_result=self.file_picker_result, 
-            on_upload=self.on_upload_progress
+            on_result=self.file_picker_result, on_upload=self.on_upload_progress
         )
         self.page.overlay.append(self.file_picker)
-        
+
         # 创建上传文件按钮
         self.upload_button = ft.IconButton(
             icon=ft.Icons.UPLOAD_FILE,
             tooltip="上传文件",
             on_click=lambda _: self.file_picker.pick_files(allow_multiple=True),
         )
-        
+
         # 创建文件列表容器
         self.files_container = ft.Column()
 
@@ -208,20 +207,20 @@ class TranslationApp:
                 expand=True,
             )
         )
-    
+
     def file_picker_result(self, e: ft.FilePickerResultEvent):
         self.upload_button.disabled = True if e.files is None else False
         self.prog_bars.clear()
         self.files_container.controls.clear()
-        
+
         if e.files is not None:
             for f in e.files:
                 prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
                 self.prog_bars[f.name] = prog
                 self.files_container.controls.append(ft.Row([prog, ft.Text(f.name)]))
-        
+
         self.page.update()
-        
+
         # 自动开始上传
         if e.files:
             self.upload_files()
@@ -230,13 +229,16 @@ class TranslationApp:
         if e.file_name in self.prog_bars:
             self.prog_bars[e.file_name].value = e.progress
             self.prog_bars[e.file_name].update()
-            
+
             # 当上传完成时记录日志
             if e.progress >= 1.0:
                 self.log_file_upload(e.file_name)
 
     def upload_files(self):
-        if self.file_picker.result is not None and self.file_picker.result.files is not None:
+        if (
+            self.file_picker.result is not None
+            and self.file_picker.result.files is not None
+        ):
             uf = []
             for f in self.file_picker.result.files:
                 # 获取上传URL，文件将保存在FLET_APP_STORAGE_TEMP目录中
@@ -253,10 +255,10 @@ class TranslationApp:
         """记录文件上传日志"""
         temp_path = os.getenv("FLET_APP_STORAGE_DATA")
         filepath = os.path.join(temp_path, filename) if temp_path else filename
-        
+
         log_message = f"文件上传成功: {filename} -> {filepath}"
         logging.info(log_message)
-        
+
         # 这里可以添加后续功能扩展的调用
         # 例如: self.process_uploaded_file(filepath)
 

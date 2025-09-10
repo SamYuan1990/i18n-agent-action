@@ -119,7 +119,7 @@ jobs:
             flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch x86_64 --template=https://github.com/SamYuan1990/flet-build-template/ --template-ref=9c8f332
           else
             echo "Building ${{ matrix.platform }} app"
-            flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -vv --template=https://github.com/SamYuan1990/flet-build-template/ --template-ref=9c8f332
+            flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -v --template=https://github.com/SamYuan1990/flet-build-template/ --template-ref=9c8f332
           fi
 
       - name: Determine artifact name and retention days

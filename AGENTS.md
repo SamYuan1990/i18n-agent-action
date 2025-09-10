@@ -23,7 +23,7 @@
 - Run tests using pytest (assuming tests are configured): `pytest`
 - Run tests for specific modules: `poetry run pytest`
 - To run with coverage: `poetry run pytest --cov=my_project -v`
-- To run local dev UI: `poetry run flet run -d ./App`
+- To run local dev UI: `poetry run flet run -d ./App` or `poetry run flet run -w ./App`
 - Ensure all tests pass before committing changes
 - Lint `docker run --rm \
   -e RUN_LOCAL=true \
@@ -40,6 +40,10 @@
   -v "$PWD:/tmp/lint" \
   ghcr.io/super-linter/super-linter:latest
 `
+- To test build result on mac `
+sudo xattr -d com.apple.quarantine ~/i18n-agent-action.app 
+codesign --force --deep --sign - --preserve-metadata=entitlements --options runtime ~/i18n-agent-action.app`
+may help.
 
 ## Documentation
 
