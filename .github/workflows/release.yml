@@ -118,7 +118,7 @@ jobs:
             flet build macos ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/macos -v --arch x86_64
           else
             echo "Building ${{ matrix.platform }} app"
-            flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -v
+            flet build ${{ matrix.flet-platform }} ./${{ env.APP_DIR }} --output=${{ env.BUILD_DIR }}/${{ matrix.flet-platform }} -vv
           fi
 
       - name: Determine artifact name and retention days
