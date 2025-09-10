@@ -23,7 +23,7 @@
 - Run tests using pytest (assuming tests are configured): `pytest`
 - Run tests for specific modules: `poetry run pytest`
 - To run with coverage: `poetry run pytest --cov=my_project -v`
-- To run local dev UI: `poetry run flet run -d ./App` or `poetry run flet run -w ./App`
+- To run local dev UI: `poetry run flet run -d ./App` or `FLET_SECRET_KEY && poetry run flet run -w ./App`
 - Ensure all tests pass before committing changes
 - Lint `docker run --rm \
   -e RUN_LOCAL=true \

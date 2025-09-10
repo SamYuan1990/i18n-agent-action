@@ -82,7 +82,8 @@ class TranslationApp:
         self.file_picker = ft.FilePicker(
             on_result=self.file_picker_result, on_upload=self.on_upload_progress
         )
-        self.page.overlay.append(self.file_picker)
+        self.file_picker_download = ft.FilePicker()
+        self.page.overlay.append(self.file_picker_download)
 
         # 创建上传文件按钮
         self.upload_button = ft.IconButton(
@@ -253,11 +254,20 @@ class TranslationApp:
 
     def log_file_upload(self, filename):
         """记录文件上传日志"""
-        temp_path = os.getenv("FLET_APP_STORAGE_DATA")
+        temp_path = os.getenv("FLET_APP_STORAGE_TEMP")
         filepath = os.path.join(temp_path, filename) if temp_path else filename
 
         log_message = f"文件上传成功: {filename} -> {filepath}"
         logging.info(log_message)
+        file_message = Message(
+            user_name="User",
+            text=filename,
+            message_type="file",
+            file_path=filepath
+        )
+        chat_message = ChatMessage(file_message, None, self.page, self.file_picker_download)
+        self.chat.controls.append(chat_message)
+        self.page.update()
 
         # 这里可以添加后续功能扩展的调用
         # 例如: self.process_uploaded_file(filepath)
@@ -282,7 +292,7 @@ class TranslationApp:
 
     def add_message(self, message: Message):
         if message.message_type == "chat_message":
-            m = ChatMessage(message, self.engine)
+            m = ChatMessage(message, self.engine, self.page, None)
         self.chat.controls.append(m)
         self.page.update()
 
