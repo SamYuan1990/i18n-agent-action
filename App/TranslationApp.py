@@ -383,11 +383,11 @@ class TranslationApp:
                 # 获取最后30行
                 recent_lines = lines[-10:] if len(lines) > 10 else lines
                 self.log_contents = [
-                    ft.Text(line.strip(), size=5) for line in recent_lines
+                    ft.Text(line.strip(), size=10) for line in recent_lines
                 ]
             except Exception as e:
                 self.log_contents = [
-                    ft.Text(f"读取日志文件出错: {str(e)}", size=5, color=ft.Colors.RED)
+                    ft.Text(f"读取日志文件出错: {str(e)}", size=10, color=ft.Colors.RED)
                 ]
         else:
             self.log_contents = [
