@@ -130,6 +130,7 @@ class TranslationApp:
         # 创建左侧边栏
         self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
+        logging.info(self.app_data_path)
         self.storage = ExpiringDictStorage(
             filename=self.storage_file_path, expiry_days=7
         )
