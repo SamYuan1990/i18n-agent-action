@@ -83,6 +83,7 @@ class TranslationApp:
             on_result=self.file_picker_result, on_upload=self.on_upload_progress
         )
         self.file_picker_download = ft.FilePicker()
+        self.page.overlay.append(self.file_picker)
         self.page.overlay.append(self.file_picker_download)
 
         # 创建上传文件按钮
@@ -260,12 +261,11 @@ class TranslationApp:
         log_message = f"文件上传成功: {filename} -> {filepath}"
         logging.info(log_message)
         file_message = Message(
-            user_name="User",
-            text=filename,
-            message_type="file",
-            file_path=filepath
+            user_name="User", text=filename, message_type="file", file_path=filepath
         )
-        chat_message = ChatMessage(file_message, None, self.page, self.file_picker_download)
+        chat_message = ChatMessage(
+            file_message, None, self.page, self.file_picker_download
+        )
         self.chat.controls.append(chat_message)
         self.page.update()
 
