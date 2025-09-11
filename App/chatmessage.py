@@ -58,6 +58,7 @@ class ChatMessage(ft.Row):
                         [
                             ft.Text(message.user_name, weight="bold"),
                             ft.Text(f"发送了一个文件: {file_name}", selectable=True),
+                            ft.Text(message.text, selectable=True),
                             ft.Text(
                                 "点击下载文件",
                                 size=12,

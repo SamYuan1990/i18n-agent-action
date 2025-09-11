@@ -268,6 +268,56 @@ class TranslationApp:
         )
         self.chat.controls.append(chat_message)
         self.page.update()
+        try:
+            # 读取文件内容
+            with open(filepath, "r", encoding="utf-8") as f:
+                file_content = f.read()
+
+            # 初始化翻译客户端
+            LLM_client = self.left_sidebar.GenClient()
+            storage = self.left_sidebar.get_storage()
+            context = self.left_sidebar.getTranslationContext()
+            span_mgr = Span_Mgr(storage)
+            root_span = span_mgr.create_span("File Translation")
+            TsAgent = translateAgent(LLM_client, span_mgr)
+
+            # 执行翻译
+            result = TsAgent.translate(
+                context, context.target_language, file_content, root_span
+            )
+            logging.info(f"文件翻译完成: {filename}")
+            # 创建临时文件保存翻译结果
+            translated_filename = f"translated_{filename}"
+            translated_filepath = (
+                os.path.join(temp_path, translated_filename)
+                if temp_path
+                else translated_filename
+            )
+
+            with open(translated_filepath, "w", encoding="utf-8") as f:
+                f.write(result)
+            # 添加翻译结果到聊天
+            file_message = Message(
+                user_name="Agent",
+                text=result,
+                message_type="file",
+                file_path=translated_filepath,
+            )
+            chat_message = ChatMessage(
+                file_message, None, self.page, self.file_picker_download
+            )
+            self.chat.controls.append(chat_message)
+            self.page.update()
+
+        except Exception as e:
+            error_msg = f"文件处理失败: {str(e)}"
+            logging.error(error_msg)
+            self.add_message(
+                Message(user_name="System", text=error_msg, message_type="error")
+            )
+        # open file
+        # invoke translate function
+        # handle translate result
 
         # 这里可以添加后续功能扩展的调用
         # 例如: self.process_uploaded_file(filepath)
