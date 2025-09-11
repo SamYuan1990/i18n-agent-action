@@ -16,7 +16,6 @@ file_handler = RotatingFileHandler(
 )
 file_handler.setLevel(logging.DEBUG)
 os.environ["FLET_SECRET_KEY"] = "DEFAULT_SECRET_KEY_CHANGE_IN_PRODUCTION"
-os.environ["FLET_FORCE_WEB_SERVER"] = "True"
 # 创建formatter
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
@@ -30,4 +29,4 @@ def main(page: ft.Page):
     TranslationApp(page)
 
 
-ft.app(target=main, view=ft.WEB_BROWSER, upload_dir=upload_data_path)
+ft.app(target=main, upload_dir=upload_data_path)
