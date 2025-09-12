@@ -9,7 +9,7 @@
 ## GHAからダウンロード
 
 以下にアクセスしてください
-https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule
+[link](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule)
 
 最新のビルドを見つける
 ![](../img/install_step1.png)  

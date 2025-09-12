@@ -8,8 +8,7 @@
 
 ## Download from GHA
 
-Go to 
-https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule
+Go to [link](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule)
 
 Find the latest build
 ![](../img/install_step1.png)  

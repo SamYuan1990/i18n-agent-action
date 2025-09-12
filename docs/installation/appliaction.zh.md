@@ -9,7 +9,7 @@
 ## 从GHA下载
 
 访问 
-https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule
+[link](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule)
 
 找到最新的构建
 ![](../img/install_step1.png)  
