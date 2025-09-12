@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from typing import Dict
 
 import flet as ft
 
@@ -26,6 +27,7 @@ class TranslationApp:
         self.page.theme_mode = ft.ThemeMode.LIGHT
         self.log_contents = []
         self.recording_path = ""
+        self.prog_bars: Dict[str, ft.ProgressRing] = {}
         # self.audio_rec = ftar.AudioRecorder(
         #     audio_encoder=ftar.AudioEncoder.WAV,
         #     on_state_changed=self.handle_state_change,
@@ -56,6 +58,7 @@ class TranslationApp:
             auto_scroll=True,
         )
         self.engine = pyttsx3.init()
+
         # 创建消息输入框
         self.new_message = ft.TextField(
             hint_text="请输入要翻译的文本...",
@@ -74,6 +77,24 @@ class TranslationApp:
             tooltip="发送翻译",
             on_click=self.send_message_click,
         )
+
+        # 创建文件选择器
+        self.file_picker = ft.FilePicker(
+            on_result=self.file_picker_result, on_upload=self.on_upload_progress
+        )
+        self.file_picker_download = ft.FilePicker()
+        self.page.overlay.append(self.file_picker)
+        self.page.overlay.append(self.file_picker_download)
+
+        # 创建上传文件按钮
+        self.upload_button = ft.IconButton(
+            icon=ft.Icons.UPLOAD_FILE,
+            tooltip="上传文件",
+            on_click=lambda _: self.file_picker.pick_files(allow_multiple=True),
+        )
+
+        # 创建文件列表容器
+        self.files_container = ft.Column()
 
         # 创建录音按钮（注释掉并隐藏）
         self.record_btn = ft.ElevatedButton(
@@ -109,6 +130,7 @@ class TranslationApp:
         # 创建左侧边栏
         self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
+        logging.info(self.app_data_path)
         self.storage = ExpiringDictStorage(
             filename=self.storage_file_path, expiry_days=7
         )
@@ -150,9 +172,11 @@ class TranslationApp:
                 ft.Row(
                     [
                         self.new_message,
+                        self.upload_button,  # 添加上传按钮
                         self.send_button,
                     ]
                 ),
+                self.files_container,  # 显示文件上传进度
                 ft.Container(height=10),
                 self.record_btn,
                 self.stp_record_btn,
@@ -187,6 +211,118 @@ class TranslationApp:
             )
         )
 
+    def file_picker_result(self, e: ft.FilePickerResultEvent):
+        self.upload_button.disabled = True if e.files is None else False
+        self.prog_bars.clear()
+        self.files_container.controls.clear()
+
+        if e.files is not None:
+            for f in e.files:
+                prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
+                self.prog_bars[f.name] = prog
+                self.files_container.controls.append(ft.Row([prog, ft.Text(f.name)]))
+
+        self.page.update()
+
+        # 自动开始上传
+        if e.files:
+            self.upload_files()
+
+    def on_upload_progress(self, e: ft.FilePickerUploadEvent):
+        if e.file_name in self.prog_bars:
+            self.prog_bars[e.file_name].value = e.progress
+            self.prog_bars[e.file_name].update()
+
+            # 当上传完成时记录日志
+            if e.progress >= 1.0:
+                self.log_file_upload(e.file_name)
+
+    def upload_files(self):
+        if (
+            self.file_picker.result is not None
+            and self.file_picker.result.files is not None
+        ):
+            uf = []
+            for f in self.file_picker.result.files:
+                # 获取上传URL，文件将保存在FLET_APP_STORAGE_TEMP目录中
+                upload_url = self.page.get_upload_url(f.name, 600)
+                uf.append(
+                    ft.FilePickerUploadFile(
+                        f.name,
+                        upload_url=upload_url,
+                    )
+                )
+            self.file_picker.upload(uf)
+
+    def log_file_upload(self, filename):
+        """记录文件上传日志"""
+        temp_path = os.getenv("FLET_APP_STORAGE_TEMP")
+        filepath = os.path.join(temp_path, filename) if temp_path else filename
+
+        log_message = f"文件上传成功: {filename} -> {filepath}"
+        logging.info(log_message)
+        file_message = Message(
+            user_name="User", text=filename, message_type="file", file_path=filepath
+        )
+        chat_message = ChatMessage(
+            file_message, None, self.page, self.file_picker_download
+        )
+        self.chat.controls.append(chat_message)
+        self.page.update()
+        try:
+            # 读取文件内容
+            with open(filepath, "r", encoding="utf-8") as f:
+                file_content = f.read()
+
+            # 初始化翻译客户端
+            LLM_client = self.left_sidebar.GenClient()
+            storage = self.left_sidebar.get_storage()
+            context = self.left_sidebar.getTranslationContext()
+            span_mgr = Span_Mgr(storage)
+            root_span = span_mgr.create_span("File Translation")
+            TsAgent = translateAgent(LLM_client, span_mgr)
+
+            # 执行翻译
+            result = TsAgent.translate(
+                context, context.target_language, file_content, root_span
+            )
+            logging.info(f"文件翻译完成: {filename}")
+            # 创建临时文件保存翻译结果
+            translated_filename = f"translated_{filename}"
+            translated_filepath = (
+                os.path.join(temp_path, translated_filename)
+                if temp_path
+                else translated_filename
+            )
+
+            with open(translated_filepath, "w", encoding="utf-8") as f:
+                f.write(result)
+            # 添加翻译结果到聊天
+            file_message = Message(
+                user_name="Agent",
+                text=result,
+                message_type="file",
+                file_path=translated_filepath,
+            )
+            chat_message = ChatMessage(
+                file_message, None, self.page, self.file_picker_download
+            )
+            self.chat.controls.append(chat_message)
+            self.page.update()
+
+        except Exception as e:
+            error_msg = f"文件处理失败: {str(e)}"
+            logging.error(error_msg)
+            self.add_message(
+                Message(user_name="System", text=error_msg, message_type="error")
+            )
+        # open file
+        # invoke translate function
+        # handle translate result
+
+        # 这里可以添加后续功能扩展的调用
+        # 例如: self.process_uploaded_file(filepath)
+
     def send_message_click(self, e):
         if self.new_message.value != "":
             # 添加用户消息到聊天
@@ -207,7 +343,7 @@ class TranslationApp:
 
     def add_message(self, message: Message):
         if message.message_type == "chat_message":
-            m = ChatMessage(message, self.engine)
+            m = ChatMessage(message, self.engine, self.page, None)
         self.chat.controls.append(m)
         self.page.update()
 
@@ -248,11 +384,11 @@ class TranslationApp:
                 # 获取最后30行
                 recent_lines = lines[-10:] if len(lines) > 10 else lines
                 self.log_contents = [
-                    ft.Text(line.strip(), size=5) for line in recent_lines
+                    ft.Text(line.strip(), size=10) for line in recent_lines
                 ]
             except Exception as e:
                 self.log_contents = [
-                    ft.Text(f"读取日志文件出错: {str(e)}", size=5, color=ft.Colors.RED)
+                    ft.Text(f"读取日志文件出错: {str(e)}", size=10, color=ft.Colors.RED)
                 ]
         else:
             self.log_contents = [
