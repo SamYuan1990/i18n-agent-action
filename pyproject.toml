@@ -70,8 +70,12 @@ pytest-cov = "^6.3.0"
 [tool.flit.sdist]
 include = ["AgentUtils/**/*","Business/**/*"]
 
+[tool.flet]
+permissions = ["microphone"]
+
 [tool.flet.macos]
 entitlement."com.apple.security.files.user-selected.read-write" = true
+entitlement."com.apple.security.device.audio-input" = true
 
 [tool.flet.android]
 min_sdk_version = 24
