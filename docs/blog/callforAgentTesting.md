@@ -5,7 +5,7 @@
 
 ## Test Objectives  
 1. How many languages can DeepSeek support for translation?  
-![](./img/screenshort20250903Test001.png)  
+![](../img/screenshort20250903Test001.png)  
 
 2. The robustness of the current system prompt.  
 https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateConfig.py#L67-L89  
@@ -22,16 +22,16 @@ https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateCon
 
 2. Configure a DeepSeek API key.  
 Please refer to https://api-docs.deepseek.com/zh-cn/ or create one via the web platform.  
-![](./img/step1.png)  
+![](../img/step1.png)  
 
 
 > Of course, everyone is also welcome to use their existing OpenAI-format large language models to expand the testing scope.  
 
 3. Configure the large language model access information and save it.  
-![](./img/step2.png) 
+![](../img/step2.png) 
 
 4. Enter the content to be translated and click "Translate" to wait for the result (note: voice output is enabled by default).  
-![](./img/step3.png) 
+![](../img/step3.png) 
 
 5. Optional feature: Reserved words.  
 Back to Step 1, adding reserved word and reproduce to step 4.

@@ -133,10 +133,10 @@ Content to translate:
 ```
 
 ### ログのスクリーンショット
-![](./img/selfevaluate.png)
-![](./img/selfevaluate2.png)
+![](../img/selfevaluate.png)
+![](../img/selfevaluate2.png)
 
 ### 実世界のケース
 
 自動的に DeepFloyd IF を保持し、`DeepFloyd 如果` や `深度弗洛伊德 如果` にしなかったことがわかります。
-![](./img/selfevaluate3.png)
+![](../img/selfevaluate3.png)

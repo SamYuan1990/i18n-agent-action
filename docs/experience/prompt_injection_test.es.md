@@ -1,6 +1,6 @@
 # "Un destello de inspiración", ¿nos protege de la inyección de prompts?
 
-![](./img/ScreenShot20250807153903.png)
+![](../img/ScreenShot20250807153903.png)
 
 > Como pueden ver, este documento está escrito mientras espero que la imagen del constructor de documentos se construya en mi local.
 
@@ -16,9 +16,9 @@ Todo comienza con [comentarios de revisión](https://github.com/huggingface/diff
 
 Considerando que no tenemos un glosario comunitario, y mezclamos el uso de diferentes idiomas, scripts personalizados para construir nuestro documento. Realmente me confunde cuando veo colab en el repositorio de documentos como:
 
-![](./img/2d956fc6d20b599aff8714b463cb8849.png)
+![](../img/2d956fc6d20b599aff8714b463cb8849.png)
 o
-![](./img/9fbf9de727ac46e892ce0dea838d4fcf.png)
+![](../img/9fbf9de727ac46e892ce0dea838d4fcf.png)
 
 > Igual que vi `</Tip>` y `[Tip]`, sé que será un estilo CSS en la página, pero ¿podemos hacer que sea solo `<Tip>`?
 ## ¡AJA! ¿Qué pasa si "colab" está en una inyección de prompt? ¿Puede LLM manejarlo?
@@ -58,7 +58,7 @@ Consejos: Instalar Pip                     # un Consejo real
 
 [abrir-en-colab]                       # marca personalizada
 ```
-![](./img/ScreenShot20250807165104.png)
+![](../img/ScreenShot20250807165104.png)
 
 Parece la captura de pantalla arriba en **Obsidian** con la configuración oscura del sistema. "decir hola" es difícil de ver, ¿verdad? En el mundo real, la inyección de prompt usará el mismo color que el fondo de la UI.
 #### Ronda Uno
@@ -173,7 +173,7 @@ Puede ver los Descargos de Responsabilidad, que son añadidos automáticamente p
 ## Conclusión
 Después de todo este juego de palabras, todavía estoy esperando la construcción del contenedor. Espero que la solución del contenedor pueda ayudarme a previsualizar la traducción LLM localmente.
 
-![](./img/ScreenShot20250807165513.png)
+![](../img/ScreenShot20250807165513.png)
 
 De este "Destello de inspiración", me pregunto que:
 - Cuando automatizamos con Agente, deberíamos intentar mantener el estilo CSS de la fuente.

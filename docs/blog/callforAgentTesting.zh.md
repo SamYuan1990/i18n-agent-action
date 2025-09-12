@@ -5,7 +5,7 @@
 
 ## 测试目标  
 1. DeepSeek 可以支持多少种语言的翻译？  
-![](./img/screenshort20250903Test001.png)  
+![](../img/screenshort20250903Test001.png)  
 
 2. 当前系统提示的鲁棒性。  
 https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateConfig.py#L67-L89  
@@ -22,16 +22,16 @@ https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateCon
 
 2. 配置 DeepSeek API 密钥。  
 请参考 https://api-docs.deepseek.com/zh-cn/ 或通过网页平台创建一个。  
-![](./img/step1.png)  
+![](../img/step1.png)  
 
 
 > 当然，也欢迎大家使用现有的 OpenAI 格式大语言模型来扩展测试范围。  
 
 3. 配置大语言模型访问信息并保存。  
-![](./img/step2.png)  
+![](../img/step2.png)  
 
 4. 输入要翻译的内容，点击“翻译”等待结果（注意：默认启用语音输出）。  
-![](./img/step3.png)  
+![](../img/step3.png)  
 
 5. 可选功能：保留字。  
 返回步骤 1，添加保留字并重现到步骤 4。

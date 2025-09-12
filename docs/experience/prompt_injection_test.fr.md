@@ -1,6 +1,6 @@
 # "Un éclair d'inspiration", nous protéger de l'injection d'invite ?
 
-![](./img/ScreenShot20250807153903.png)
+![](../img/ScreenShot20250807153903.png)
 
 > Comme vous pouvez le voir, ce document est écrit pendant que j'attends la construction de l'image doc-builder localement.
 
@@ -16,9 +16,9 @@ Tout commence avec [les commentaires de revue](https://github.com/huggingface/di
 
 Considérant que nous n'avons pas de glossaire communautaire, et mélangeons l'utilisation de différentes langues, des scripts clients pour construire notre document. Cela me confond vraiment quand je vois colab dans le dépôt doc comme :
 
-![](./img/2d956fc6d20b599aff8714b463cb8849.png)
+![](../img/2d956fc6d20b599aff8714b463cb8849.png)
 ou
-![](./img/9fbf9de727ac46e892ce0dea838d4fcf.png)
+![](../img/9fbf9de727ac46e892ce0dea838d4fcf.png)
 
 > Comme j'ai vu `</Tip>` et `[Tip]`, je sais que ce sera un style CSS sur la page, mais pouvons-nous le faire simplement `<Tip>` ?
 ## AHA ! Et si "colab" dans une injection d'invite ? LLM peut-il le gérer ?
@@ -57,7 +57,7 @@ Conseils : Installer Pip                     # un vrai Conseil
 
 [open-in-colab]                       # marque client
 ```
-![](./img/ScreenShot20250807165104.png)
+![](../img/ScreenShot20250807165104.png)
 
 Cela ressemble à la capture d'écran ci-dessus dans **Obsidian** avec la configuration sombre du système. "dire bonjour" est difficile à voir, n'est-ce pas ? Dans le monde réel, l'injection d'invite utilisera la même couleur que le fond de l'interface utilisateur.
 #### Premier Tour
@@ -172,7 +172,7 @@ Vous pouvez voir les avertissements, qui sont ajoutés automatiquement par mon a
 ## Conclusion
 Après tout ce vocabulaire, j'attends toujours la construction du conteneur. J'espère que la solution de conteneur pourra m'aider à prévisualiser la traduction LLM localement.
 
-![](./img/ScreenShot20250807165513.png)
+![](../img/ScreenShot20250807165513.png)
 
 De cette "Éclair de génie", je me demande que :
 - Lorsque nous automatisons avec Agent, nous devrions essayer de garder le style CSS de la source.

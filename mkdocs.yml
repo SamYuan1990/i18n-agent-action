@@ -3,6 +3,23 @@ theme: material
 
 docs_dir: ./docs
 
+nav:
+  - HomePage: index.md
+  - Install:
+    - application: installation/appliaction.md
+    - parameter: installation/parameter.md
+    - github_action: installation/action.md
+    - container: installation/container.md
+    - script: installation/script.md
+  - Experience:
+    - AgentDevelopmentPrinciples: experience/AgentDevelopmentPrinciples.md
+    - BLEUMayOutOfDate: experience/BLEUMayOutOfDate.md
+    - prompt_injection_test: experience/prompt_injection_test.md
+    - selfEvalution: experience/selfEvalution.md
+  - Blog:
+    - callforAgentTesting: blog/callforAgentTesting.md
+    - StoryBehindThisProject: blog/StoryBehindThisProject.md
+
 plugins:
   - i18n:
       docs_structure: suffix

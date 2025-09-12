@@ -5,7 +5,7 @@
 
 ## أهداف الاختبار  
 1. كم عدد اللغات التي يمكن لـ DeepSeek دعمها للترجمة؟  
-![](./img/screenshort20250903Test001.png)  
+![](../img/screenshort20250903Test001.png)  
 
 2. متانة موجه النظام الحالي.  
 https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateConfig.py#L67-L89  
@@ -22,16 +22,16 @@ https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateCon
 
 2. تكوين مفتاح API لـ DeepSeek.  
 يرجى الرجوع إلى https://api-docs.deepseek.com/zh-cn/ أو إنشاء واحد عبر المنصة الإلكترونية.  
-![](./img/step1.png)  
+![](../img/step1.png)  
 
 
 > بالطبع، الجميع مرحب بهم أيضاً لاستخدام نماذج اللغة الكبيرة الحالية بتنسيق OpenAI لتوسيع نطاق الاختبار.  
 
 3. تكوين معلومات الوصول لنموذج اللغة الكبيرة وحفظها.  
-![](./img/step2.png) 
+![](../img/step2.png) 
 
 4. أدخل المحتوى المراد ترجمته وانقر على "ترجمة" لانتظار النتيجة (ملاحظة: إخراج الصوت مفعل افتراضياً).  
-![](./img/step3.png) 
+![](../img/step3.png) 
 
 5. ميزة اختيارية: كلمات محجوزة.  
 العودة إلى الخطوة 1، إضافة كلمة محجوزة وإعادة إنتاج الخطوة 4.
