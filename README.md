@@ -10,10 +10,22 @@
 The i18n Agent is an AI-powered tool designed to streamline and automate internationalization (i18n) and localization (l10n) workflows. By leveraging advanced natural language processing (NLP) and machine learning, it helps developers, translators, and product teams efficiently manage multilingual content—eliminating manual errors and accelerating global deployments.
 
 Key Features:
-✅ Automated Translation & Context-Aware Suggestions – Ensures accurate, culturally adapted translations.
-✅ String Extraction & Sync – Detects and syncs translatable strings from codebases (e.g., mkdocs).
-✅ Collaboration Tools – Try to support start this Agent like GitHub action, Container, or local script.
-✅ Self evaluate, Try to identify proper nouns during with LLM's help.
+- ✅ Automated Translation & Context-Aware Suggestions – Ensures accurate, culturally adapted translations.
+- ✅ String Extraction & Sync – Detects and syncs translatable strings from codebases (e.g., mkdocs).
+- ✅ Collaboration Tools – Try to support start this Agent like GitHub action, Container, or local script.
+- ✅ Self evaluate, Try to identify proper nouns during with LLM's help.
+
+## Support running as
+
+| appliaction | github action | container |  MCP | script |
+| --- | --- | --- | --- | --- |
+| ✅  | ✅  | ✅  | tbd | ✅  |
+
+## App Support platform
+
+| macOS (x86) | macOS (arm) | Windows | Linux (x86?) | iOS | Android |
+| ----------- | ----------- | ------- | ------------ | --- | ------- |
+| ✅      | ✅       | call for test | call for test | call for test | call for test |
 
 Built for scalability, the i18n Agent require LLM to analysis your i18n settings, making it ideal for your document project framework like MKdocs, or Your own rules like Hugging face Diffuser.
 
@@ -23,10 +35,10 @@ Built for scalability, the i18n Agent require LLM to analysis your i18n settings
 To keep consistency with user doc, see [doc](./docs/index.md)
 
 ### Installation
-To keep consistency with user doc, see [doc](./docs/index.md)
+To keep consistency with user doc, see [doc](./docs/installation)
 
 ## Usage
-To keep consistency with user doc, see [doc](./docs/index.md)
+To keep consistency with user doc, see [doc](./docs/installation)
 
 ## Contributing
 
