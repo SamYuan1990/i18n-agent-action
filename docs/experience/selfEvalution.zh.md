@@ -132,10 +132,10 @@ def MergePN(str1, str2):
 ```
 
 ### 日志截图
-![](./img/selfevaluate.png)
-![](./img/selfevaluate2.png)
+![](../img/selfevaluate.png)
+![](../img/selfevaluate2.png)
 
 ### 真实世界案例
 
 我们可以看到它自动保留了 DeepFloyd IF，而不是 `DeepFloyd 如果` 或 `深度弗洛伊德 如果`
-![](./img/selfevaluate3.png)
+![](../img/selfevaluate3.png)

@@ -139,10 +139,10 @@ Content to translate:
 ```
 
 ### لقطة شاشة السجل
-![](./img/selfevaluate.png)
-![](./img/selfevaluate2.png)
+![](../img/selfevaluate.png)
+![](../img/selfevaluate2.png)
 
 ### حالة من العالم الحقيقي
 
 يمكننا أن نرى أنه احتفظ تلقائيًا بـ DeepFloyd IF، بدلاً من `DeepFloyd 如果` أو `深度弗洛伊德 如果`
-![](./img/selfevaluate3.png)
+![](../img/selfevaluate3.png)

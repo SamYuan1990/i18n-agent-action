@@ -137,10 +137,10 @@ Contenu à traduire :
 ```
 
 ### Capture d'écran du journal
-![](./img/selfevaluate.png)
-![](./img/selfevaluate2.png)
+![](../img/selfevaluate.png)
+![](../img/selfevaluate2.png)
 
 ### Cas réel
 
 Nous pouvons voir qu'il a automatiquement conservé DeepFloyd IF, au lieu de `DeepFloyd 如果` ou `深度弗洛伊德 如果`
-![](./img/selfevaluate3.png)
+![](../img/selfevaluate3.png)

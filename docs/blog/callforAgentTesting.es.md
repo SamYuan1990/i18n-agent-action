@@ -5,7 +5,7 @@
 
 ## Objetivos de Prueba  
 1. ¿Cuántos idiomas puede soportar DeepSeek para la traducción?  
-![](./img/screenshort20250903Test001.png)  
+![](../img/screenshort20250903Test001.png)  
 
 2. La robustez del prompt del sistema actual.  
 https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateConfig.py#L67-L89  
@@ -22,17 +22,17 @@ https://github.com/SamYuan1990/i18n-agent-action/blob/main/Business/translateCon
 
 2. Configurar una clave API de DeepSeek.  
 Por favor, consulta https://api-docs.deepseek.com/zh-cn/ o crea una a través de la plataforma web.  
-![](./img/step1.png)  
+![](../img/step1.png)  
 
 
 > Por supuesto, todos también son bienvenidos a usar sus modelos de lenguaje grande existentes en formato OpenAI para ampliar el alcance de las pruebas.  
 
 3. Configurar la información de acceso del modelo de lenguaje grande y guardarla.  
-![](./img/step2.png) 
+![](../img/step2.png) 
 
 4. 
 Ingresa el contenido a traducir, haz clic en "Traducir" y espera el resultado (Nota: la salida de voz está habilitada por defecto)
-![](./img/step3.png) 
+![](../img/step3.png) 
 
 5. Característica opcional: Palabras reservadas.  
 Volver al Paso 1, agregar palabra reservada y reproducir hasta el paso 4.

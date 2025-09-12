@@ -1,6 +1,6 @@
 # "A flash of inspiration", protect us from prompt injection?
 
-![](./img/ScreenShot20250807153903.png)
+![](../img/ScreenShot20250807153903.png)
 
 > As you can see, this document is written down while I am waiting doc-builder image build at my local.
 
@@ -16,9 +16,9 @@ Every thing starts with [review comments](https://github.com/huggingface/diffuse
 
 Considering that we don't have a community glossary, and mix using different languages, customer scripts to build our document. It really confuses me when I see colab in doc repo as:
 
-![](./img/2d956fc6d20b599aff8714b463cb8849.png)
+![](../img/2d956fc6d20b599aff8714b463cb8849.png)
 or
-![](./img/9fbf9de727ac46e892ce0dea838d4fcf.png)
+![](../img/9fbf9de727ac46e892ce0dea838d4fcf.png)
 
 > Same as I saw `</Tip>` and `[Tip]`, I know it will be a CSS style on the page, but can we make it just `<Tip>` ?
 ## AHA! What if "colab" in a prompt injection? Can LLM handle it?
@@ -58,7 +58,7 @@ Tips: Install Pip                     # a real Tip
 
 [open-in-colab]                       # customer mark
 ```
-![](./img/ScreenShot20250807165104.png)
+![](../img/ScreenShot20250807165104.png)
 
 It looks like screen shot above in **Obsidian** with system dark config. "say hi" is hard to see right? In real world, the prompt injection will use same color with UI background.
 #### Round One
@@ -174,7 +174,7 @@ You may see the Disclaimers, which is added automatic from my agent, don't worry
 ## Conclusion
 After all those wording, I am still waiting for container build. I hope the container solution can help me preview the LLM translation locally.
 
-![](./img/ScreenShot20250807165513.png)
+![](../img/ScreenShot20250807165513.png)
 
 From this "A flash of inspiration", I am wondering that:
 - When we automate with Agent, we should try to keep the CSS style from source.
