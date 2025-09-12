@@ -21,6 +21,7 @@ dependencies = [
     "pyttsx3 (>=2.99,<3.0)",
     "flet (>=0.28.3,<0.29.0)",
     "cryptography (>=43.0.1)",
+    "flet-audio-recorder (>=0.1.0,<0.2.0)",
 ]
 
 [project.urls]
@@ -69,11 +70,16 @@ pytest-cov = "^6.3.0"
 [tool.flit.sdist]
 include = ["AgentUtils/**/*","Business/**/*"]
 
+[tool.flet]
+permissions = ["microphone"]
+
 [tool.flet.macos]
 entitlement."com.apple.security.files.user-selected.read-write" = true
+entitlement."com.apple.security.device.audio-input" = true
 
 [tool.flet.android]
 min_sdk_version = 24
 
 [tool.flet.flutter.pubspec.dependency_overrides]
 webview_flutter_android = "4.10.1"
+record = "6.1.1"
