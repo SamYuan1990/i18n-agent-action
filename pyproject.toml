@@ -25,6 +25,7 @@ dependencies = [
     "sherpa-onnx (>=1.12.13,<2.0.0)",
     "asyncio (>=4.0.0,<5.0.0)",
     "requests (>=2.32.5,<3.0.0)",
+    "soundfile (>=0.13.1,<0.14.0)",
 ]
 
 [project.urls]

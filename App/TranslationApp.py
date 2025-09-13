@@ -11,7 +11,8 @@ from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
-
+import soundfile as sf
+import sherpa_onnx
 # 添加项目根目录到Python路径
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
@@ -46,7 +47,7 @@ class TranslationApp:
         }
         # 设置音频状态变化回调
         self.sound_manager.set_state_change_callback(self.handle_audio_state_change)
-
+        self.recognizer = None
         # 初始化存储
         self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
         logging.info(self.app_data_path)
@@ -84,7 +85,22 @@ class TranslationApp:
                     message_type="system",
                 )
             )
-        
+        if self.recognizer == None:
+            self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
+            encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
+            decoder=os.path.join(self.app_data_path, "base-decoder.onnx"),
+            tokens=os.path.join(self.app_data_path, "base-tokens.txt"),
+            language="",
+        )
+        stream = self.recognizer.create_stream()
+        self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
+        audio, sample_rate = sf.read(
+            self.recording_path, dtype="float32", always_2d=True
+         )
+        audio = audio[:, 0]
+        stream.accept_waveform(sample_rate, audio)
+        self.recognizer.decode_stream(stream)
+        logging.info(stream.result.text)
             # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
 
     def setup_ui(self):
