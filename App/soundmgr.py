@@ -8,11 +8,16 @@ import pyttsx3
 # 导入音频录制库
 try:
     import flet_audio_recorder as ftar
-
     AUDIO_RECORDER_AVAILABLE = True
 except ImportError:
     AUDIO_RECORDER_AVAILABLE = False
     logging.warning("flet_audio_recorder not available, audio recording disabled")
+try:
+    import onnxruntime
+    ONNX_AVAILABLE = True
+except ImportError:
+    ONNX_AVAILABLE = False
+    logging.warning("onnxruntime not available, audio recording disabled")
 
 
 class SoundManager:
@@ -91,12 +96,12 @@ class SoundManager:
         self.record_btn = ft.ElevatedButton(
             "开始录音",
             on_click=on_start_click,
-            visible=visible and AUDIO_RECORDER_AVAILABLE,
+            visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
         self.stop_record_btn = ft.ElevatedButton(
             "停止录音",
             on_click=on_stop_click,
-            visible=visible and AUDIO_RECORDER_AVAILABLE,
+            visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
 
         return ft.Row([self.record_btn, self.stop_record_btn])
