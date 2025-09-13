@@ -107,7 +107,7 @@ jobs:
           cp -r AgentUtils ${{ env.APP_DIR }}/AgentUtils
           cp -r Business ${{ env.APP_DIR }}/Business
           if [[ "${{ matrix.platform }}" =~ ^(macos-arm|linux|macos-x86|windows)$ ]]; then
-            poetry add onnxruntime
+            poetry add onnxruntime sherpa_onnx
           fi
           cp pyproject.toml ./${{ env.APP_DIR }}
 

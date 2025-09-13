@@ -24,8 +24,8 @@
 - Run tests for specific modules: `poetry run pytest`
 - To run with coverage: `poetry run pytest --cov=my_project -v`
 - To run local dev UI: `poetry run flet run -d ./App` or `export FLET_SECRET_KEY=123 && poetry run flet run -wd ./App`
-- To test UI with or without onnxruntime `poetry add onnxruntime --group dev
-poetry remove onnxruntime
+- To test UI with or without onnxruntime `poetry add onnxruntime sherpa_onnx --group dev
+poetry remove onnxruntime sherpa_onnx
 `
 - Ensure all tests pass before committing changes
 - Lint `docker run --rm \

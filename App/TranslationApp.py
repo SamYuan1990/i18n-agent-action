@@ -12,7 +12,6 @@ from rightsidebar import RightSidebar
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
 import soundfile as sf
-import sherpa_onnx
 # 添加项目根目录到Python路径
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
@@ -21,6 +20,7 @@ from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 
 try:
     import onnxruntime
+    import sherpa_onnx
     ONNX_AVAILABLE = True
 except ImportError:
     ONNX_AVAILABLE = False
@@ -69,22 +69,23 @@ class TranslationApp:
     def handle_start_recording(self, e):
         """处理开始录音"""
         recording_path = self.sound_manager.start_recording()
-        if recording_path:
-            self.add_message(
-                Message(user_name="System", text="开始录音...", message_type="system")
-            )
+        #if recording_path:
+        #    self.add_message(
+        #        Message(user_name="System", text="开始录音...", message_type="system")
+        #    )
 
     def handle_stop_recording(self, e):
         """处理停止录音"""
         recording_path = self.sound_manager.stop_recording()
-        if recording_path:
-            self.add_message(
-                Message(
-                    user_name="System",
-                    text=f"录音已保存: {recording_path}",
-                    message_type="system",
-                )
-            )
+        #if recording_path:
+            #self.add_message(
+            #    Message(
+            #        user_name="System",
+            #        text=f"录音已保存: {recording_path}",
+            #        message_type="system",
+            #    )
+            #)
+        # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
         if self.recognizer == None:
             self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
             encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
@@ -101,8 +102,17 @@ class TranslationApp:
         stream.accept_waveform(sample_rate, audio)
         self.recognizer.decode_stream(stream)
         logging.info(stream.result.text)
-            # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
-
+        result = self.translation_bridge.translate_text(stream.result.text)
+        logging.info(result)
+            # 添加翻译结果到聊天
+        self.add_message(
+                Message(
+                    user_name="Agent",
+                    text=result,
+                    message_type="chat_message",
+                )
+        )
+        
     def setup_ui(self):
         self.download_progress_bar = ft.ProgressBar(value=0, width=300)
         self.download_progress_text = ft.Text("0%")

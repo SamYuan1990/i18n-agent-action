@@ -5785,7 +5785,7 @@ version = "1.12.13"
 description = ""
 optional = false
 python-versions = ">=3.7"
-groups = ["main", "app"]
+groups = ["dev"]
 files = [
     {file = "sherpa_onnx-1.12.13-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2d74800f57482e8a13768befadcbcc6e2355177bbe64649c2bf072948321297f"},
     {file = "sherpa_onnx-1.12.13-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:7dd584d93b616ca6e24508cfb32d3c4c85ac30e9e92fb255a45b205fe4a5066a"},
@@ -5812,7 +5812,7 @@ version = "1.12.13"
 description = "Core shared libraries for sherpa-onnx"
 optional = false
 python-versions = "*"
-groups = ["main", "app"]
+groups = ["dev"]
 files = [
     {file = "sherpa_onnx_core-1.12.13-py3-none-macosx_10_15_universal2.whl", hash = "sha256:8b517df8d0280789c0eebfd8994cec332000a57a3921bbeda97e45dae8964270"},
     {file = "sherpa_onnx_core-1.12.13-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:6196aa3617c2e395bcc3cb712a5827fa910217822ac875025631175245b38ab0"},
@@ -6483,4 +6483,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "a641db1cf0f48444bac260864104ccebcd1e45e900996ede9df833c6ad5629c2"
+content-hash = "7ccb78d7c67389c99a739dc07c4899b01f6cafed83b585ee055fd4f6bbd6f2f6"
