@@ -1,9 +1,11 @@
 import logging
 import os
 import sys
+import threading
 
 import flet as ft
 from chatmessage import ChatMessage, Message
+from FileDownloader import FileDownloader
 from fileMgr import FileManager
 from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
@@ -16,6 +18,16 @@ sys.path.append(root_dir)
 
 from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 
+try:
+    import onnxruntime  # noqa: F401
+    import sherpa_onnx
+    import soundfile as sf
+
+    ONNX_AVAILABLE = True
+except ImportError:
+    ONNX_AVAILABLE = False
+    logging.warning("onnxruntime not available, audio recording disabled")
+
 
 class TranslationApp:
     def __init__(self, page: ft.Page):
@@ -23,15 +35,22 @@ class TranslationApp:
         self.page.title = "i18n agent"
         self.page.theme_mode = ft.ThemeMode.LIGHT
         self.log_contents = []
-
+        self.downloadzone = None
         # 初始化各个功能管理器
         self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.sound_manager = SoundManager(page, self.app_data_path)
         self.file_manager = FileManager(page, self.app_data_path)
-
+        # 初始化文件下载器
+        self.file_downloader = FileDownloader(page, self.app_data_path)
+        # 定义需要下载的文件URL
+        self.file_urls = {
+            "base-encoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-encoder.onnx?download=true",  # 替换为实际URL1
+            "base-decoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-decoder.onnx?download=true",  # 替换为实际URL2
+            "base-tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-tokens.txt?download=true",  # 替换为实际URL3
+        }
         # 设置音频状态变化回调
         self.sound_manager.set_state_change_callback(self.handle_audio_state_change)
-
+        self.recognizer = None
         # 初始化存储
         self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
         logging.info(self.app_data_path)
@@ -42,7 +61,19 @@ class TranslationApp:
         # 初始化翻译桥接器
         self.left_sidebar = LeftSidebar(self, self.storage)
         self.translation_bridge = TranslationBridge(self.left_sidebar)
-
+        if not ONNX_AVAILABLE:
+            try:
+                import onnxruntime  # noqa: F401
+            except ImportError:
+                logging.info("onnxruntime not available, audio recording disabled")
+            try:
+                import sherpa_onnx  # noqa: F401
+            except ImportError:
+                logging.info("sherpa_onnx not available, audio recording disabled")
+            try:
+                import soundfile as sf  # noqa: F401
+            except ImportError:
+                logging.info("soundfile not available, audio recording disabled")
         self.setup_ui()
 
     def handle_audio_state_change(self, state):
@@ -52,27 +83,69 @@ class TranslationApp:
 
     def handle_start_recording(self, e):
         """处理开始录音"""
-        recording_path = self.sound_manager.start_recording()
-        if recording_path:
-            self.add_message(
-                Message(user_name="System", text="开始录音...", message_type="system")
-            )
+        self.sound_manager.start_recording()
+        # if recording_path:
+        #    self.add_message(
+        #        Message(user_name="System", text="开始录音...", message_type="system")
+        #    )
 
     def handle_stop_recording(self, e):
         """处理停止录音"""
-        recording_path = self.sound_manager.stop_recording()
-        if recording_path:
-            self.add_message(
-                Message(
-                    user_name="System",
-                    text=f"录音已保存: {recording_path}",
-                    message_type="system",
-                )
+        self.sound_manager.stop_recording()
+        # if recording_path:
+        # self.add_message(
+        #    Message(
+        #        user_name="System",
+        #        text=f"录音已保存: {recording_path}",
+        #        message_type="system",
+        #    )
+        # )
+        # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
+        if self.recognizer == None:  # noqa: E711
+            self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
+                encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
+                decoder=os.path.join(self.app_data_path, "base-decoder.onnx"),
+                tokens=os.path.join(self.app_data_path, "base-tokens.txt"),
+                language="",
             )
-
-            # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
+        stream = self.recognizer.create_stream()
+        self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
+        audio, sample_rate = sf.read(
+            self.recording_path, dtype="float32", always_2d=True
+        )
+        audio = audio[:, 0]
+        stream.accept_waveform(sample_rate, audio)
+        self.recognizer.decode_stream(stream)
+        logging.info(stream.result.text)
+        result = self.translation_bridge.translate_text(stream.result.text)
+        logging.info(result)
+        # 添加翻译结果到聊天
+        self.add_message(
+            Message(
+                user_name="Agent",
+                text=result,
+                message_type="chat_message",
+            )
+        )
 
     def setup_ui(self):
+        self.download_progress_bar = ft.ProgressBar(value=0, width=300)
+        self.download_progress_text = ft.Text("0%")
+        self.download_status_text = ft.Text("等待下载模型文件...")
+
+        # 将UI控件关联到下载器
+        if ONNX_AVAILABLE:
+            self.file_downloader.download_progress_bar = self.download_progress_bar
+            self.file_downloader.download_progress_text = self.download_progress_text
+            self.file_downloader.download_status_text = self.download_status_text
+            # 创建下载按钮
+            self.download_btn = ft.ElevatedButton(
+                "下载模型文件", icon=ft.Icons.DOWNLOAD, on_click=self.start_download
+            )
+            self.cancel_download_btn = ft.OutlinedButton(
+                "取消下载", on_click=self.cancel_download
+            )
+
         # 创建聊天消息区域
         self.chat = ft.ListView(
             expand=True,
@@ -138,49 +211,122 @@ class TranslationApp:
         self.right_sidebar = RightSidebar(self)
 
         # 创建主内容区域
-        self.main_content = ft.Column(
-            [
-                ft.Row(
-                    [
-                        ft.Text(
-                            "i18n agent", theme_style=ft.TextThemeStyle.HEADLINE_LARGE
-                        ),
-                        ft.Text(
-                            "Icons made by Good Ware from www.flaticon.com \nTranslation Content Generated by LLM",
-                            theme_style=ft.TextThemeStyle.LABEL_SMALL,
-                        ),
-                        ft.Row(
-                            [
-                                self.left_sidebar_toggle,
-                                self.right_sidebar_toggle,
-                                self.log_view_toggle,
-                            ],
-                            spacing=5,
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                ),
-                ft.Container(
-                    content=self.chat,
-                    border=ft.border.all(1, ft.Colors.OUTLINE),
-                    border_radius=5,
-                    padding=10,
-                    expand=True,
-                ),
-                ft.Row(
-                    [
-                        self.new_message,
-                        self.upload_button,
-                        self.send_button,
-                    ]
-                ),
-                self.record_buttons,  # 添加录音按钮
-                self.file_manager.files_container,  # 显示文件上传进度
-                ft.Container(height=10),
-            ],
-            alignment=ft.MainAxisAlignment.START,
-            expand=True,
-        )
+        if ONNX_AVAILABLE:
+            self.main_content = ft.Column(
+                [
+                    ft.Row(
+                        [
+                            ft.Text(
+                                "i18n agent",
+                                theme_style=ft.TextThemeStyle.HEADLINE_LARGE,
+                            ),
+                            ft.Text(
+                                "Icons made by Good Ware from www.flaticon.com \nTranslation Content Generated by LLM",
+                                theme_style=ft.TextThemeStyle.LABEL_SMALL,
+                            ),
+                            ft.Row(
+                                [
+                                    self.left_sidebar_toggle,
+                                    self.right_sidebar_toggle,
+                                    self.log_view_toggle,
+                                ],
+                                spacing=5,
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    # 下载区域
+                    ft.Card(
+                        content=ft.Container(
+                            content=ft.Column(
+                                [
+                                    ft.Text(
+                                        "模型文件下载",
+                                        style=ft.TextThemeStyle.TITLE_MEDIUM,
+                                    ),
+                                    self.download_status_text,
+                                    ft.Row(
+                                        [
+                                            self.download_progress_bar,
+                                            self.download_progress_text,
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                    ),
+                                    ft.Row(
+                                        [self.download_btn, self.cancel_download_btn],
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                    ),
+                                ],
+                                spacing=10,
+                            ),
+                            padding=15,
+                        )
+                    ),
+                    ft.Container(
+                        content=self.chat,
+                        border=ft.border.all(1, ft.Colors.OUTLINE),
+                        border_radius=5,
+                        padding=10,
+                        expand=True,
+                    ),
+                    ft.Row(
+                        [
+                            self.new_message,
+                            self.upload_button,
+                            self.send_button,
+                        ]
+                    ),
+                    self.record_buttons,  # 添加录音按钮
+                    self.file_manager.files_container,  # 显示文件上传进度
+                    ft.Container(height=10),
+                ],
+                alignment=ft.MainAxisAlignment.START,
+                expand=True,
+            )
+        else:
+            self.main_content = ft.Column(
+                [
+                    ft.Row(
+                        [
+                            ft.Text(
+                                "i18n agent",
+                                theme_style=ft.TextThemeStyle.HEADLINE_LARGE,
+                            ),
+                            ft.Text(
+                                "Icons made by Good Ware from www.flaticon.com \nTranslation Content Generated by LLM",
+                                theme_style=ft.TextThemeStyle.LABEL_SMALL,
+                            ),
+                            ft.Row(
+                                [
+                                    self.left_sidebar_toggle,
+                                    self.right_sidebar_toggle,
+                                    self.log_view_toggle,
+                                ],
+                                spacing=5,
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    ft.Container(
+                        content=self.chat,
+                        border=ft.border.all(1, ft.Colors.OUTLINE),
+                        border_radius=5,
+                        padding=10,
+                        expand=True,
+                    ),
+                    ft.Row(
+                        [
+                            self.new_message,
+                            self.upload_button,
+                            self.send_button,
+                        ]
+                    ),
+                    self.file_manager.files_container,  # 显示文件上传进度
+                    ft.Container(height=10),
+                ],
+                alignment=ft.MainAxisAlignment.START,
+                expand=True,
+            )
 
         # 创建日志弹窗
         self.log_dialog = ft.AlertDialog(
@@ -374,3 +520,29 @@ class TranslationApp:
             self.add_message(
                 Message(user_name="System", text=error_msg, message_type="error")
             )
+
+    def start_download(self, e):
+        """开始下载所有文件"""
+        if not self.file_downloader.downloading:
+            # 重置取消标志
+            self.file_downloader.cancelled = False
+            thread = threading.Thread(
+                target=self.file_downloader.download_files,
+                args=(self.file_urls,),
+                daemon=True,
+            )
+            thread.start()
+
+    def cancel_download(self, e):
+        """取消下载"""
+        if self.file_downloader.downloading:
+            self.file_downloader.cancel_download()
+
+    def show_message(self, message):
+        """显示消息"""
+
+        def _show():
+            self.download_status_text.value = message
+            self.page.update()
+
+        self.page.run_task(_show)

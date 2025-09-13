@@ -13,6 +13,13 @@ try:
 except ImportError:
     AUDIO_RECORDER_AVAILABLE = False
     logging.warning("flet_audio_recorder not available, audio recording disabled")
+try:
+    import onnxruntime  # noqa: F401
+
+    ONNX_AVAILABLE = True
+except ImportError:
+    ONNX_AVAILABLE = False
+    logging.warning("onnxruntime not available, audio recording disabled")
 
 
 class SoundManager:
@@ -28,7 +35,7 @@ class SoundManager:
         # 初始化音频录制器（如果可用）
         if AUDIO_RECORDER_AVAILABLE:
             self.audio_rec = ftar.AudioRecorder(
-                audio_encoder=ftar.AudioEncoder.WAV,
+                audio_encoder=ftar.AudioEncoder.PCM16BITS,
                 on_state_changed=self.handle_state_change,
             )
             self.page.overlay.append(self.audio_rec)
@@ -91,12 +98,12 @@ class SoundManager:
         self.record_btn = ft.ElevatedButton(
             "开始录音",
             on_click=on_start_click,
-            visible=visible and AUDIO_RECORDER_AVAILABLE,
+            visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
         self.stop_record_btn = ft.ElevatedButton(
             "停止录音",
             on_click=on_stop_click,
-            visible=visible and AUDIO_RECORDER_AVAILABLE,
+            visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
 
         return ft.Row([self.record_btn, self.stop_record_btn])
