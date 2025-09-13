@@ -19,7 +19,7 @@ sys.path.append(root_dir)
 from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 
 try:
-    import onnxruntime
+    import onnxruntime  # noqa: F401
     import sherpa_onnx
     import soundfile as sf
 
@@ -63,15 +63,15 @@ class TranslationApp:
         self.translation_bridge = TranslationBridge(self.left_sidebar)
         if not ONNX_AVAILABLE:
             try:
-                import onnxruntime
+                import onnxruntime  # noqa: F401
             except ImportError:
                 logging.info("onnxruntime not available, audio recording disabled")
             try:
-                import sherpa_onnx
+                import sherpa_onnx  # noqa: F401
             except ImportError:
                 logging.info("sherpa_onnx not available, audio recording disabled")
             try:
-                import soundfile as sf
+                import soundfile as sf  # noqa: F401
             except ImportError:
                 logging.info("soundfile not available, audio recording disabled")
         self.setup_ui()
@@ -83,7 +83,7 @@ class TranslationApp:
 
     def handle_start_recording(self, e):
         """处理开始录音"""
-        recording_path = self.sound_manager.start_recording()
+        self.sound_manager.start_recording()
         # if recording_path:
         #    self.add_message(
         #        Message(user_name="System", text="开始录音...", message_type="system")
@@ -91,7 +91,7 @@ class TranslationApp:
 
     def handle_stop_recording(self, e):
         """处理停止录音"""
-        recording_path = self.sound_manager.stop_recording()
+        self.sound_manager.stop_recording()
         # if recording_path:
         # self.add_message(
         #    Message(
@@ -101,7 +101,7 @@ class TranslationApp:
         #    )
         # )
         # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
-        if self.recognizer == None:
+        if self.recognizer == None:  # noqa: E711
             self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
                 encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
                 decoder=os.path.join(self.app_data_path, "base-decoder.onnx"),

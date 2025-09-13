@@ -14,7 +14,8 @@ except ImportError:
     AUDIO_RECORDER_AVAILABLE = False
     logging.warning("flet_audio_recorder not available, audio recording disabled")
 try:
-    import onnxruntime
+    import onnxruntime  # noqa: F401
+
     ONNX_AVAILABLE = True
 except ImportError:
     ONNX_AVAILABLE = False
