@@ -58,7 +58,19 @@ class TranslationApp:
         # 初始化翻译桥接器
         self.left_sidebar = LeftSidebar(self, self.storage)
         self.translation_bridge = TranslationBridge(self.left_sidebar)
-
+        if not ONNX_AVAILABLE:
+            try:
+                import onnxruntime
+            except ImportError:
+                logging.info("onnxruntime not available, audio recording disabled")
+            try:
+                import sherpa_onnx
+            except ImportError:
+                logging.info("sherpa_onnx not available, audio recording disabled")
+            try:
+                import soundfile as sf
+            except ImportError:
+                logging.info("soundfile not available, audio recording disabled")
         self.setup_ui()
 
     def handle_audio_state_change(self, state):
