@@ -11,7 +11,6 @@ from leftsidebar import LeftSidebar
 from rightsidebar import RightSidebar
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
-import soundfile as sf
 # 添加项目根目录到Python路径
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
@@ -21,6 +20,7 @@ from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 try:
     import onnxruntime
     import sherpa_onnx
+    import soundfile as sf
     ONNX_AVAILABLE = True
 except ImportError:
     ONNX_AVAILABLE = False
