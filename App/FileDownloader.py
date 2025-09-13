@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
+
 class FileDownloader:
     def __init__(self, page, app_data_path):
         self.page = page

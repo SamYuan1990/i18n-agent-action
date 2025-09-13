@@ -8,6 +8,7 @@ import pyttsx3
 # 导入音频录制库
 try:
     import flet_audio_recorder as ftar
+
     AUDIO_RECORDER_AVAILABLE = True
 except ImportError:
     AUDIO_RECORDER_AVAILABLE = False
@@ -33,7 +34,7 @@ class SoundManager:
         # 初始化音频录制器（如果可用）
         if AUDIO_RECORDER_AVAILABLE:
             self.audio_rec = ftar.AudioRecorder(
-                audio_encoder=ftar.AudioEncoder.WAV,
+                audio_encoder=ftar.AudioEncoder.PCM16BITS,
                 on_state_changed=self.handle_state_change,
             )
             self.page.overlay.append(self.audio_rec)

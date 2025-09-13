@@ -103,12 +103,8 @@ jobs:
       - name: Prepare application directory
         shell: bash
         run: |
-          pip install poetry
           cp -r AgentUtils ${{ env.APP_DIR }}/AgentUtils
           cp -r Business ${{ env.APP_DIR }}/Business
-          if [[ "${{ matrix.platform }}" =~ ^(macos-arm|linux|macos-x86|windows)$ ]]; then
-            poetry add onnxruntime sherpa_onnx soundfile
-          fi
           cp pyproject.toml ./${{ env.APP_DIR }}
 
       - name: Build application with Flet
