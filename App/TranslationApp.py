@@ -8,7 +8,6 @@ from chatmessage import ChatMessage, Message
 from FileDownloader import FileDownloader
 from fileMgr import FileManager
 from leftsidebar import LeftSidebar
-from rightsidebar import RightSidebar
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
 
@@ -195,20 +194,10 @@ class TranslationApp:
             on_click=self.toggle_left_sidebar,
         )
 
-        # 创建右侧边栏切换按钮
-        self.right_sidebar_toggle = ft.IconButton(
-            icon=ft.Icons.BAR_CHART,
-            tooltip="显示/隐藏统计",
-            on_click=self.toggle_right_sidebar,
-        )
-
         # 创建日志查看按钮
         self.log_view_toggle = ft.IconButton(
             icon=ft.Icons.LIST_ALT, tooltip="查看日志", on_click=self.show_logs
         )
-
-        # 创建右侧边栏
-        self.right_sidebar = RightSidebar(self)
 
         # 创建主内容区域
         if ONNX_AVAILABLE:
@@ -227,7 +216,6 @@ class TranslationApp:
                             ft.Row(
                                 [
                                     self.left_sidebar_toggle,
-                                    self.right_sidebar_toggle,
                                     self.log_view_toggle,
                                 ],
                                 spacing=5,
@@ -299,7 +287,6 @@ class TranslationApp:
                             ft.Row(
                                 [
                                     self.left_sidebar_toggle,
-                                    self.right_sidebar_toggle,
                                     self.log_view_toggle,
                                 ],
                                 spacing=5,
@@ -346,8 +333,6 @@ class TranslationApp:
                     self.left_sidebar,
                     ft.VerticalDivider(width=1, visible=False),
                     self.main_content,
-                    ft.VerticalDivider(width=1, visible=False),
-                    self.right_sidebar,
                 ],
                 expand=True,
             )
@@ -443,18 +428,6 @@ class TranslationApp:
         # 更新按钮图标
         self.left_sidebar_toggle.icon = (
             ft.Icons.MENU if not self.left_sidebar.visible else ft.Icons.ARROW_BACK
-        )
-        self.page.update()
-
-    def toggle_right_sidebar(self, e=None):
-        self.right_sidebar.visible = not self.right_sidebar.visible
-        # 更新分割线的可见性
-        self.page.controls[0].controls[3].visible = self.right_sidebar.visible
-        # 更新按钮图标
-        self.right_sidebar_toggle.icon = (
-            ft.Icons.BAR_CHART
-            if not self.right_sidebar.visible
-            else ft.Icons.ARROW_FORWARD
         )
         self.page.update()
 

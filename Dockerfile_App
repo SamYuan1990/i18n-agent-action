@@ -1,0 +1,25 @@
+FROM python:3.13
+WORKDIR /app
+
+# 安装Poetry
+RUN pip install --no-cache-dir poetry
+
+# 复制项目文件
+COPY pyproject.toml poetry.lock* ./
+
+# 安装项目依赖（包括所有groups）
+RUN poetry install --no-root --all-extras
+
+# 复制应用代码
+COPY . .
+
+# 安装项目本身
+RUN poetry install --no-dev
+
+# 确保脚本可访问
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONPATH=/app
+ENV FLET_SECRET_KEY=123
+
+# 使用Poetry运行应用
+CMD poetry run flet run -wd ./App
