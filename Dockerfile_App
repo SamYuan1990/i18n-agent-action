@@ -1,4 +1,4 @@
-FROM python:3.13
+FROM python:3.12
 WORKDIR /app
 
 # 配置pip使用清华源
