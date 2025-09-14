@@ -19,7 +19,7 @@ RUN poetry install --no-root --all-extras -v
 COPY . .
 
 # 安装项目本身
-RUN poetry install --no-dev
+# RUN poetry install --no-dev
 
 # 确保脚本可访问
 ENV PATH=/root/.local/bin:$PATH
