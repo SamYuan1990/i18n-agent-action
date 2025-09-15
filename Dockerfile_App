@@ -17,7 +17,7 @@ RUN poetry install --no-root --all-extras -v
 
 # 复制应用代码
 COPY . .
-
+RUN rm -f config.yaml
 # 安装项目本身
 # RUN poetry install --no-dev
 

@@ -9,6 +9,7 @@ nav:
     - application: installation/appliaction.md
     - parameter: installation/parameter.md
     - github_action: installation/action.md
+    - containerApp: installation/containerApp.md
     - container: installation/container.md
     - script: installation/script.md
   - Experience:
