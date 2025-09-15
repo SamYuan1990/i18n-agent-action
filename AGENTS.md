@@ -27,6 +27,7 @@
 - To test UI with or without onnxruntime `poetry add onnxruntime sherpa_onnx soundfile --group dev
 poetry remove onnxruntime sherpa_onnx soundfile
 `
+- To test MCP server `python mcp_server.py` & `python mcp_client.py`
 - Ensure all tests pass before committing changes
 - Lint `docker run --rm \
   -e RUN_LOCAL=true \
