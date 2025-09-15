@@ -1,6 +1,8 @@
 # Ejecutar como Contenedor
 
-## básico
+Este es el backend de la acción de GitHub, no la aplicación de escritorio.
+
+## Básico
 
 ```bash
 docker run -it \
@@ -12,7 +14,7 @@ docker run -it \
   ghcr.io/samyuan1990/i18n-agent-action:latest
 ```
 
-## completo
+## Completo
 
 ```bash
 docker run -it \

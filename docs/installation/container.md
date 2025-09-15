@@ -1,8 +1,8 @@
-# Run as Contaienr
+# Run as Container
 
-This is backend of github action not desktop app.
+This is the backend of a GitHub Action, not a desktop app.
 
-## basic
+## Basic
 
 ```bash
 docker run -it \
@@ -14,7 +14,7 @@ docker run -it \
   ghcr.io/samyuan1990/i18n-agent-action:latest
 ```
 
-## full
+## Full
 
 ```bash
 docker run -it \
@@ -32,3 +32,4 @@ docker run -it \
   -e RESERVED_WORD="kepler,kepler-model-server,pod" \
   -e FILE_LIST="/workspace/docs/index.md" \
   ghcr.io/samyuan1990/i18n-agent-action:latest
+```
