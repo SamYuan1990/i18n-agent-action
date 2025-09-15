@@ -1,6 +1,8 @@
 # 作为容器运行
 
-## 基础
+这是 GitHub Action 的后端，不是桌面应用。
+
+## 基本
 
 ```bash
 docker run -it \
