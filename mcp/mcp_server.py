@@ -1,36 +1,29 @@
+import base64
+import json
 import logging
 import os
 import sys
-import base64
-import asyncio
+
+import sherpa_onnx
+import soundfile as sf
 import uvicorn
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from mcp.server import Server
 from mcp.server.fastmcp import FastMCP
+from mcp.server.sse import SseServerTransport
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.routing import Mount, Route
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 
 from AgentUtils.clientInfo import clientInfo  # noqa: E402
 from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
-from AgentUtils.metric import print_metrics  # noqa: E402
 from AgentUtils.span import Span_Mgr  # noqa: E402
 from Business.translate import translateAgent  # noqa: E402
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
-)
-# 创建 FastAPI 应用
-app = FastAPI(title="Translation Server")
-
-# 添加 CORS 中间件
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 # 创建 FastMCP 实例
@@ -40,8 +33,9 @@ storage = ExpiringDictStorage(expiry_days=7)
 span_mgr = Span_Mgr(storage)
 root_span = span_mgr.create_span("Root operation")
 
+
 # Mock 翻译函数
-def translate_text(text: str, target_lang: str) -> str:
+def _translate_text(text: str, target_lang: str) -> str:
     """文本翻译功能"""
     LLM_Client = clientInfo(
         api_key=os.getenv("api_key"),
@@ -51,125 +45,153 @@ def translate_text(text: str, target_lang: str) -> str:
         local_cache=storage,
         usecache=os.getenv("usecache", True),
     )
+
+    # 从环境变量获取或设置默认值
+    file_list = os.getenv("file_list", "").split(",") if os.getenv("file_list") else []
+    configfile_path = os.getenv("configfile_path", "")
+    doc_folder = os.getenv("doc_folder", "")
+    reserved_word = os.getenv("reserved_word", "")
+
+    # 假设TranslationContext类的定义
+    class TranslationContext:
+        def __init__(
+            self,
+            target_language,
+            file_list,
+            configfile_path,
+            doc_folder,
+            reserved_word,
+            max_files,
+            disclaimers,
+        ):
+            self.target_language = target_language
+            self.file_list = file_list
+            self.configfile_path = configfile_path
+            self.doc_folder = doc_folder
+            self.reserved_word = reserved_word
+            self.max_files = max_files
+            self.disclaimers = disclaimers
+
     context = TranslationContext(
         target_language=target_lang,
         file_list=file_list,
         configfile_path=configfile_path,
         doc_folder=doc_folder,
         reserved_word=reserved_word,
-        max_files=os.getenv("max_files", 20),
-        disclaimers=os.getenv("disclaimers", False),
+        max_files=int(os.getenv("max_files", 20)),
+        disclaimers=os.getenv("disclaimers", "False").lower() == "true",
     )
-    TsAgent = translateAgent(LLM_client, span_mgr)
+    TsAgent = translateAgent(LLM_Client, span_mgr)
     return TsAgent.translate(context, context.target_language, text, root_span)
 
-# Mock 语音识别函数
-def mock_speech_to_text(audio_data: bytes) -> str:
-    """模拟语音识别功能"""
-    return "This is a mock speech recognition result from audio input."
-
-# 请求模型
-class TranslateRequest(BaseModel):
-    text: str
-    target_lang: str = "zh"
-
-class AudioTranslateRequest(BaseModel):
-    audio_base64: str
-    target_lang: str = "zh"
-
-# HTTP 端点
-@app.post("/translate")
-async def http_translate(request: TranslateRequest):
-    """HTTP 端点用于文本翻译"""
-    translated_text = translate_text(request.text, request.target_lang)
-
-    return {
-        "translated_text": translated_text,
-        "source_text": request.text,
-        "target_language": request.target_lang
-    }
-
-@app.post("/translate_audio")
-async def http_translate_audio(request: AudioTranslateRequest):
-    """HTTP 端点用于音频翻译"""
-    try:
-        audio_data = base64.b64decode(request.audio_base64)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid base64 audio data: {e}")
-    
-    recognized_text = mock_speech_to_text(audio_data)
-    translated_text = translate_text(recognized_text, request.target_lang)
-    
-    return {
-        "recognized_text": recognized_text,
-        "translated_text": translated_text,
-        "target_language": request.target_lang
-    }
-
-@app.get("/")
-async def root():
-    return {
-        "name": "Translation Server",
-        "version": "1.0.0",
-        "endpoints": {
-            "/translate": "POST - Translate text",
-            "/translate_audio": "POST - Translate audio"
-        }
-    }
 
 # MCP 工具
 @mcp.tool()
 def translate_text(text: str, target_lang: str = "en") -> str:
     """
     Translate text to the target language.
-    
+
     Args:
         text: The text to translate
         target_lang: The target language code (en, es, fr, de, ja, zh)
-    
+
     Returns:
         A JSON string containing translated text
     """
-    translated_text = translate_text(text, target_lang)
-    
+    translated_text = _translate_text(text, target_lang)
+
     result = {
         "translated_text": translated_text,
         "source_text": text,
-        "target_language": target_lang
+        "target_language": target_lang,
     }
-    
-    import json
+
     return json.dumps(result, ensure_ascii=False)
+
 
 @mcp.tool()
 def translate_audio(audio_base64: str, target_lang: str = "en") -> str:
     """
     Translate audio to the target language and extract proper nouns.
-    
+
     Args:
         audio_base64: Base64 encoded audio data (WAV format)
         target_lang: The target language code (en, es, fr, de, ja, zh)
-    
+
     Returns:
         A JSON string containing recognized text, translated text
     """
     try:
         audio_data = base64.b64decode(audio_base64)
+        with open("/tmp/test.wav", "wb") as f:
+            f.write(audio_data)
     except Exception as e:
         return f'{{"error": "Invalid base64 audio data: {e}"}}'
-    
-    recognized_text = mock_speech_to_text(audio_data)
-    translated_text = translate_text(recognized_text, target_lang)
-    
+
+    recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
+        encoder=os.getenv("encoder", "/tmp/base-encoder.onnx"),
+        decoder=os.getenv("decoder", "/tmp/base-decoder.onnx"),
+        tokens=os.getenv("tokens", "/tmp/base-tokens.onnx"),
+        language="",
+    )
+    stream = recognizer.create_stream()
+
+    try:
+        audio, sample_rate = sf.read("/tmp/test.wav", dtype="float32", always_2d=True)
+    except Exception as e:
+        print(e)
+
+    audio = audio[:, 0]
+    stream.accept_waveform(sample_rate, audio)
+    recognizer.decode_stream(stream)
+    recognized_text = stream.result.text
+    translated_text = _translate_text(recognized_text, target_lang)
+
     result = {
         "recognized_text": recognized_text,
         "translated_text": translated_text,
-        "target_language": target_lang
+        "target_language": target_lang,
     }
-    
-    import json
+
     return json.dumps(result, ensure_ascii=False)
 
-# 启动服务器
+
+def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlette:
+    """Create a Starlette application that can serve the provided mcp server with SSE."""
+    sse = SseServerTransport("/messages/")
+
+    async def handle_sse(request: Request) -> None:
+        async with sse.connect_sse(
+            request.scope,
+            request.receive,
+            request._send,  # noqa: SLF001
+        ) as (read_stream, write_stream):
+            await mcp_server.run(
+                read_stream,
+                write_stream,
+                mcp_server.create_initialization_options(),
+            )
+
+    return Starlette(
+        debug=debug,
+        routes=[
+            Route("/sse", endpoint=handle_sse),
+            Mount("/messages/", app=sse.handle_post_message),
+        ],
+    )
+
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
+    mcp_server = mcp._mcp_server  # noqa: WPS437
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run MCP SSE-based server")
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=8080, help="Port to listen on")
+    args = parser.parse_args()
+
+    # Bind SSE request handling to MCP server
+    starlette_app = create_starlette_app(mcp_server, debug=True)
+
+    uvicorn.run(starlette_app, host=args.host, port=args.port)
