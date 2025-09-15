@@ -8,7 +8,7 @@ Prioritize resource efficiency: Rather than having readers repeatedly translate 
 
 However, since we rely on cutting-edge AI translation technologies, we cannot guarantee absolute accuracy. If you encounter inconsistencies, please refer to the original English documentation and report any issues to the community for improvement.
 
-## Tested communtiy/project
+## Tested community/project
 
 - [My Own](https://github.com/SamYuan1990/i18n-agent-action/pull/15)
 - HAMi
