@@ -7,6 +7,7 @@ nav:
   - HomePage: index.md
   - Install:
     - application: installation/appliaction.md
+    - mcp: installation/mcp.md
     - parameter: installation/parameter.md
     - github_action: installation/action.md
     - containerApp: installation/containerApp.md

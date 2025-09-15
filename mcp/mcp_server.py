@@ -12,6 +12,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.sse import SseServerTransport
 from starlette.applications import Starlette
 from starlette.requests import Request
+from starlette.responses import Response  # Added import
 from starlette.routing import Mount, Route
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -160,17 +161,26 @@ def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlett
     """Create a Starlette application that can serve the provided mcp server with SSE."""
     sse = SseServerTransport("/messages/")
 
-    async def handle_sse(request: Request) -> None:
-        async with sse.connect_sse(
-            request.scope,
-            request.receive,
-            request._send,  # noqa: SLF001
-        ) as (read_stream, write_stream):
-            await mcp_server.run(
-                read_stream,
-                write_stream,
-                mcp_server.create_initialization_options(),
-            )
+    async def handle_sse(request: Request) -> Response:  # Changed return type
+        try:
+            async with sse.connect_sse(
+                request.scope,
+                request.receive,
+                request._send,  # noqa: SLF001
+            ) as (read_stream, write_stream):
+                await mcp_server.run(
+                    read_stream,
+                    write_stream,
+                    mcp_server.create_initialization_options(),
+                )
+
+            return Response("Accepted", status_code=202)  # Added return statement
+
+        except Exception:
+            logging.info("Exception occurred while handling SSE")
+            return Response(
+                "Internal Server Error", status_code=500
+            )  # Added return statement
 
     return Starlette(
         debug=debug,
