@@ -71,6 +71,13 @@ onnxruntime = "^1.22.1"
 sherpa-onnx = "^1.12.13"
 soundfile = "^0.13.1"
 
+
+[tool.poetry.group.mcp.dependencies]
+mcp = "^1.14.0"
+httpx = "^0.28.1"
+uvicorn = "^0.35.0"
+anthropic = "^0.67.0"
+
 [tool.flit.sdist]
 include = ["AgentUtils/**/*","Business/**/*"]
 
