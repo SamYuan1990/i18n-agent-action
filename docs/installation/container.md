@@ -1,5 +1,7 @@
 # Run as Contaienr
 
+This is backend of github action not desktop app.
+
 ## basic
 
 ```bash
