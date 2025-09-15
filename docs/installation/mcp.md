@@ -96,7 +96,8 @@ curl http://localhost:8080/health
 ## Notes
 1. Ensure you provide a valid `api_key` environment variable
 2. The container automatically removes the default config.yaml file on startup
-3. For persistent configuration, mount external configuration files
+3. For persistent configuration, mount
+external configuration files
 4. For custom models, mount your ONNX files and set the appropriate environment variables
 
 ## Support and Feedback
