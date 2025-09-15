@@ -19,7 +19,7 @@ Key Features:
 
 | appliaction | github action | container |  MCP | script |
 | --- | --- | --- | --- | --- |
-| ✅  | ✅  | ✅  | tbd | ✅  |
+| ✅  | ✅  | ✅  | ✅ | ✅  |
 
 ## App Support platform
 
@@ -31,7 +31,7 @@ Built for scalability, the i18n Agent require LLM to analysis your i18n settings
 
 🌍 Speak Every Language, Effortlessly.
 
-<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=115202381121864&bvid=BV1ekpFzPErU&cid=32379767123&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+[Demo on Bilibili](https://www.bilibili.com/video/BV1ekpFzPErU)
 
 ## Getting Started
 To keep consistency with user doc, see [doc](./docs/index.md)
