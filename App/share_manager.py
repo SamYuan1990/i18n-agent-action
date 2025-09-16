@@ -1,6 +1,7 @@
 # share_manager.py
 import webbrowser
 from urllib.parse import quote
+
 import flet as ft
 
 
