@@ -2,14 +2,13 @@ import logging
 import os
 import sys
 import threading
-import webbrowser
-from urllib.parse import quote
 
 import flet as ft
 from chatmessage import ChatMessage, Message
 from FileDownloader import FileDownloader
 from fileMgr import FileManager
 from leftsidebar import LeftSidebar
+from share_manager import ShareManager  # 导入新的ShareManager类
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
 
@@ -62,6 +61,10 @@ class TranslationApp:
         # 初始化翻译桥接器
         self.left_sidebar = LeftSidebar(self, self.storage)
         self.translation_bridge = TranslationBridge(self.left_sidebar)
+
+        # 初始化分享管理器
+        self.share_manager = ShareManager(page)
+
         if not ONNX_AVAILABLE:
             try:
                 import onnxruntime  # noqa: F401
@@ -201,78 +204,8 @@ class TranslationApp:
             icon=ft.Icons.LIST_ALT, tooltip="查看日志", on_click=self.show_logs
         )
 
-        # 创建分享按钮
-        self.share_button = ft.IconButton(
-            icon=ft.Icons.SHARE,
-            tooltip="分享到社交媒体",
-            on_click=self.show_share_options,
-        )
-
-        # 创建分享选项弹窗
-        self.share_dialog = ft.AlertDialog(
-            modal=True,
-            title=ft.Text("分享到社交媒体"),
-            content=ft.Column(
-                [
-                    ft.Text("选择分享平台:", size=16),
-                    ft.Row(
-                        [
-                            ft.IconButton(
-                                icon=ft.Icons.CHAT,
-                                icon_size=30,
-                                tooltip="分享到微信",
-                                on_click=self.share_to_wechat,
-                                style=ft.ButtonStyle(
-                                    color={"": ft.Colors.WHITE}, bgcolor={"": "#07C160"}
-                                ),
-                            ),
-                            ft.IconButton(
-                                icon=ft.Icons.THUMB_UP,
-                                icon_size=30,
-                                tooltip="分享到微博",
-                                on_click=self.share_to_weibo,
-                                style=ft.ButtonStyle(
-                                    color={"": ft.Colors.WHITE}, bgcolor={"": "#E6162D"}
-                                ),
-                            ),
-                            ft.IconButton(
-                                icon=ft.Icons.TRENDING_UP,
-                                icon_size=30,
-                                tooltip="分享到Twitter/X",
-                                on_click=self.share_to_twitter,
-                                style=ft.ButtonStyle(
-                                    color={"": ft.Colors.WHITE}, bgcolor={"": "#1DA1F2"}
-                                ),
-                            ),
-                            ft.IconButton(
-                                icon=ft.Icons.PUBLIC,
-                                icon_size=30,
-                                tooltip="分享到Facebook",
-                                on_click=self.share_to_facebook,
-                                style=ft.ButtonStyle(
-                                    color={"": ft.Colors.WHITE}, bgcolor={"": "#1877F2"}
-                                ),
-                            ),
-                            ft.IconButton(
-                                icon=ft.Icons.WORK,
-                                icon_size=30,
-                                tooltip="分享到LinkedIn",
-                                on_click=self.share_to_linkedin,
-                                style=ft.ButtonStyle(
-                                    color={"": ft.Colors.WHITE}, bgcolor={"": "#0077B5"}
-                                ),
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.CENTER,
-                        spacing=10,
-                    ),
-                ],
-                tight=True,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            ),
-            actions=[ft.TextButton("取消", on_click=self.close_share_dialog)],
-            actions_alignment=ft.MainAxisAlignment.END,
-        )
+        # 创建分享按钮（使用ShareManager创建）
+        self.share_button = self.share_manager.create_share_button()
 
         # 创建主内容区域
         if ONNX_AVAILABLE:
@@ -402,7 +335,8 @@ class TranslationApp:
         )
 
         self.page.overlay.append(self.log_dialog)
-        self.page.overlay.append(self.share_dialog)
+        # 添加分享对话框到页面overlay
+        self.share_manager.add_to_page_overlay()
 
         # 设置页面布局
         self.page.add(
@@ -593,59 +527,3 @@ class TranslationApp:
         """显示消息"""
         self.download_status_text.value = message
         self.page.update()
-
-    # 分享功能相关方法
-    def show_share_options(self, e):
-        """显示分享选项弹窗"""
-        self.share_dialog.open = True
-        self.page.update()
-
-    def close_share_dialog(self, e):
-        """关闭分享弹窗"""
-        self.share_dialog.open = False
-        self.page.update()
-
-    def share_to_wechat(self, e):
-        """分享到微信"""
-        # share_text = "我正在使用i18n agent翻译工具，非常强大！"
-        share_url = "https://samyuan1990.github.io/i18n-agent-action/"  # 替换为实际URL
-        webbrowser.open(
-            f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={quote(share_url)}"
-        )
-        self.close_share_dialog(e)
-        self.show_message("已生成微信分享二维码")
-
-    def share_to_weibo(self, e):
-        """分享到微博"""
-        share_text = "我正在使用i18n agent翻译工具，非常强大！"
-        share_url = "https://samyuan1990.github.io/i18n-agent-action/"  # 替换为实际URL
-        webbrowser.open(
-            f"https://service.weibo.com/share/share.php?title={quote(share_text)}&url={quote(share_url)}"
-        )
-        self.close_share_dialog(e)
-        self.show_message("正在打开微博分享页面...")
-
-    def share_to_twitter(self, e):
-        """分享到Twitter/X"""
-        share_text = "我正在使用i18n agent翻译工具，非常强大！https://samyuan1990.github.io/i18n-agent-action/"  # 替换为实际URL"
-        webbrowser.open(f"https://twitter.com/intent/tweet?text={quote(share_text)}")
-        self.close_share_dialog(e)
-        self.show_message("正在打开Twitter分享页面...")
-
-    def share_to_facebook(self, e):
-        """分享到Facebook"""
-        share_url = "https://samyuan1990.github.io/i18n-agent-action/"  # 替换为实际URL
-        webbrowser.open(
-            f"https://www.facebook.com/sharer/sharer.php?u={quote(share_url)}"
-        )
-        self.close_share_dialog(e)
-        self.show_message("正在打开Facebook分享页面...")
-
-    def share_to_linkedin(self, e):
-        """分享到LinkedIn"""
-        share_url = "https://samyuan1990.github.io/i18n-agent-action/"  # 替换为实际URL
-        webbrowser.open(
-            f"https://www.linkedin.com/sharing/share-offsite/?url={quote(share_url)}"
-        )
-        self.close_share_dialog(e)
-        self.show_message("正在打开LinkedIn分享页面...")
