@@ -31,14 +31,27 @@ except ImportError:
 class TranslationApp:
     def __init__(self, page: ft.Page):
         self.page = page
+        # 创建聊天消息区域
+        self.chat = ft.ListView(
+            expand=True,
+            spacing=10,
+            auto_scroll=True,
+        )
+        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
+        self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
+        logging.info(self.app_data_path)
+        self.storage = ExpiringDictStorage(
+            filename=self.storage_file_path, expiry_days=7
+        )
+        self.left_sidebar = LeftSidebar(self, self.storage)
+        self.translation_bridge = TranslationBridge(self.left_sidebar)
         self.page.title = "i18n agent"
         self.page.theme_mode = ft.ThemeMode.LIGHT
         self.log_contents = []
         self.downloadzone = None
         # 初始化各个功能管理器
-        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.sound_manager = SoundManager(page, self.app_data_path)
-        self.file_manager = FileManager(page, self.app_data_path)
+        self.file_manager = FileManager(page, self.app_data_path, self.chat, self.translation_bridge)
         # 初始化文件下载器
         self.file_downloader = FileDownloader(page, self.app_data_path)
         # 定义需要下载的文件URL
@@ -50,17 +63,6 @@ class TranslationApp:
         # 设置音频状态变化回调
         self.sound_manager.set_state_change_callback(self.handle_audio_state_change)
         self.recognizer = None
-        # 初始化存储
-        self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
-        logging.info(self.app_data_path)
-        self.storage = ExpiringDictStorage(
-            filename=self.storage_file_path, expiry_days=7
-        )
-
-        # 初始化翻译桥接器
-        self.left_sidebar = LeftSidebar(self, self.storage)
-        self.translation_bridge = TranslationBridge(self.left_sidebar)
-
         # 初始化分享管理器
         self.share_manager = ShareManager(page)
 
@@ -84,17 +86,17 @@ class TranslationApp:
         logging.info(f"Audio state changed: {state}")
         # 可以在这里添加更多状态变化的处理逻辑
 
-    def handle_start_recording(self, e):
+    async def handle_start_recording(self, e):
         """处理开始录音"""
-        self.sound_manager.start_recording()
+        await self.sound_manager.start_recording()
         # if recording_path:
         #    self.add_message(
         #        Message(user_name="System", text="开始录音...", message_type="system")
         #    )
 
-    def handle_stop_recording(self, e):
+    async  def handle_stop_recording(self, e):
         """处理停止录音"""
-        self.sound_manager.stop_recording()
+        await  self.sound_manager.stop_recording()
         # if recording_path:
         # self.add_message(
         #    Message(
@@ -139,12 +141,6 @@ class TranslationApp:
         self.cancel_download_btn = self.file_downloader.cancel_download_btn
         if ONNX_AVAILABLE:
             self.file_downloader.visible()
-        # 创建聊天消息区域
-        self.chat = ft.ListView(
-            expand=True,
-            spacing=10,
-            auto_scroll=True,
-        )
 
         # 创建消息输入框
         self.new_message = ft.TextField(
@@ -166,13 +162,7 @@ class TranslationApp:
         )
 
         # 创建上传文件按钮
-        self.upload_button = ft.IconButton(
-            icon=ft.Icons.UPLOAD_FILE,
-            tooltip="上传文件",
-            on_click=lambda _: self.file_manager.file_picker.pick_files(
-                allow_multiple=True
-            ),
-        )
+        self.upload_button = self.file_manager.upload_button
 
         # 创建录音按钮
         self.record_buttons = self.sound_manager.create_record_button(
@@ -262,7 +252,6 @@ class TranslationApp:
                     ]
                 ),
                 self.record_buttons,  # 添加录音按钮
-                self.file_manager.files_container,  # 显示文件上传进度
                 ft.Container(height=10),
             ],
             alignment=ft.MainAxisAlignment.START,
@@ -292,65 +281,6 @@ class TranslationApp:
                 expand=True,
             )
         )
-
-    def log_file_upload(self, filename):
-        """记录文件上传日志并处理翻译"""
-        filepath = self.file_manager.get_uploaded_file_path(filename)
-
-        log_message = f"文件上传成功: {filename} -> {filepath}"
-        logging.info(log_message)
-
-        # 添加文件消息到聊天
-        file_message = Message(
-            user_name="User", text=filename, message_type="file", file_path=filepath
-        )
-        chat_message = ChatMessage(
-            file_message,
-            self.sound_manager.engine,
-            self.page,
-            self.file_manager.file_picker_download,
-        )
-        self.chat.controls.append(chat_message)
-        self.page.update()
-
-        try:
-            # 执行文件翻译
-            result = self.translation_bridge.translate_file(filepath, filename)
-
-            # 创建临时文件保存翻译结果
-            temp_path = os.getenv("FLET_APP_STORAGE_TEMP")
-            translated_filename = f"translated_{filename}"
-            translated_filepath = (
-                os.path.join(temp_path, translated_filename)
-                if temp_path
-                else translated_filename
-            )
-
-            with open(translated_filepath, "w", encoding="utf-8") as f:
-                f.write(result)
-
-            # 添加翻译结果到聊天
-            file_message = Message(
-                user_name="Agent",
-                text=result,
-                message_type="file",
-                file_path=translated_filepath,
-            )
-            chat_message = ChatMessage(
-                file_message,
-                self.sound_manager.engine,
-                self.page,
-                self.file_manager.file_picker_download,
-            )
-            self.chat.controls.append(chat_message)
-            self.page.update()
-
-        except Exception as e:
-            error_msg = f"文件处理失败: {str(e)}"
-            logging.error(error_msg)
-            self.add_message(
-                Message(user_name="System", text=error_msg, message_type="error")
-            )
 
     def send_message_click(self, e):
         if self.new_message.value != "":

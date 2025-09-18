@@ -54,7 +54,7 @@ class SoundManager:
         if self.on_state_change_callback:
             self.on_state_change_callback(state)
 
-    def start_recording(self):
+    async def start_recording(self):
         """开始录音"""
         if not self.audio_rec:
             logging.warning("Audio recording not available")
@@ -64,13 +64,13 @@ class SoundManager:
         logging.info(f"StartRecording: {self.recording_path}")
 
         try:
-            self.audio_rec.start_recording(self.recording_path)
+            await self.audio_rec.start_recording(self.recording_path)
             return self.recording_path
         except Exception as e:
             logging.error(f"Error starting recording: {e}")
             return None
 
-    def stop_recording(self):
+    async def stop_recording(self):
         """停止录音"""
         if not self.audio_rec:
             logging.warning("Audio recording not available")
@@ -78,7 +78,7 @@ class SoundManager:
 
         logging.info("Stopping recording")
         try:
-            output_path = self.audio_rec.stop_recording(wait_timeout=30)
+            output_path = await self.audio_rec.stop_recording()
             logging.info(f"StopRecording: {output_path}")
             return output_path
         except Exception as e:
