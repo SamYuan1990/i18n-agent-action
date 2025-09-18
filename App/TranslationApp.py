@@ -7,6 +7,7 @@ from chatmessage import ChatMessage, Message
 from FileDownloader import FileDownloader
 from fileMgr import FileManager
 from leftsidebar import LeftSidebar
+from logViewer import LogViewer
 from share_manager import ShareManager  # 导入新的ShareManager类
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
@@ -47,7 +48,6 @@ class TranslationApp:
         self.translation_bridge = TranslationBridge(self.left_sidebar)
         self.page.title = "i18n agent"
         self.page.theme_mode = ft.ThemeMode.LIGHT
-        self.log_contents = []
         self.downloadzone = None
         # 初始化各个功能管理器
         self.sound_manager = SoundManager(page, self.app_data_path)
@@ -63,10 +63,11 @@ class TranslationApp:
             "base-tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-tokens.txt?download=true",  # 替换为实际URL3
         }
         # 设置音频状态变化回调
-        self.sound_manager.set_state_change_callback(self.handle_audio_state_change)
         self.recognizer = None
         # 初始化分享管理器
         self.share_manager = ShareManager(page)
+        # 初始化日志查看器
+        self.log_viewer = LogViewer(page)
 
         if not ONNX_AVAILABLE:
             try:
@@ -83,31 +84,9 @@ class TranslationApp:
                 logging.info("soundfile not available, audio recording disabled")
         self.setup_ui()
 
-    def handle_audio_state_change(self, state):
-        """处理音频状态变化"""
-        logging.info(f"Audio state changed: {state}")
-        # 可以在这里添加更多状态变化的处理逻辑
-
-    async def handle_start_recording(self, e):
-        """处理开始录音"""
-        await self.sound_manager.start_recording()
-        # if recording_path:
-        #    self.add_message(
-        #        Message(user_name="System", text="开始录音...", message_type="system")
-        #    )
-
     async def handle_stop_recording(self, e):
         """处理停止录音"""
         await self.sound_manager.stop_recording()
-        # if recording_path:
-        # self.add_message(
-        #    Message(
-        #        user_name="System",
-        #        text=f"录音已保存: {recording_path}",
-        #        message_type="system",
-        #    )
-        # )
-        # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
         if self.recognizer == None:  # noqa: E711
             self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
                 encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
@@ -124,6 +103,13 @@ class TranslationApp:
         stream.accept_waveform(sample_rate, audio)
         self.recognizer.decode_stream(stream)
         logging.info(stream.result.text)
+        self.add_message(
+            Message(
+                user_name="User",
+                text=stream.result.text,
+                message_type="chat_message",
+            )
+        )
         result = self.translation_bridge.translate_text(stream.result.text)
         logging.info(result)
         # 添加翻译结果到聊天
@@ -168,7 +154,6 @@ class TranslationApp:
 
         # 创建录音按钮
         self.record_buttons = self.sound_manager.create_record_button(
-            self.handle_start_recording,
             self.handle_stop_recording,
             visible=True,  # 可以根据需要设置为False来隐藏录音按钮
         )
@@ -182,7 +167,9 @@ class TranslationApp:
 
         # 创建日志查看按钮
         self.log_view_toggle = ft.IconButton(
-            icon=ft.Icons.LIST_ALT, tooltip="查看日志", on_click=self.show_logs
+            icon=ft.Icons.LIST_ALT,
+            tooltip="查看日志",
+            on_click=self.log_viewer.show_logs,  # 使用日志查看器的方法
         )
 
         # 创建分享按钮（使用ShareManager创建）
@@ -259,18 +246,6 @@ class TranslationApp:
             alignment=ft.MainAxisAlignment.START,
             expand=True,
         )
-        # 创建日志弹窗
-        self.log_dialog = ft.AlertDialog(
-            title=ft.Text("查看日志"),
-            content=ft.Text(""),
-            # alignment=ft.alignment.center,
-            on_dismiss=lambda e: logging.info("Dialog dismissed!"),
-            title_padding=ft.Padding.all(25),
-        )
-
-        self.page.overlay.append(self.log_dialog)
-        # 添加分享对话框到页面overlay
-        self.share_manager.add_to_page_overlay()
 
         # 设置页面布局
         self.page.add(
@@ -317,36 +292,6 @@ class TranslationApp:
             ft.Icons.MENU if not self.left_sidebar.visible else ft.Icons.ARROW_BACK
         )
         self.page.update()
-
-    def show_logs(self, e):
-        # 读取日志文件并显示最近30条
-        app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
-        log_file_path = (
-            os.path.join(app_data_path, "app.log") if app_data_path else "app.log"
-        )
-
-        self.log_contents = []
-        if os.path.exists(log_file_path):
-            try:
-                with open(log_file_path, "r", encoding="utf-8") as f:
-                    lines = f.readlines()
-                # 获取最后30行
-                recent_lines = lines[-10:] if len(lines) > 10 else lines
-                self.log_contents = [
-                    ft.Text(line.strip(), size=10) for line in recent_lines
-                ]
-            except Exception as e:
-                self.log_contents = [
-                    ft.Text(f"读取日志文件出错: {str(e)}", size=10, color=ft.Colors.RED)
-                ]
-        else:
-            self.log_contents = [
-                ft.Text("日志文件不存在", size=12, color=ft.Colors.RED)
-            ]
-
-        self.log_dialog.content.value = str(self.log_contents)
-        self.log_dialog.update()
-        self.page.open(self.log_dialog)
 
     def translate_text(self, e):
         # 获取最后一条用户消息

@@ -8,9 +8,9 @@ from TranslationApp import TranslationApp
 logging.basicConfig(level=logging.INFO)
 
 # 创建文件handler并设置级别
-upload_data_path = os.getenv("FLET_APP_STORAGE_TEMP")
 app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
-log_file_path = os.path.join(app_data_path, "app.log")
+app_tmp_path = os.getenv("FLET_APP_STORAGE_TEMP")
+log_file_path = os.path.join(app_tmp_path, "app.log")
 file_handler = RotatingFileHandler(
     log_file_path, maxBytes=1024 * 1024, backupCount=2, encoding="utf-8"  # 1MB
 )
@@ -29,4 +29,4 @@ def main(page: ft.Page):
     TranslationApp(page)
 
 
-ft.app(target=main, upload_dir=upload_data_path)
+ft.run(main)

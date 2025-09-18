@@ -34,25 +34,10 @@ class SoundManager:
 
         # 初始化音频录制器（如果可用）
         if AUDIO_RECORDER_AVAILABLE:
-            self.audio_rec = ftar.AudioRecorder(
-                # audio_encoder=ftar.AudioEncoder.PCM16BITS,
-                # on_state_changed=self.handle_state_change,
-            )
+            self.audio_rec = ftar.AudioRecorder()
             self.page._services.append(self.audio_rec)
         else:
             self.audio_rec = None
-
-    def set_state_change_callback(self, callback: Callable):
-        """设置状态变化回调函数"""
-        self.on_state_change_callback = callback
-
-    def handle_state_change(self, e):
-        """处理音频录制状态变化"""
-        state = e.data
-        logging.info(f"Audio recorder state changed: {state}")
-
-        if self.on_state_change_callback:
-            self.on_state_change_callback(state)
 
     async def start_recording(self):
         """开始录音"""
@@ -93,11 +78,11 @@ class SoundManager:
         except Exception as e:
             logging.error(f"语音合成失败: {str(e)}")
 
-    def create_record_button(self, on_start_click, on_stop_click, visible=True):
+    def create_record_button(self, on_stop_click, visible=True):
         """创建录音按钮组件"""
         self.record_btn = ft.Button(
             "开始录音",
-            on_click=on_start_click,
+            on_click=self.start_recording,
             visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
         self.stop_record_btn = ft.Button(
