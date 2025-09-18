@@ -35,7 +35,8 @@ The most central concept of this update is the introduction of **"Services"**. W
 This means:
 - **Stronger Stability**: Services won't be accidentally destroyed due to page refreshes, navigation, or updates.
 - **Better State Management**: Features that need to run continuously in the background (like audio playback, geolocation) now have a more reliable carrier.
-- **Clear Separation of Concerns**: UI controls are responsible for display, service controls are responsible for logic and state, resulting in a clearer architecture.
+- **Clear Separat
+**Separation of Concerns**: UI controls are responsible for display, service controls are responsible for logic and state, resulting in a clearer architecture.
 
 Many familiar functionalities have been re-implemented as services. This is a **Breaking Change** and includes:
 `Audio`, `AudioRecorder`, `FilePicker`, `Flashlight`, `Geolocator`, `HapticFeedback`, `InterstitialAd`, `PermissionHandler`, `SemanticsService`, `ShakeDetector`, and others.
@@ -110,7 +111,8 @@ The usage of `save_file_async()` and `get_directory_path_async()` is exactly the
 
 The audio recorder extension has also followed the core framework's lead and undergone modernization.
 
-**Old Code (Method calls without waiting):**
+**Old Code (Method
+**Old Code (Blocking calls without waiting):**
 ```python
 def handle_start_recording(self, e):
     """Handle starting recording"""
