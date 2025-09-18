@@ -19,11 +19,11 @@ dependencies = [
     "filelock (>=3.19.1,<4.0.0)",
     "pyyaml (>=6.0.2,<7.0.0)",
     "pyttsx3 (>=2.99,<3.0)",
-    "flet (>=0.28.3,<0.29.0)",
     "cryptography (>=43.0.1)",
-    "flet-audio-recorder (>=0.1.0,<0.2.0)",
     "asyncio (>=4.0.0,<5.0.0)",
     "requests (>=2.32.5,<3.0.0)",
+    "flet[all] (==0.70.0.dev5623)",
+    "flet-audio-recorder (==0.2.0.dev504)",
 ]
 
 [project.urls]
@@ -34,7 +34,6 @@ Issues = "https://github.com/SamYuan1990/i18n-agent-action/issues"
 
 [project.optional-dependencies]
 app = [
-    "flet[all]>=0.28.3,<0.29.0",
     "pyttsx3 >= 2.99"
 ]
 
@@ -48,11 +47,9 @@ docs = [
 ]
 
 [tool.poetry.group.app.dependencies]
-flet = {extras = ["all"], version = "^0.28.3"}
 pyttsx3 = "^2.99"
 sounddevice = "^0.5.2"
 cryptography = "^45.0.6"
-flet-audio-recorder = "^0.1.0"
 flet-audio = "^0.1.0"
 
 [tool.poetry.group.docs.dependencies]
@@ -78,6 +75,10 @@ httpx = "^0.28.1"
 uvicorn = "^0.35.0"
 anthropic = "^0.67.0"
 
+
+[tool.poetry.dependencies]
+flet = {allow-prereleases = true}
+flet-audio-recorder = {allow-prereleases = true}
 [tool.flit.sdist]
 include = ["AgentUtils/**/*","Business/**/*"]
 

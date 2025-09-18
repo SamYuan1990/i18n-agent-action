@@ -29,7 +29,7 @@ class ChatMessage(ft.Row):
         self.message_type = message.message_type
         self.file_path = message.file_path
         self.file_data = message.file_data
-        self.page = page
+        self._page = page
         self.file_picker = file_picker  # 使用共享的file_picker实例
         self.vertical_alignment = ft.CrossAxisAlignment.START
 
@@ -154,7 +154,7 @@ class ChatMessage(ft.Row):
             logging.error(f"初始化下载失败: {str(e)}")
             self.show_error(f"初始化下载失败: {str(e)}")
 
-    def on_file_picked(self, e: ft.FilePickerResultEvent):
+    def on_file_picked(self, e: ft.FilePickerUploadEvent):
         """文件选择完成后的回调"""
         logging.info(f"on_file_picked: {e.path}")
 
@@ -185,19 +185,19 @@ class ChatMessage(ft.Row):
 
     def show_success(self, message: str):
         """显示成功消息"""
-        self.page.snack_bar = ft.SnackBar(
+        self._page.snack_bar = ft.SnackBar(
             content=ft.Text(message), bgcolor=ft.Colors.GREEN
         )
-        self.page.snack_bar.open = True
-        self.page.update()
+        self._page.snack_bar.open = True
+        self._page.update()
 
     def show_error(self, message: str):
         """显示错误消息"""
-        self.page.snack_bar = ft.SnackBar(
+        self._page.snack_bar = ft.SnackBar(
             content=ft.Text(message), bgcolor=ft.Colors.RED
         )
-        self.page.snack_bar.open = True
-        self.page.update()
+        self._page.snack_bar.open = True
+        self._page.update()
 
     def get_initials(self, user_name: str):
         if user_name:

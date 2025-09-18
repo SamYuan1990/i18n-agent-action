@@ -14,13 +14,19 @@ class FileManager:
         self.files_container = ft.Column()
 
         # 创建文件选择器
-        self.file_picker = ft.FilePicker(
-            on_result=self.file_picker_result, on_upload=self.on_upload_progress
-        )
-        self.file_picker_download = ft.FilePicker()
-        self.page.overlay.extend([self.file_picker, self.file_picker_download])
 
-    def file_picker_result(self, e: ft.FilePickerResultEvent):
+        self.file_picker = ft.FilePicker()
+        self.page._services.append(self.file_picker)
+
+        #self.file_picker = ft.FilePicker(
+        #on_result=self.file_picker_result, 
+        #    on_upload=self.on_upload_progress
+        #)
+        self.file_picker_download = ft.FilePicker()
+        self.page._services.append(self.file_picker_download)
+        #self.page.overlay.extend([self.file_picker, self.file_picker_download])
+
+    def file_picker_result(self, e: ft.FilePickerUploadEvent):
         """处理文件选择结果"""
         if e.files is not None:
             self.prog_bars.clear()

@@ -249,7 +249,7 @@ class TranslationApp:
                 ),
                 ft.Container(
                     content=self.chat,
-                    border=ft.border.all(1, ft.Colors.OUTLINE),
+                    border=ft.Border.all(),
                     border_radius=5,
                     padding=10,
                     expand=True,
@@ -272,9 +272,9 @@ class TranslationApp:
         self.log_dialog = ft.AlertDialog(
             title=ft.Text("查看日志"),
             content=ft.Text(""),
-            alignment=ft.alignment.center,
+            #alignment=ft.alignment.center,
             on_dismiss=lambda e: logging.info("Dialog dismissed!"),
-            title_padding=ft.padding.all(25),
+            title_padding=ft.Padding.all(25),
         )
 
         self.page.overlay.append(self.log_dialog)

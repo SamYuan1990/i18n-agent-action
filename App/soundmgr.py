@@ -35,10 +35,10 @@ class SoundManager:
         # 初始化音频录制器（如果可用）
         if AUDIO_RECORDER_AVAILABLE:
             self.audio_rec = ftar.AudioRecorder(
-                audio_encoder=ftar.AudioEncoder.PCM16BITS,
-                on_state_changed=self.handle_state_change,
+                #audio_encoder=ftar.AudioEncoder.PCM16BITS,
+                #on_state_changed=self.handle_state_change,
             )
-            self.page.overlay.append(self.audio_rec)
+            self.page._services.append(self.audio_rec)
         else:
             self.audio_rec = None
 
@@ -95,12 +95,12 @@ class SoundManager:
 
     def create_record_button(self, on_start_click, on_stop_click, visible=True):
         """创建录音按钮组件"""
-        self.record_btn = ft.ElevatedButton(
+        self.record_btn = ft.Button(
             "开始录音",
             on_click=on_start_click,
             visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
-        self.stop_record_btn = ft.ElevatedButton(
+        self.stop_record_btn = ft.Button(
             "停止录音",
             on_click=on_stop_click,
             visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
