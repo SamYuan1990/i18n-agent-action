@@ -6900,4 +6900,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "9d3faf6be16818fcb1eb5077deebfad09aa20a6e16af30bfc6245d7d7e33072d"
+content-hash = "75d1b6d95139962d29e778af0ebd897f8d5245b40404e1aefd3960d8d9d57edd"
