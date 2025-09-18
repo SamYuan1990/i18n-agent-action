@@ -21,6 +21,7 @@ nav:
   - Blog:
     - callforAgentTesting: blog/callforAgentTesting.md
     - StoryBehindThisProject: blog/StoryBehindThisProject.md
+    - flet0.7.0: blog/flet070.md
 
 plugins:
   - i18n:
