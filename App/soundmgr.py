@@ -34,25 +34,10 @@ class SoundManager:
 
         # 初始化音频录制器（如果可用）
         if AUDIO_RECORDER_AVAILABLE:
-            self.audio_rec = ftar.AudioRecorder(
-                # audio_encoder=ftar.AudioEncoder.PCM16BITS,
-                # on_state_changed=self.handle_state_change,
-            )
+            self.audio_rec = ftar.AudioRecorder()
             self.page._services.append(self.audio_rec)
         else:
             self.audio_rec = None
-
-    def set_state_change_callback(self, callback: Callable):
-        """设置状态变化回调函数"""
-        self.on_state_change_callback = callback
-
-    def handle_state_change(self, e):
-        """处理音频录制状态变化"""
-        state = e.data
-        logging.info(f"Audio recorder state changed: {state}")
-
-        if self.on_state_change_callback:
-            self.on_state_change_callback(state)
 
     async def start_recording(self):
         """开始录音"""

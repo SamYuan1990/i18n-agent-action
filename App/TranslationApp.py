@@ -63,7 +63,6 @@ class TranslationApp:
             "base-tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-tokens.txt?download=true",  # 替换为实际URL3
         }
         # 设置音频状态变化回调
-        self.sound_manager.set_state_change_callback(self.handle_audio_state_change)
         self.recognizer = None
         # 初始化分享管理器
         self.share_manager = ShareManager(page)
@@ -83,31 +82,13 @@ class TranslationApp:
                 logging.info("soundfile not available, audio recording disabled")
         self.setup_ui()
 
-    def handle_audio_state_change(self, state):
-        """处理音频状态变化"""
-        logging.info(f"Audio state changed: {state}")
-        # 可以在这里添加更多状态变化的处理逻辑
-
     async def handle_start_recording(self, e):
         """处理开始录音"""
         await self.sound_manager.start_recording()
-        # if recording_path:
-        #    self.add_message(
-        #        Message(user_name="System", text="开始录音...", message_type="system")
-        #    )
 
     async def handle_stop_recording(self, e):
         """处理停止录音"""
         await self.sound_manager.stop_recording()
-        # if recording_path:
-        # self.add_message(
-        #    Message(
-        #        user_name="System",
-        #        text=f"录音已保存: {recording_path}",
-        #        message_type="system",
-        #    )
-        # )
-        # 这里可以添加录音文件的处理逻辑，比如自动转录和翻译
         if self.recognizer == None:  # noqa: E711
             self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
                 encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
@@ -320,9 +301,9 @@ class TranslationApp:
 
     def show_logs(self, e):
         # 读取日志文件并显示最近30条
-        app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
+        app_tmp_path = os.getenv("FLET_APP_STORAGE_TEMP")
         log_file_path = (
-            os.path.join(app_data_path, "app.log") if app_data_path else "app.log"
+            os.path.join(app_tmp_path, "app.log") if app_tmp_path else "app.log"
         )
 
         self.log_contents = []
