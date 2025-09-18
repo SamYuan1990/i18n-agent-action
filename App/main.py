@@ -29,4 +29,4 @@ def main(page: ft.Page):
     TranslationApp(page)
 
 
-ft.app(target=main, upload_dir=app_tmp_path)
+ft.run(main)

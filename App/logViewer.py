@@ -1,10 +1,12 @@
-import flet as ft
-import os
 import logging
+import os
+
+import flet as ft
+
 
 class LogViewer:
     """日志查看器类"""
-    
+
     def __init__(self, page: ft.Page):
         self.page = page
         self.log_contents = []
@@ -16,7 +18,7 @@ class LogViewer:
             title_padding=ft.Padding.all(25),
         )
         self.page.overlay.append(self.dialog)
-    
+
     def show_logs(self, e):
         """显示日志对话框"""
         # 读取日志文件并显示最近30条
@@ -47,4 +49,3 @@ class LogViewer:
         self.dialog.content.value = str(self.log_contents)
         self.dialog.update()
         self.page.show_dialog(self.dialog)
-
