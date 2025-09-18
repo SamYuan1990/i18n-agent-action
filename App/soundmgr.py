@@ -78,11 +78,11 @@ class SoundManager:
         except Exception as e:
             logging.error(f"语音合成失败: {str(e)}")
 
-    def create_record_button(self, on_start_click, on_stop_click, visible=True):
+    def create_record_button(self, on_stop_click, visible=True):
         """创建录音按钮组件"""
         self.record_btn = ft.Button(
             "开始录音",
-            on_click=on_start_click,
+            on_click=self.start_recording,
             visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
         self.stop_record_btn = ft.Button(
