@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import os
+import threading
 from concurrent.futures import ThreadPoolExecutor
 
+import flet as ft
 import requests
 
 
@@ -22,6 +24,37 @@ class FileDownloader:
         self.downloaded_all_files_size = 0  # 所有文件已下载的总大小
         self.file_sizes = {}  # 存储每个文件的大小
         self.executor = ThreadPoolExecutor(max_workers=1)
+        self.download_progress_bar = ft.ProgressBar(value=0, width=300, visible=False)
+        self.download_progress_text = ft.Text("0%", visible=False)
+        self.download_status_text = ft.Text("等待下载模型文件...", visible=False)
+        self.download_btn = ft.ElevatedButton(
+            "下载模型文件",
+            icon=ft.Icons.DOWNLOAD,
+            on_click=self.start_download,
+            visible=False,
+        )
+        self.cancel_download_btn = ft.OutlinedButton(
+            "取消下载", on_click=self.cancel_download, visible=False
+        )
+
+    def visible(self):
+        self.download_progress_bar.visible = True
+        self.download_progress_text.visible = True
+        self.download_status_text.visible = True
+        self.download_btn.visible = True
+        self.cancel_download_btn.visible = True
+
+    def start_download(self, e):
+        """开始下载所有文件"""
+        if not self.downloading:
+            # 重置取消标志
+            self.cancelled = False
+            thread = threading.Thread(
+                target=self.download_files,
+                args=(self.file_urls,),
+                daemon=True,
+            )
+            thread.start()
 
     def download_files(self, file_urls):
         """依次下载多个文件"""
