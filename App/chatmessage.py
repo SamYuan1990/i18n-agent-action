@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 import flet as ft
 
@@ -29,7 +30,7 @@ class ChatMessage(ft.Row):
         self.message_type = message.message_type
         self.file_path = message.file_path
         self.file_data = message.file_data
-        self.page = page
+        self._page = page
         self.file_picker = file_picker  # 使用共享的file_picker实例
         self.vertical_alignment = ft.CrossAxisAlignment.START
 
@@ -99,105 +100,22 @@ class ChatMessage(ft.Row):
             )
         ]
 
-    def on_tap(self, e):
+    async def on_tap(self, e):
         if self.message_type == "file":
             # 文件消息：触发下载
-            self.download_file()
+            await self.download_file()
         else:
             # 文本消息：朗读
             self.engine.say(self.text)
             self.engine.runAndWait()
 
-    def download_file(self):
+    async def download_file(self):
         """下载文件到用户选择的路径"""
         logging.info("download_file called")
-
-        if self.file_path and os.path.exists(self.file_path):
-            # 从文件路径读取数据
-            try:
-                with open(self.file_path, "rb") as f:
-                    file_data = f.read()
-                file_name = os.path.basename(self.file_path)
-                self.initiate_download(file_data, file_name)
-            except Exception as e:
-                self.show_error(f"读取文件失败: {str(e)}")
-
-        elif self.file_data:
-            # 直接使用文件数据
-            file_name = "downloaded_file.dat"
-            self.initiate_download(self.file_data, file_name)
-        else:
-            self.show_error("文件数据不可用")
-
-    def initiate_download(self, file_data: bytes, file_name: str):
-        """初始化文件下载"""
-        logging.info(f"initiate_download: {file_name}")
-
-        try:
-            # 保存文件数据和名称
-            self._current_file_data = file_data
-            self._current_file_name = file_name
-
-            # 设置file_picker的回调
-            self.file_picker.on_result = self.on_file_picked
-
-            # 打开文件保存对话框
-            logging.info("Calling save_file")
-            self.file_picker.save_file(
-                dialog_title="选择保存位置",
-                file_name=file_name,
-                file_type=ft.FilePickerFileType.ANY,
-            )
-            logging.info("save_file called successfully")
-
-        except Exception as e:
-            logging.error(f"初始化下载失败: {str(e)}")
-            self.show_error(f"初始化下载失败: {str(e)}")
-
-    def on_file_picked(self, e: ft.FilePickerResultEvent):
-        """文件选择完成后的回调"""
-        logging.info(f"on_file_picked: {e.path}")
-
-        if e.path and self._current_file_data is not None:
-            try:
-                # 使用Python内置方法写入文件
-                with open(e.path, "wb") as f:
-                    f.write(self._current_file_data)
-
-                self.show_success(f"文件已保存到: {e.path}")
-
-            except PermissionError:
-                self.show_error("没有权限保存文件到该位置")
-            except OSError as oe:
-                self.show_error(f"系统错误: {str(oe)}")
-            except Exception as ex:
-                self.show_error(f"保存文件时出错: {str(ex)}")
-
-            # 清理临时数据
-            self._current_file_data = None
-            self._current_file_name = None
-
-        elif not e.path:
-            # 用户取消了操作
-            logging.info("用户取消了文件选择")
-        else:
-            self.show_error("文件数据不可用")
-
-    def show_success(self, message: str):
-        """显示成功消息"""
-        self.page.snack_bar = ft.SnackBar(
-            content=ft.Text(message), bgcolor=ft.Colors.GREEN
-        )
-        self.page.snack_bar.open = True
-        self.page.update()
-
-    def show_error(self, message: str):
-        """显示错误消息"""
-        self.page.snack_bar = ft.SnackBar(
-            content=ft.Text(message), bgcolor=ft.Colors.RED
-        )
-        self.page.snack_bar.open = True
-        self.page.update()
+        logging.info(self.file_path)
+        save_file_path = await self.file_picker.save_file()
+        logging.info(save_file_path)
+        shutil.copy2(self.file_path, save_file_path)
 
     def get_initials(self, user_name: str):
         if user_name:

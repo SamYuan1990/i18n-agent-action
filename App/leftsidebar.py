@@ -71,13 +71,13 @@ class LeftSidebar(ft.Container):
         # 创建导航项目
         self.nav_items = [
             ft.NavigationRailDestination(
-                label_content=ft.Text("Settings"),
+                # label_content=ft.Text("Settings"),
                 label="Settings",
                 icon=ft.Icons.SETTINGS_OUTLINED,
                 selected_icon=ft.Icons.SETTINGS,
             ),
             ft.NavigationRailDestination(
-                label_content=ft.Text("历史"),
+                # label_content=ft.Text("历史"),
                 label="历史",
                 icon=ft.Icons.HISTORY_OUTLINED,
                 selected_icon=ft.Icons.HISTORY,
@@ -119,14 +119,14 @@ class LeftSidebar(ft.Container):
                     self.save_history_switch,
                     # 保存按钮固定在底部
                     ft.Container(
-                        content=ft.ElevatedButton(
+                        content=ft.Button(
                             "保存设置",
                             icon=ft.Icons.SAVE,
                             on_click=self.save_settings,
                             width=200,
                         ),
-                        alignment=ft.alignment.center,
-                        padding=ft.padding.only(top=20),
+                        # alignment=ft.alignment.center,
+                        padding=ft.Padding.only(),
                     ),
                 ],
                 spacing=15,
@@ -185,8 +185,8 @@ class LeftSidebar(ft.Container):
 
         super().__init__(
             content=self.main_content,
-            padding=ft.padding.all(15),
-            margin=ft.margin.all(0),
+            padding=ft.Padding.all(15),
+            margin=ft.Margin.all(0),
             width=300,  # 稍微增加宽度以容纳更多内容
             bgcolor=ft.Colors.BLUE_GREY_50,
             expand=True,

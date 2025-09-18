@@ -27,7 +27,7 @@ class FileDownloader:
         self.download_progress_bar = ft.ProgressBar(value=0, width=300, visible=False)
         self.download_progress_text = ft.Text("0%", visible=False)
         self.download_status_text = ft.Text("等待下载模型文件...", visible=False)
-        self.download_btn = ft.ElevatedButton(
+        self.download_btn = ft.Button(
             "下载模型文件",
             icon=ft.Icons.DOWNLOAD,
             on_click=self.start_download,

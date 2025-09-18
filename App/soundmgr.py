@@ -35,10 +35,10 @@ class SoundManager:
         # 初始化音频录制器（如果可用）
         if AUDIO_RECORDER_AVAILABLE:
             self.audio_rec = ftar.AudioRecorder(
-                audio_encoder=ftar.AudioEncoder.PCM16BITS,
-                on_state_changed=self.handle_state_change,
+                # audio_encoder=ftar.AudioEncoder.PCM16BITS,
+                # on_state_changed=self.handle_state_change,
             )
-            self.page.overlay.append(self.audio_rec)
+            self.page._services.append(self.audio_rec)
         else:
             self.audio_rec = None
 
@@ -54,7 +54,7 @@ class SoundManager:
         if self.on_state_change_callback:
             self.on_state_change_callback(state)
 
-    def start_recording(self):
+    async def start_recording(self):
         """开始录音"""
         if not self.audio_rec:
             logging.warning("Audio recording not available")
@@ -64,13 +64,13 @@ class SoundManager:
         logging.info(f"StartRecording: {self.recording_path}")
 
         try:
-            self.audio_rec.start_recording(self.recording_path)
+            await self.audio_rec.start_recording(self.recording_path)
             return self.recording_path
         except Exception as e:
             logging.error(f"Error starting recording: {e}")
             return None
 
-    def stop_recording(self):
+    async def stop_recording(self):
         """停止录音"""
         if not self.audio_rec:
             logging.warning("Audio recording not available")
@@ -78,7 +78,7 @@ class SoundManager:
 
         logging.info("Stopping recording")
         try:
-            output_path = self.audio_rec.stop_recording(wait_timeout=30)
+            output_path = await self.audio_rec.stop_recording()
             logging.info(f"StopRecording: {output_path}")
             return output_path
         except Exception as e:
@@ -95,12 +95,12 @@ class SoundManager:
 
     def create_record_button(self, on_start_click, on_stop_click, visible=True):
         """创建录音按钮组件"""
-        self.record_btn = ft.ElevatedButton(
+        self.record_btn = ft.Button(
             "开始录音",
             on_click=on_start_click,
             visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
-        self.stop_record_btn = ft.ElevatedButton(
+        self.stop_record_btn = ft.Button(
             "停止录音",
             on_click=on_stop_click,
             visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,

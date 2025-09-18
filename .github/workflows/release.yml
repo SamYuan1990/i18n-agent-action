@@ -74,7 +74,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           # 对于schedule触发，使用默认的Python版本
-          python-version: ${{ github.event.inputs.python_version || '3.11' }}
+          python-version: ${{ github.event.inputs.python_version || '3.12' }}
 
       - name: Install platform-specific dependencies
         shell: bash
@@ -96,7 +96,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          pip install flet
+          pip install --pre 'flet[all]==0.70.0.dev5623'
 
       - name: Prepare application directory
         shell: bash
