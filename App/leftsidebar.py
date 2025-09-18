@@ -71,13 +71,13 @@ class LeftSidebar(ft.Container):
         # 创建导航项目
         self.nav_items = [
             ft.NavigationRailDestination(
-                #label_content=ft.Text("Settings"),
+                # label_content=ft.Text("Settings"),
                 label="Settings",
                 icon=ft.Icons.SETTINGS_OUTLINED,
                 selected_icon=ft.Icons.SETTINGS,
             ),
             ft.NavigationRailDestination(
-                #label_content=ft.Text("历史"),
+                # label_content=ft.Text("历史"),
                 label="历史",
                 icon=ft.Icons.HISTORY_OUTLINED,
                 selected_icon=ft.Icons.HISTORY,
@@ -125,7 +125,7 @@ class LeftSidebar(ft.Container):
                             on_click=self.save_settings,
                             width=200,
                         ),
-                        #alignment=ft.alignment.center,
+                        # alignment=ft.alignment.center,
                         padding=ft.Padding.only(),
                     ),
                 ],

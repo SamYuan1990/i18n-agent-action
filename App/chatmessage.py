@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+
 import flet as ft
 
 
@@ -115,7 +116,6 @@ class ChatMessage(ft.Row):
         save_file_path = await self.file_picker.save_file()
         logging.info(save_file_path)
         shutil.copy2(self.file_path, save_file_path)
-        
 
     def get_initials(self, user_name: str):
         if user_name:

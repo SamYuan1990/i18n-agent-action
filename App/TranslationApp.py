@@ -51,7 +51,9 @@ class TranslationApp:
         self.downloadzone = None
         # 初始化各个功能管理器
         self.sound_manager = SoundManager(page, self.app_data_path)
-        self.file_manager = FileManager(page, self.app_data_path, self.chat, self.translation_bridge)
+        self.file_manager = FileManager(
+            page, self.app_data_path, self.chat, self.translation_bridge
+        )
         # 初始化文件下载器
         self.file_downloader = FileDownloader(page, self.app_data_path)
         # 定义需要下载的文件URL
@@ -94,9 +96,9 @@ class TranslationApp:
         #        Message(user_name="System", text="开始录音...", message_type="system")
         #    )
 
-    async  def handle_stop_recording(self, e):
+    async def handle_stop_recording(self, e):
         """处理停止录音"""
-        await  self.sound_manager.stop_recording()
+        await self.sound_manager.stop_recording()
         # if recording_path:
         # self.add_message(
         #    Message(
@@ -261,7 +263,7 @@ class TranslationApp:
         self.log_dialog = ft.AlertDialog(
             title=ft.Text("查看日志"),
             content=ft.Text(""),
-            #alignment=ft.alignment.center,
+            # alignment=ft.alignment.center,
             on_dismiss=lambda e: logging.info("Dialog dismissed!"),
             title_padding=ft.Padding.all(25),
         )

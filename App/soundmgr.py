@@ -35,8 +35,8 @@ class SoundManager:
         # 初始化音频录制器（如果可用）
         if AUDIO_RECORDER_AVAILABLE:
             self.audio_rec = ftar.AudioRecorder(
-                #audio_encoder=ftar.AudioEncoder.PCM16BITS,
-                #on_state_changed=self.handle_state_change,
+                # audio_encoder=ftar.AudioEncoder.PCM16BITS,
+                # on_state_changed=self.handle_state_change,
             )
             self.page._services.append(self.audio_rec)
         else:

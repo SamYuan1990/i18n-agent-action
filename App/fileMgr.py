@@ -1,8 +1,9 @@
-import os
-from typing import Dict
 import logging
+import os
+
 import flet as ft
 from chatmessage import ChatMessage, Message
+
 
 class FileManager:
     """文件管理类，处理所有文件相关操作"""
@@ -16,22 +17,21 @@ class FileManager:
         self.file_picker = ft.FilePicker()
         self.page._services.append(self.file_picker)
         self.upload_button = ft.Button(
-                    "Pick files",
-                    icon=ft.Icons.UPLOAD_FILE,
-                    on_click=self.pick_files,
-                )
+            "Pick files",
+            icon=ft.Icons.UPLOAD_FILE,
+            on_click=self.pick_files,
+        )
         self.save_but = ft.Button(
-                    "Save file",
-                    icon=ft.Icons.SAVE,
-                    on_click=self.open_save_file_dialog)
+            "Save file", icon=ft.Icons.SAVE, on_click=self.open_save_file_dialog
+        )
 
-    async def pick_files(self,e):
+    async def pick_files(self, e):
         # open pick files dialog
         files = await self.file_picker.pick_files()
-        #print("Picked files:", files)
-        #print("Picked files:", )
-        filename=files[0].name
-        filepath=files[0].path
+        # print("Picked files:", files)
+        # print("Picked files:", )
+        filename = files[0].name
+        filepath = files[0].path
         logging.info(filename)
         logging.info(filepath)
         # 添加文件消息到聊天
@@ -76,8 +76,8 @@ class FileManager:
             logging.error(error_msg)
             self.add_message(
                 Message(user_name="System", text=error_msg, message_type="error")
-            )        
+            )
 
-    async def open_save_file_dialog(self,e):
+    async def open_save_file_dialog(self, e):
         save_file_path = await self.file_picker.save_file()
         print("save_file_path files:", save_file_path)
