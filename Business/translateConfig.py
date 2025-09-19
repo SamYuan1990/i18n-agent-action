@@ -90,7 +90,7 @@ class TranslationContext:
         """
         self._target_language = target_language
         self._file_list = file_list
-        self._configfile_path = configfile_path
+        self._configfile_path = configfile_path  # 用户提供的配置文件路径
         self._doc_folder = doc_folder
         self._reserved_word = reserved_word
 
@@ -119,21 +119,27 @@ class TranslationContext:
         except (ValueError, TypeError):
             self._max_files = 20
 
-    def load_config(self) -> bool:
+    def load_config(self, config_path: Optional[str] = None) -> bool:
         """
         加载配置文件，如果存在则更新当前配置
+
+        参数:
+            config_path (str, optional): 要加载的配置文件路径，如果为None则使用实例的_configfile_path
 
         返回:
             bool: 是否成功加载了配置文件
         """
-        if not self._configfile_path:
+        # 确定要加载的配置文件路径
+        load_path = config_path
+
+        if not load_path:
             logging.info("未指定配置文件路径，使用默认配置")
             return False
 
         try:
-            new_config = load_translation_config(self._configfile_path)
+            new_config = load_translation_config(load_path)
             self._config = new_config
-            logging.info(f"成功从 {self._configfile_path} 加载配置")
+            logging.info(f"成功从 {load_path} 加载配置")
             return True
         except Exception as e:
             logging.error(f"加载配置文件时出错: {e}")
