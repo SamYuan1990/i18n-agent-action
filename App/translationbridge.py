@@ -2,12 +2,28 @@ import logging
 import os
 import sys
 
+from pdfminer.high_level import extract_text
+
 # 添加项目根目录到Python路径
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 
 from AgentUtils.span import Span_Mgr  # noqa: E402
 from Business.translate import translateAgent  # noqa: E402
+
+
+def is_pdf_file(filepath):
+    """
+    检查文件是否以.pdf结尾（不区分大小写）
+
+    参数:
+    filepath (str): 文件的绝对路径
+
+    返回:
+    bool: 如果是PDF文件返回True，否则返回False
+    """
+    # 使用os.path.splitext获取文件扩展名并转换为小写进行比较
+    return os.path.splitext(filepath)[1].lower() == ".pdf"
 
 
 class TranslationBridge:
@@ -29,11 +45,14 @@ class TranslationBridge:
 
     def translate_file(self, filepath, filename):
         """翻译文件内容"""
+        file_content = ""
         try:
-            # 读取文件内容
-            with open(filepath, "r", encoding="utf-8") as f:
-                file_content = f.read()
-
+            # if file is pdf
+            if is_pdf_file(filepath):
+                file_content = extract_text(filepath)
+            else:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    file_content = f.read()
             # 执行翻译
             result = self.translate_text(file_content)
             logging.info(f"文件翻译完成: {filename}")
