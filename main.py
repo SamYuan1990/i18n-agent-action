@@ -54,6 +54,7 @@ context = TranslationContext(
     max_files=os.getenv("max_files", 20),
     disclaimers=os.getenv("disclaimers", False),
 )
+context.load_config("./config.yaml")
 context.show_config()
 FSAgent = filescopeAgent(LLM_Client, span_mgr)
 TsAgent = translateAgent(LLM_Client, span_mgr)
