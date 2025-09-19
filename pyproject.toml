@@ -24,7 +24,7 @@ dependencies = [
     "requests (>=2.32.5,<3.0.0)",
     "flet (==0.70.0.dev5623)",
     "flet-audio-recorder (==0.2.0.dev504)",
-    "pymupdf (>=1.26.4,<2.0.0)",
+    "pypdfium2 (>=4.30.0,<5.0.0)",
 ]
 
 [project.urls]
