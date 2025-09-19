@@ -36,6 +36,21 @@ docker run -p 8080:8080 \
   ghcr.io/samyuan1990/i18n-agent-action:mcp
 ```
 
+```
+{
+    "method": "docker run",
+    "args": [
+        "-p", "8080:8080",
+        "-e", "api_key=your-api-key",
+        "-v", "/path/to/your/models:/app/models",
+        "-e", "encoder=/app/models/your-encoder.onnx",
+        "-e", "decoder=/app/models/your-decoder.onnx",
+        "-e", "tokens=/app/models/your-tokens.onnx",
+        "ghcr.io/samyuan1990/i18n-agent-action:mcp"
+    ]
+}
+```
+
 ## Montar Modelos ONNX Personalizados
 Puedes montar tus propios archivos de modelo ONNX en el contenedor usando volúmenes de Docker:
 

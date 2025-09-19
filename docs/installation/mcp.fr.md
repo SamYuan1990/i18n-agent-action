@@ -49,6 +49,21 @@ docker run -p 8080:8080 \
   ghcr.io/samyuan1990/i18n-agent-action:mcp
 ```
 
+```
+{
+    "method": "docker run",
+    "args": [
+        "-p", "8080:8080",
+        "-e", "api_key=your-api-key",
+        "-v", "/path/to/your/models:/app/models",
+        "-e", "encoder=/app/models/your-encoder.onnx",
+        "-e", "decoder=/app/models/your-decoder.onnx",
+        "-e", "tokens=/app/models/your-tokens.onnx",
+        "ghcr.io/samyuan1990/i18n-agent-action:mcp"
+    ]
+}
+```
+
 ## Configuration du port
 - Port exposé par défaut : **8080**
 - Vous pouvez ajuster le mappage de port de l'hôte :
