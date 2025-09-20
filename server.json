@@ -1,5 +1,6 @@
 {
   "name": "io.github.SamYuan1990/i18n-agent-action", 
+  "description": "An i18n github action for language translate",
   "packages": [
     {
       "registry_type": "oci",
