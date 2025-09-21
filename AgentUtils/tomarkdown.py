@@ -1,6 +1,7 @@
+import os
 
 from pdfminer.high_level import extract_text
-import os
+
 
 def is_pdf_file(filepath):
     """
@@ -15,6 +16,7 @@ def is_pdf_file(filepath):
     # 使用os.path.splitext获取文件扩展名并转换为小写进行比较
     return os.path.splitext(filepath)[1].lower() == ".pdf"
 
+
 def getfilecontent(filepath):
     file_content = ""
     try:
@@ -26,6 +28,5 @@ def getfilecontent(filepath):
             with open(filepath, "r", encoding="utf-8") as f:
                 file_content = f.read()
         return file_content
-    except Exception as e:
-        logging.error(error_msg)
+    except Exception:
         return file_content
