@@ -78,7 +78,7 @@ class ShareManager:
             actions_alignment=ft.MainAxisAlignment.END,
         )
 
-    def create_share_button(self):
+    def create_ui(self):
         """创建分享按钮"""
         return ft.IconButton(
             icon=ft.Icons.SHARE,

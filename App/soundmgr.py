@@ -25,9 +25,9 @@ except ImportError:
 class SoundManager:
     """声音管理类，处理所有音频相关功能"""
 
-    def __init__(self, page: ft.Page, app_data_path: str):
+    def __init__(self, page: ft.Page):
         self.page = page
-        self.app_data_path = app_data_path
+        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.engine = pyttsx3.init()
         self.recording_path = ""
         self.on_state_change_callback: Optional[Callable] = None

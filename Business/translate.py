@@ -4,6 +4,7 @@ import os
 import threading
 
 from AgentUtils.Agent import Agent
+from AgentUtils.tomarkdown import getfilecontent
 
 from .metric import (
     FILES_TRANSLATED,
@@ -17,6 +18,15 @@ from .utils import MergePN
 class translateAgent(Agent):
     def __init__(self, LLM_Client, span_mgr):
         super().__init__(LLM_Client, span_mgr)
+
+    def translate_file(self, TranslationContext, target_language, filepath, span):
+        file_content = getfilecontent(filepath)
+        return self.translate(TranslationContext, target_language, file_content, span)
+
+    # todo
+    # // if url
+    # // try download url content
+    # // translate as file
 
     def translate(self, TranslationContext, target_language, content, span):
         # Split content into chunks of 3000 characters
@@ -139,12 +149,8 @@ class translateAgent(Agent):
 
         target_language = element["target_language"]
 
-        # Read the entire source file
-        with open(source_file, "r", encoding="utf-8") as file:
-            file_content = file.read()
-
-        output_content = self.translate(
-            TranslationContext, target_language, file_content, span
+        output_content = self.translate_file(
+            TranslationContext, target_language, source_file, span
         )
 
         logging.info("translated " + target_file)
@@ -163,7 +169,7 @@ class translateAgent(Agent):
             status="success",
         ).inc()
 
-    ### Phase 2
+    ### Phase 2 this is used for action
     def translate_files(self, json_todo_list, TranslationContext, span):
         total = len(json_todo_list["todo"])
         if self.dryRun():
