@@ -10,21 +10,26 @@ from flet.security import decrypt, encrypt
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 from AgentUtils.clientInfo import clientInfo  # noqa: E402
+from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 from Business.translateConfig import TranslationContext  # noqa: E402
 
 
 class LeftSidebar(ft.Container):
-    def __init__(self, app, storage):
+    def __init__(self, app):
         super().__init__()
+        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
+        self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
+        self.storage = ExpiringDictStorage(
+            filename=self.storage_file_path, expiry_days=7
+        )
         self.app = app
         self.visible = True
-        self.storage = storage
         self.Trans_History = []
         if "history" in self.storage:
             self.Trans_History = self.storage.get("history")
 
         # 获取应用数据存储路径
-        self.config_file_path = os.path.join(app.app_data_path, "app_config.json")
+        self.config_file_path = os.path.join(self.app_data_path, "app_config.json")
 
         # 获取或创建加密密钥
         self.secret_key = os.getenv("MY_APP_SECRET_KEY")

@@ -8,21 +8,17 @@ from chatmessage import ChatMessage, Message
 class FileManager:
     """文件管理类，处理所有文件相关操作"""
 
-    def __init__(self, page: ft.Page, app_data_path, chat, translation_bridge):
+    def __init__(self, page: ft.Page, chat, translation_bridge):
         self.page = page
-        self.app_data_path = app_data_path
+        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.chat = chat
         self.translation_bridge = translation_bridge
         # 创建文件选择器
         self.file_picker = ft.FilePicker()
         self.page._services.append(self.file_picker)
-        self.upload_button = ft.Button(
-            "Pick files",
+        self.upload_button = ft.IconButton(
             icon=ft.Icons.UPLOAD_FILE,
             on_click=self.pick_files,
-        )
-        self.save_but = ft.Button(
-            "Save file", icon=ft.Icons.SAVE, on_click=self.open_save_file_dialog
         )
 
     async def pick_files(self, e):
@@ -74,10 +70,3 @@ class FileManager:
         except Exception as e:
             error_msg = f"文件处理失败: {str(e)}"
             logging.error(error_msg)
-            self.add_message(
-                Message(user_name="System", text=error_msg, message_type="error")
-            )
-
-    async def open_save_file_dialog(self, e):
-        save_file_path = await self.file_picker.save_file()
-        print("save_file_path files:", save_file_path)

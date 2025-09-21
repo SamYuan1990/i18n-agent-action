@@ -9,15 +9,18 @@ import requests
 
 
 class FileDownloader:
-    def __init__(self, page, app_data_path):
+    def __init__(self, page):
         self.page = page
-        self.app_data_path = app_data_path
         self.downloading = False
         self.cancelled = False
         self.downloaded_size = 0
         self.total_size = 0
         self.current_file = ""
-        self.file_urls = {}
+        self.file_urls = {
+            "base-encoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-encoder.onnx?download=true",  # 替换为实际URL1
+            "base-decoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-decoder.onnx?download=true",  # 替换为实际URL2
+            "base-tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-tokens.txt?download=true",  # 替换为实际URL3
+        }
         self.current_file_index = 0
         self.total_files = 0
         self.total_all_files_size = 0  # 所有文件的总大小
@@ -125,7 +128,7 @@ class FileDownloader:
             self.total_size = file_size
 
             # 创建存储目录
-            storage_dir = self.app_data_path
+            storage_dir = os.getenv("FLET_APP_STORAGE_DATA")
             if not os.path.exists(storage_dir):
                 os.makedirs(storage_dir)
 

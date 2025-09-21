@@ -49,3 +49,10 @@ class LogViewer:
         self.dialog.content.value = str(self.log_contents)
         self.dialog.update()
         self.page.show_dialog(self.dialog)
+
+    def create_ui(self):
+        return ft.IconButton(
+            icon=ft.Icons.LIST_ALT,
+            tooltip="查看日志",
+            on_click=self.show_logs,  # 使用日志查看器的方法
+        )

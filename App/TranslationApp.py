@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 
 import flet as ft
 from chatmessage import ChatMessage, Message
@@ -11,12 +10,6 @@ from logViewer import LogViewer
 from share_manager import ShareManager  # 导入新的ShareManager类
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
-
-# 添加项目根目录到Python路径
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(root_dir)
-
-from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 
 try:
     import onnxruntime  # noqa: F401
@@ -32,42 +25,33 @@ except ImportError:
 class TranslationApp:
     def __init__(self, page: ft.Page):
         self.page = page
-        # 创建聊天消息区域
+        self.page.title = "i18n agent"
+        self.page.theme_mode = ft.ThemeMode.LIGHT
+        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
+        # 1st class area
+        ## LLM config
+        self.left_sidebar = LeftSidebar(self)
+        ## Text input
         self.chat = ft.ListView(
             expand=True,
             spacing=10,
             auto_scroll=True,
         )
-        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
-        self.storage_file_path = os.path.join(self.app_data_path, "data_store.json")
-        logging.info(self.app_data_path)
-        self.storage = ExpiringDictStorage(
-            filename=self.storage_file_path, expiry_days=7
-        )
-        self.left_sidebar = LeftSidebar(self, self.storage)
-        self.translation_bridge = TranslationBridge(self.left_sidebar)
-        self.page.title = "i18n agent"
-        self.page.theme_mode = ft.ThemeMode.LIGHT
-        self.downloadzone = None
-        # 初始化各个功能管理器
-        self.sound_manager = SoundManager(page, self.app_data_path)
-        self.file_manager = FileManager(
-            page, self.app_data_path, self.chat, self.translation_bridge
-        )
-        # 初始化文件下载器
-        self.file_downloader = FileDownloader(page, self.app_data_path)
-        # 定义需要下载的文件URL
-        self.file_urls = {
-            "base-encoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-encoder.onnx?download=true",  # 替换为实际URL1
-            "base-decoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-decoder.onnx?download=true",  # 替换为实际URL2
-            "base-tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-tokens.txt?download=true",  # 替换为实际URL3
-        }
-        # 设置音频状态变化回调
-        self.recognizer = None
-        # 初始化分享管理器
+        ## STT
+        self.sound_manager = SoundManager(page)
+        self.file_downloader = FileDownloader(page)
+        ## social media
         self.share_manager = ShareManager(page)
-        # 初始化日志查看器
+        ## Debug
         self.log_viewer = LogViewer(page)
+        # 2nd class area
+        ## agent
+        self.translation_bridge = TranslationBridge(self.left_sidebar)
+        ## file mgr
+        self.file_manager = FileManager(page, self.chat, self.translation_bridge)
+
+        # todo/workaround
+        self.recognizer = None
 
         if not ONNX_AVAILABLE:
             try:
@@ -122,14 +106,8 @@ class TranslationApp:
         )
 
     def setup_ui(self):
-        self.download_progress_bar = self.file_downloader.download_progress_bar
-        self.download_progress_text = self.file_downloader.download_progress_text
-        self.download_status_text = self.file_downloader.download_status_text
-        self.download_btn = self.file_downloader.download_btn
-        self.cancel_download_btn = self.file_downloader.cancel_download_btn
         if ONNX_AVAILABLE:
             self.file_downloader.visible()
-
         # 创建消息输入框
         self.new_message = ft.TextField(
             hint_text="请输入要翻译的文本...",
@@ -164,16 +142,8 @@ class TranslationApp:
             tooltip="显示/隐藏设置",
             on_click=self.toggle_left_sidebar,
         )
-
-        # 创建日志查看按钮
-        self.log_view_toggle = ft.IconButton(
-            icon=ft.Icons.LIST_ALT,
-            tooltip="查看日志",
-            on_click=self.log_viewer.show_logs,  # 使用日志查看器的方法
-        )
-
-        # 创建分享按钮（使用ShareManager创建）
-        self.share_button = self.share_manager.create_share_button()
+        self.log_view_toggle = self.log_viewer.create_ui()
+        self.share_button = self.share_manager.create_ui()
 
         # 创建主内容区域
         self.main_content = ft.Column(
@@ -208,16 +178,19 @@ class TranslationApp:
                                     "模型文件下载",
                                     style=ft.TextThemeStyle.TITLE_MEDIUM,
                                 ),
-                                self.download_status_text,
+                                self.file_downloader.download_status_text,
                                 ft.Row(
                                     [
-                                        self.download_progress_bar,
-                                        self.download_progress_text,
+                                        self.file_downloader.download_progress_bar,
+                                        self.file_downloader.download_progress_text,
                                     ],
                                     alignment=ft.MainAxisAlignment.CENTER,
                                 ),
                                 ft.Row(
-                                    [self.download_btn, self.cancel_download_btn],
+                                    [
+                                        self.file_downloader.download_btn,
+                                        self.file_downloader.cancel_download_btn,
+                                    ],
                                     alignment=ft.MainAxisAlignment.CENTER,
                                 ),
                             ],
@@ -269,10 +242,21 @@ class TranslationApp:
                     message_type="chat_message",
                 )
             )
-
             # 调用翻译功能
-            self.translate_text(e)
-
+            try:
+                result = self.translation_bridge.translate_text(self.new_message.value)
+                logging.info(result)
+                # 添加翻译结果到聊天
+                self.add_message(
+                    Message(
+                        user_name="Agent",
+                        text=result,
+                        message_type="chat_message",
+                    )
+                )
+            except Exception as e:
+                error_msg = f"翻译失败: {str(e)}"
+                logging.error(error_msg)
             self.new_message.value = ""
             self.new_message.focus()
             self.page.update()
@@ -292,36 +276,3 @@ class TranslationApp:
             ft.Icons.MENU if not self.left_sidebar.visible else ft.Icons.ARROW_BACK
         )
         self.page.update()
-
-    def translate_text(self, e):
-        # 获取最后一条用户消息
-        user_message = None
-        for msg in reversed(self.chat.controls):
-            if isinstance(msg, ChatMessage) and msg.user_name == "User":
-                user_message = msg.text
-                break
-
-        if not user_message:
-            return
-
-        # 执行翻译
-        try:
-            result = self.translation_bridge.translate_text(user_message)
-            logging.info(result)
-
-            # 添加翻译结果到聊天
-            self.add_message(
-                Message(
-                    user_name="Agent",
-                    text=result,
-                    message_type="chat_message",
-                )
-            )
-
-            self.left_sidebar.AppendHistory(user_message, result)
-        except Exception as e:
-            error_msg = f"翻译失败: {str(e)}"
-            logging.error(error_msg)
-            self.add_message(
-                Message(user_name="System", text=error_msg, message_type="error")
-            )
