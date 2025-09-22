@@ -26,6 +26,7 @@ dependencies = [
     "flet-audio-recorder (==0.2.0.dev504)",
     "pdfminer-six (>=20250506,<20250507)",
     "python-pptx (>=1.0.2,<2.0.0)",
+    "python-docx (>=1.2.0,<2.0.0)",
 ]
 
 [project.urls]
