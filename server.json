@@ -6,7 +6,10 @@
       "registry_type": "oci",
       "registry_base_url": "https://ghcr.io",
       "identifier": "SamYuan1990/i18n-agent-action",
-      "version": "mcp"
+      "version": "mcp",
+      "transport": {
+        "type": "sse"
+      }
     }
   ]
 }
