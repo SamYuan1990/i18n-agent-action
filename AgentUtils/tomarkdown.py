@@ -3,6 +3,7 @@ import os
 
 from pdfminer.high_level import extract_text
 from pptx import Presentation
+from docx import Document  # 添加docx库导入
 
 
 def is_pdf_file(filepath):
@@ -21,16 +22,30 @@ def is_pdf_file(filepath):
 
 def is_pptx_file(filepath):
     """
-    检查文件是否以.pdf结尾（不区分大小写）
+    检查文件是否以.pptx结尾（不区分大小写）
 
     参数:
     filepath (str): 文件的绝对路径
 
     返回:
-    bool: 如果是PDF文件返回True，否则返回False
+    bool: 如果是PPTX文件返回True，否则返回False
     """
     # 使用os.path.splitext获取文件扩展名并转换为小写进行比较
     return os.path.splitext(filepath)[1].lower() == ".pptx"
+
+
+def is_docx_file(filepath):
+    """
+    检查文件是否以.docx结尾（不区分大小写）
+
+    参数:
+    filepath (str): 文件的绝对路径
+
+    返回:
+    bool: 如果是DOCX文件返回True，否则返回False
+    """
+    # 使用os.path.splitext获取文件扩展名并转换为小写进行比较
+    return os.path.splitext(filepath)[1].lower() == ".docx"
 
 
 def pptx_to_markdown_advanced(pptx_path):
@@ -72,23 +87,65 @@ def pptx_to_markdown_advanced(pptx_path):
     return "".join(markdown_lines)
 
 
+def docx_to_text(docx_path):
+    """
+    将docx文件转换为纯文本
+    
+    参数:
+    docx_path (str): docx文件的路径
+    
+    返回:
+    str: 转换后的文本内容
+    """
+    try:
+        doc = Document(docx_path)
+        text_content = []
+        
+        # 处理段落
+        for paragraph in doc.paragraphs:
+            if paragraph.text.strip():  # 跳过空行
+                text_content.append(paragraph.text)
+        
+        # 处理表格
+        for table in doc.tables:
+            for row in table.rows:
+                row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                if row_text:  # 只添加非空行
+                    text_content.append(' | '.join(row_text))
+        
+        return '\n'.join(text_content)
+    
+    except Exception as e:
+        logging.error(f"处理DOCX文件时出错: {e}")
+        return ""
+
+
 def getfilecontent(filepath):
     file_content = ""
     try:
         ## pdf to text/markdown
         ## no wav to text/markdown as sst on client.(onnx is not cross plateform)
         if is_pdf_file(filepath):
-            logging.info("{filepath} is a pdf file")
+            logging.info(f"{filepath} is a pdf file")
             file_content = extract_text(filepath)
             return file_content
+        
         if is_pptx_file(filepath):
-            logging.info("{filepath} is a pptx file")
+            logging.info(f"{filepath} is a pptx file")
             file_content = pptx_to_markdown_advanced(filepath)
             return file_content
+        
+        if is_docx_file(filepath):
+            logging.info(f"{filepath} is a docx file")
+            file_content = docx_to_text(filepath)
+            return file_content
+        
         # default option
-        logging.info("try {filepath} as text")
+        logging.info(f"try {filepath} as text")
         with open(filepath, "r", encoding="utf-8") as f:
             file_content = f.read()
         return file_content
-    except Exception:
+    
+    except Exception as e:
+        logging.error(f"处理文件 {filepath} 时出错: {e}")
         return file_content
