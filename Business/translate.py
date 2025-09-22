@@ -21,6 +21,7 @@ class translateAgent(Agent):
 
     def translate_file(self, TranslationContext, target_language, filepath, span):
         file_content = getfilecontent(filepath)
+        logging.info(file_content)
         return self.translate(TranslationContext, target_language, file_content, span)
 
     # todo

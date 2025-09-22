@@ -48,6 +48,7 @@ jobs:
           context: .
           push: true
           tags: ${{ env.TEST_TAG }}
+          build-args: SERVICE_TYPE=main
 
       - name: Run the Container
         id: run
