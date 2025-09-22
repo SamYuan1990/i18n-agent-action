@@ -4,6 +4,7 @@
   "packages": [
     {
       "registry_type": "oci",
+      "registryType": "oci",
       "registryBaseUrl": "https://ghcr.io",
       "identifier": "SamYuan1990/i18n-agent-action",
       "version": "mcp",
