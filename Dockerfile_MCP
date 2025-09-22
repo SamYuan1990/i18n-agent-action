@@ -27,4 +27,4 @@ ENV PYTHONPATH=/app
 ENV api_key=""
 
 EXPOSE 8080
-CMD bash -c 'python3 main.py ./mcp/mcp_server.py'
+CMD bash -c 'python3 ./mcp/mcp_server.py'
