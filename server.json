@@ -3,8 +3,8 @@
   "description": "An i18n github action for language translate",
   "packages": [
     {
-      "registry_type": "oci",
-      "registry_base_url": "https://ghcr.io",
+      "registryType": "oci",
+      "registryBaseUrl": "https://ghcr.io",
       "identifier": "SamYuan1990/i18n-agent-action",
       "version": "mcp",
       "transport": {
