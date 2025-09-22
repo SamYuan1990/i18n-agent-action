@@ -22,7 +22,7 @@ from AgentUtils.clientInfo import clientInfo  # noqa: E402
 from AgentUtils.ExpiringDictStorage import ExpiringDictStorage  # noqa: E402
 from AgentUtils.span import Span_Mgr  # noqa: E402
 from Business.translate import translateAgent  # noqa: E402
-from Business.translateConfig import TranslationContext
+from Business.translateConfig import TranslationContext  # noqa: E402
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -34,6 +34,7 @@ mcp = FastMCP("translation-server")
 storage = ExpiringDictStorage(expiry_days=7)
 span_mgr = Span_Mgr(storage)
 root_span = span_mgr.create_span("Root operation")
+
 
 def _translate_file(filename: str, target_lang: str) -> str:
     """文件翻译功能"""
@@ -118,6 +119,7 @@ def translate_text(text: str, target_lang: str = "en") -> str:
 
     return json.dumps(result, ensure_ascii=False)
 
+
 @mcp.tool()  # 修正：添加了括号
 def translate_file(file_name: str, target_lang: str = "en") -> str:
     """
@@ -126,19 +128,18 @@ def translate_file(file_name: str, target_lang: str = "en") -> str:
     Args:
         file_name: id for file
         target_lang: The target language code ISO 639-1 (en, es, fr, de, ja, zh)
-    
+
     Returns:
         A JSON string containing translated text
     """
-    translated_text = _translate_file("/tmp/"+file_name, target_lang)
+    translated_text = _translate_file("/tmp/" + file_name, target_lang)
 
-    result = {
-        "translated_text": translated_text
-    }
+    result = {"translated_text": translated_text}
 
     return json.dumps(result, ensure_ascii=False)
 
-#@mcp.tool()
+
+# @mcp.tool()
 def translate_audio(audio_base64: str, target_lang: str = "en") -> str:
     """
     Translate audio to the target language and extract proper nouns.
@@ -194,74 +195,66 @@ async def handle_file_upload(request: Request) -> JSONResponse:
     try:
         # 解析请求体
         body = await request.json()
-        
+
         # 获取文件名和base64内容
         filename = body.get("filename")
         file_content_base64 = body.get("file_content_base64")
-        
+
         # 验证必要字段
         if not filename:
-            return JSONResponse(
-                {"error": "Filename is required"}, 
-                status_code=400
-            )
-        
+            return JSONResponse({"error": "Filename is required"}, status_code=400)
+
         if not file_content_base64:
             return JSONResponse(
-                {"error": "file_content_base64 is required"}, 
-                status_code=400
+                {"error": "file_content_base64 is required"}, status_code=400
             )
-        
+
         # 清理文件名，防止路径遍历攻击
         filename = os.path.basename(filename)
-        
+
         # 构建完整的文件路径
         file_path = os.path.join("/tmp", filename)
-        
+
         try:
             # 解码base64数据
             file_data = base64.b64decode(file_content_base64)
         except Exception as e:
             return JSONResponse(
-                {"error": f"Invalid base64 data: {str(e)}"}, 
-                status_code=400
+                {"error": f"Invalid base64 data: {str(e)}"}, status_code=400
             )
-        
+
         # 确保/tmp目录存在
         os.makedirs("/tmp", exist_ok=True)
-        
+
         # 写入文件
         with open(file_path, "wb") as f:
             f.write(file_data)
-        
+
         # 验证文件是否成功写入
         if os.path.exists(file_path):
             file_size = os.path.getsize(file_path)
-            logging.info(f"File saved successfully: {file_path}, size: {file_size} bytes")
-            
-            return JSONResponse({
-                "status": "success",
-                "message": "File saved successfully",
-                "filename": filename,
-                "file_path": file_path,
-                "file_size": file_size
-            })
-        else:
-            return JSONResponse(
-                {"error": "Failed to save file"}, 
-                status_code=500
+            logging.info(
+                f"File saved successfully: {file_path}, size: {file_size} bytes"
             )
-            
+
+            return JSONResponse(
+                {
+                    "status": "success",
+                    "message": "File saved successfully",
+                    "filename": filename,
+                    "file_path": file_path,
+                    "file_size": file_size,
+                }
+            )
+        else:
+            return JSONResponse({"error": "Failed to save file"}, status_code=500)
+
     except json.JSONDecodeError:
-        return JSONResponse(
-            {"error": "Invalid JSON in request body"}, 
-            status_code=400
-        )
+        return JSONResponse({"error": "Invalid JSON in request body"}, status_code=400)
     except Exception as e:
         logging.error(f"Error handling file upload: {str(e)}")
         return JSONResponse(
-            {"error": f"Internal server error: {str(e)}"}, 
-            status_code=500
+            {"error": f"Internal server error: {str(e)}"}, status_code=500
         )
 
 
@@ -294,7 +287,9 @@ def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlett
         debug=debug,
         routes=[
             Route("/sse", endpoint=handle_sse),
-            Route("/upload", endpoint=handle_file_upload, methods=["POST"]),  # 新增上传路由
+            Route(
+                "/upload", endpoint=handle_file_upload, methods=["POST"]
+            ),  # 新增上传路由
             Mount("/messages/", app=sse.handle_post_message),
         ],
     )
