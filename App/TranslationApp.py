@@ -1,6 +1,8 @@
 import logging
 import os
-
+import urllib.request
+import urllib.error
+import ssl
 import flet as ft
 from chatmessage import ChatMessage, Message
 from FileDownloader import FileDownloader
@@ -242,6 +244,10 @@ class TranslationApp:
                     message_type="chat_message",
                 )
             )
+            # if URL 
+            # save html
+            #save_html_page(self.new_message.value,tmp_html_file)
+            # invoke translate file
             # 调用翻译功能
             try:
                 result = self.translation_bridge.translate_text(self.new_message.value)
@@ -276,3 +282,46 @@ class TranslationApp:
             ft.Icons.MENU if not self.left_sidebar.visible else ft.Icons.ARROW_BACK
         )
         self.page.update()
+
+    #def save_html_page(url, filename="saved_page.html"):
+    #"""
+   # 保存HTML页面到本地文件
+    
+   # Args:
+   #     url (str): 要下载的网页URL
+   #     filename (str): 保存的文件名，默认为"saved_page.html"
+    
+   # Returns:
+   #     str: 保存的文件路径
+   # """
+   # # 设置SSL上下文
+   # ssl_context = ssl.create_default_context()
+   # ssl_context.check_hostname = False
+   # ssl_context.verify_mode = ssl.CERT_NONE
+    
+    # 设置请求头
+   # headers = {
+   #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+   # }
+    
+    #logging.info(f"正在下载: {url}")
+    
+    #try:
+        # 下载HTML内容
+     #   req = urllib.request.Request(url, headers=headers)
+     #   with urllib.request.urlopen(req, context=ssl_context) as response:
+     #       html_content = response.read().decode('utf-8', errors='replace')
+        
+        # 确保文件名以.html结尾
+      #  if not filename.endswith('.html'):
+      #      filename += '.html'
+        
+        # 保存HTML文件
+      #  with open(filename, 'w', encoding='utf-8') as f:
+      #      f.write(html_content)
+        
+      #  logging.info(f"页面已保存到: {os.path.abspath(filename)}")
+      #  return os.path.abspath(filename)
+        
+    # except Exception as e:
+       # raise Exception(f"下载失败: {str(e)}")
