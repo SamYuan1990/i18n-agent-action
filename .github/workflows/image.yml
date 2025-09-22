@@ -2,18 +2,38 @@ name: image
 
 on: # yamllint disable-line rule:truthy
   workflow_call:
+    inputs:
+      service_type:
+        description: 'Service type to build (main, app, mcp, all)'
+        required: false
+        default: 'all'
+        type: string
 
 jobs:
-  image_build:
+  build-images:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ['main', 'app', 'mcp']
+        include:
+          - service: main
+            tags: ghcr.io/samyuan1990/i18n-agent-action:latest
+            labels: latest
+            build_args: SERVICE_TYPE=main
+          - service: app
+            tags: ghcr.io/samyuan1990/i18n-agent-action:app
+            labels: app
+            build_args: SERVICE_TYPE=flet
+          - service: mcp
+            tags: ghcr.io/samyuan1990/i18n-agent-action:mcp,ghcr.io/samyuan1990/i18n-agent-action:latest-mcp
+            labels: mcp,io.github.samyuan1990/i18n-agent-action
+            build_args: SERVICE_TYPE=mcp
+            #needs_publish: true
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # NOTE:  setting fetch-depth to 0 to retrieve the entire history
-          # instead of a shallow-clone so that all tags are fetched as well.
-          # This is necessary for computing the VERSION using `git describe`
           fetch-depth: 0
 
       - name: Set up QEMU
@@ -31,105 +51,29 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} 
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
-        id: build-push-image
+        if: inputs.service_type == 'all' || inputs.service_type == matrix.service
         uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/samyuan1990/i18n-agent-action
-          labels: latest
+          tags: ${{ matrix.tags }}
+          labels: ${{ matrix.labels }}
           file: ./Dockerfile
-
-  app_image_build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          # NOTE:  setting fetch-depth to 0 to retrieve the entire history
-          # instead of a shallow-clone so that all tags are fetched as well.
-          # This is necessary for computing the VERSION using `git describe`
-          fetch-depth: 0
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          image: tonistiigi/binfmt:qemu-v8.1.5
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
-      - name: Login to github
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} 
-
-      - name: Build and push image
-        id: build-push-image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/samyuan1990/i18n-agent-action:app
-          labels: app
-          file: ./Dockerfile_App
-
-  mcp_image_build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          # NOTE:  setting fetch-depth to 0 to retrieve the entire history
-          # instead of a shallow-clone so that all tags are fetched as well.
-          # This is necessary for computing the VERSION using `git describe`
-          fetch-depth: 0
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          image: tonistiigi/binfmt:qemu-v8.1.5
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
-      - name: Login to github
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} 
-
-      - name: Build and push image
-        id: build-push-image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ghcr.io/samyuan1990/i18n-agent-action:mcp
-          labels: mcp, io.github.samyuan1990/i18n-agent-action
-          file: ./Dockerfile_MCP 
+          build-args: ${{ matrix.build_args }}
 
       - name: Install MCP Publisher
+        if: matrix.service == 'mcp' && (inputs.service_type == 'all' || inputs.service_type == 'mcp')
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/download/v1.0.0/mcp-publisher_1.0.0_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
       - name: Login to MCP Registry
+        if: matrix.service == 'mcp' && (inputs.service_type == 'all' || inputs.service_type == 'mcp')
         run: ./mcp-publisher login github-oidc
 
       - name: Publish to MCP Registry
+        if: matrix.service == 'mcp' && (inputs.service_type == 'all' || inputs.service_type == 'mcp')
         run: ./mcp-publisher publish
