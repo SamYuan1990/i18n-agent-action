@@ -1,5 +1,7 @@
 import asyncio
 import base64
+import requests
+
 import json
 import logging
 from contextlib import AsyncExitStack
@@ -46,7 +48,7 @@ class TranslationMCPClient:
     async def process_translation_request(
         self,
         text: Optional[str] = None,
-        audio_path: Optional[str] = None,
+        file_path: Optional[str] = None,
         target_lang: str = "zh",
     ) -> str:
         """Process a translation request using Claude and available tools"""
@@ -55,19 +57,26 @@ class TranslationMCPClient:
         # 构建用户请求
         if text:
             user_content = f"请将以下文本翻译成{target_lang}：{text}"
-        elif audio_path:
+        elif file_path:
             # 读取音频文件并转换为base64
             try:
-                with open(audio_path, "rb") as audio_file:
-                    audio_data = audio_file.read()
-                audio_base64 = base64.b64encode(audio_data).decode("utf-8")
-                user_content = (
-                    f"请将以下音频内容翻译成{target_lang}，音频数据为：{audio_base64}"
+                with open(file_path, "rb") as f:
+                    file_content = base64.b64encode(f.read()).decode('utf-8')
+                # 发送请求
+                response = requests.post(
+                    "http://localhost:8080/upload",
+                    json={
+                        "filename": file_path,
+                        "file_content_base64": file_content
+                    }
                 )
+                #user_content = f"请将以下文件{file_path}翻译成{target_lang}，一定要使用translate_file工具，这个工具是MCP服务器，文件已经在MCP服务器上了。"
+                #user_content = f"请将以下文件{file_path}翻译成{target_lang}，你可以使用任何工具，工具都是通过MCP服务器实现的，你可以假设工具调用的时候文件已经存在"
+                user_content = f"请将以下文件{file_path}翻译成{target_lang}，一定要使用translate_file工具，这个工具是MCP服务器，文件已经在MCP服务器上了。"
             except Exception as e:
-                return f"读取音频文件时出错: {str(e)}"
+                return f"读取文件时出错: {str(e)}"
         else:
-            return "必须提供文本或音频路径"
+            return "必须提供文本或文件路径"
 
         messages.append({"role": "user", "content": user_content})
 
@@ -81,6 +90,25 @@ class TranslationMCPClient:
             }
             for tool in response.tools
         ]
+
+        print("=== 可用的MCP工具 ===")
+        for i, tool in enumerate(available_tools, 1):
+            print(f"\n工具 {i}:")
+            print(f"  名称: {tool['name']}")
+            print(f"  描述: {tool['description']}")
+            print(f"  输入参数:")
+            
+            # 解析输入schema
+            if tool['input_schema'] and 'properties' in tool['input_schema']:
+                for param_name, param_info in tool['input_schema']['properties'].items():
+                    param_type = param_info.get('type', 'unknown')
+                    param_desc = param_info.get('description', '无描述')
+                    required = "(必填)" if param_name in tool['input_schema'].get('required', []) else "(可选)"
+                    print(f"    - {param_name} {required}: {param_desc} (类型: {param_type})")
+            else:
+                print("    无输入参数")
+
+        print(f"\n总共找到 {len(available_tools)} 个工具")
 
         # 初始Claude API调用
         response = self.anthropic.messages.create(
@@ -152,14 +180,23 @@ class TranslationMCPClient:
         print("Text Translation Result:")
         print(result)
 
-    async def test_audio_translation(self, audio_path: str):
-        """测试音频翻译"""
-        print("Testing audio translation...")
+    async def test_file_translation(self, file_path):
+        """测试文本翻译"""
+        print("Testing text translation...")
         result = await self.process_translation_request(
-            audio_path=audio_path, target_lang="zh"
+            file_path=file_path, target_lang="zh"
         )
-        print("Audio Translation Result:")
+        print("Text Translation Result:")
         print(result)
+
+    #async def test_audio_translation(self, audio_path: str):
+    #    """测试音频翻译"""
+    #    print("Testing audio translation...")
+    #    result = await self.process_translation_request(
+    #        audio_path=audio_path, target_lang="zh"
+    #    )
+    #    print("Audio Translation Result:")
+    #   print(result)
 
     async def test_server_info(self):
         """测试服务器信息"""
@@ -191,8 +228,7 @@ async def main():
         print()
 
         # 测试音频翻译（需要提供音频文件路径）
-        audio_path = "./mcp/0.wav"
-        await client.test_audio_translation(audio_path)
+        await client.test_file_translation("test.txt")
 
     except Exception as e:
         print(f"Error: {str(e)}")
