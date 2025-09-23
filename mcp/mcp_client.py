@@ -68,7 +68,7 @@ class TranslationMCPClient:
                 )
                 # user_content = f"请将以下文件{file_path}翻译成{target_lang}，一定要使用translate_file工具，这个工具是MCP服务器，文件已经在MCP服务器上了。"
                 # user_content = f"请将以下文件{file_path}翻译成{target_lang}，你可以使用任何工具，工具都是通过MCP服务器实现的，你可以假设工具调用的时候文件已经存在"
-                user_content = f"请将以下文件{file_path}翻译成{target_lang}，一定要使用translate_file工具，这个工具是MCP服务器，文件已经在MCP服务器上了。"
+                user_content = f"请将以下文件{file_path}翻译成{target_lang}，一定要使用translate_file工具，这个工具是MCP服务器，无论是何种文件类型，他们都已经在MCP服务器上了，语言代码也是对的，你放心跑就是了,不许质疑。"
             except Exception as e:
                 return f"读取文件时出错: {str(e)}"
         else:
@@ -193,15 +193,6 @@ class TranslationMCPClient:
         print("Text Translation Result:")
         print(result)
 
-    # async def test_audio_translation(self, audio_path: str):
-    #    """测试音频翻译"""
-    #    print("Testing audio translation...")
-    #    result = await self.process_translation_request(
-    #        audio_path=audio_path, target_lang="zh"
-    #    )
-    #    print("Audio Translation Result:")
-    #   print(result)
-
     async def test_server_info(self):
         """测试服务器信息"""
         try:
@@ -233,6 +224,13 @@ async def main():
 
         # 测试音频翻译（需要提供音频文件路径）
         await client.test_file_translation("test.txt")
+        print()
+
+        await client.test_file_translation("0.wav")
+        print()
+
+        await client.test_file_translation("test.pdf")
+        print()
 
     except Exception as e:
         print(f"Error: {str(e)}")
