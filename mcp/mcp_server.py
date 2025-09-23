@@ -36,6 +36,20 @@ span_mgr = Span_Mgr(storage)
 root_span = span_mgr.create_span("Root operation")
 
 
+def is_wav_file(filepath):
+    """
+    检查文件是否以.wav结尾（不区分大小写）
+
+    参数:
+    filepath (str): 文件的绝对路径
+
+    返回:
+    bool: 如果是PDF文件返回True，否则返回False
+    """
+    # 使用os.path.splitext获取文件扩展名并转换为小写进行比较
+    return os.path.splitext(filepath)[1].lower() == ".wav"
+
+
 def _translate_file(filename: str, target_lang: str) -> str:
     """文件翻译功能"""
     LLM_Client = clientInfo(
@@ -123,7 +137,7 @@ def translate_text(text: str, target_lang: str = "en") -> str:
 @mcp.tool()  # 修正：添加了括号
 def translate_file(file_name: str, target_lang: str = "en") -> str:
     """
-    Translate file to target language
+    Translate file on mcp server to target language, it supports file like pdf, wav, txt and so on.
 
     Args:
         file_name: id for file
@@ -132,56 +146,32 @@ def translate_file(file_name: str, target_lang: str = "en") -> str:
     Returns:
         A JSON string containing translated text
     """
+
+    if is_wav_file("/tmp/" + file_name):
+        recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
+            encoder=os.getenv("encoder", "/tmp/base-encoder.onnx"),
+            decoder=os.getenv("decoder", "/tmp/base-decoder.onnx"),
+            tokens=os.getenv("tokens", "/tmp/base-tokens.onnx"),
+            language="",
+        )
+        stream = recognizer.create_stream()
+        try:
+            audio, sample_rate = sf.read(
+                "/tmp/" + file_name, dtype="float32", always_2d=True
+            )
+        except Exception as e:
+            print(e)
+        audio = audio[:, 0]
+        stream.accept_waveform(sample_rate, audio)
+        recognizer.decode_stream(stream)
+        text = stream.result.text
+        translated_text = _translate_text(text, target_lang)
+        result = {"translated_text": translated_text}
+        return json.dumps(result, ensure_ascii=False)
+
     translated_text = _translate_file("/tmp/" + file_name, target_lang)
 
     result = {"translated_text": translated_text}
-
-    return json.dumps(result, ensure_ascii=False)
-
-
-# @mcp.tool()
-def translate_audio(audio_base64: str, target_lang: str = "en") -> str:
-    """
-    Translate audio to the target language and extract proper nouns.
-
-    Args:
-        audio_base64: Base64 encoded audio data (WAV format)
-        target_lang: The target language code (en, es, fr, de, ja, zh)
-
-    Returns:
-        A JSON string containing recognized text, translated text
-    """
-    try:
-        audio_data = base64.b64decode(audio_base64)
-        with open("/tmp/test.wav", "wb") as f:
-            f.write(audio_data)
-    except Exception as e:
-        return f'{{"error": "Invalid base64 audio data: {e}"}}'
-
-    recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
-        encoder=os.getenv("encoder", "/tmp/base-encoder.onnx"),
-        decoder=os.getenv("decoder", "/tmp/base-decoder.onnx"),
-        tokens=os.getenv("tokens", "/tmp/base-tokens.onnx"),
-        language="",
-    )
-    stream = recognizer.create_stream()
-
-    try:
-        audio, sample_rate = sf.read("/tmp/test.wav", dtype="float32", always_2d=True)
-    except Exception as e:
-        print(e)
-
-    audio = audio[:, 0]
-    stream.accept_waveform(sample_rate, audio)
-    recognizer.decode_stream(stream)
-    recognized_text = stream.result.text
-    translated_text = _translate_text(recognized_text, target_lang)
-
-    result = {
-        "recognized_text": recognized_text,
-        "translated_text": translated_text,
-        "target_language": target_lang,
-    }
 
     return json.dumps(result, ensure_ascii=False)
 
