@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-16/server.schema.json",
-  "name": "io.github.samyuan1990/i18n-agent-action",
+  "name": "io.github.SamYuan1990/i18n-agent-action",
   "description": "An i18n github action for language translate",
   "version": "mcp",
   "packages": [
     {
       "registryType": "oci",
       "registryBaseUrl": "https://ghcr.io",
-      "identifier": "samyuan1990/i18n-agent-action",
+      "identifier": "SamYuan1990/i18n-agent-action",
       "version": "mcp",
       "runtimeHint": "docker",
       "transport": {

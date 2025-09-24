@@ -28,7 +28,7 @@ jobs:
             tags: ghcr.io/samyuan1990/i18n-agent-action:mcp,ghcr.io/samyuan1990/i18n-agent-action:latest-mcp
             labels: |
               mcp=latest-mcp
-              io.modelcontextprotocol.server.name=io.github.samyuan1990/i18n-agent-action
+              io.modelcontextprotocol.server.name=io.github.SamYuan1990/i18n-agent-action
             build_args: SERVICE_TYPE=mcp
             #needs_publish: true
 
