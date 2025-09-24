@@ -107,7 +107,9 @@ def _translate_text(text: str, target_lang: str) -> str:
         disclaimers=os.getenv("disclaimers", "False").lower() == "true",
     )
     TsAgent = translateAgent(LLM_Client, span_mgr)
-    return TsAgent.translate(context, context.target_language, text, root_span)
+    return TsAgent.translate_URLOrText(
+        context, context.target_language, text, root_span
+    )
 
 
 # MCP 工具
@@ -117,7 +119,7 @@ def translate_text(text: str, target_lang: str = "en") -> str:
     Translate text to the target language.
 
     Args:
-        text: The text to translate
+        text: The text to translate or URL as http/https
         target_lang: The target language code ISO 639-1 (en, es, fr, de, ja, zh)
 
     Returns:
