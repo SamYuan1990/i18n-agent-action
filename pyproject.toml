@@ -27,6 +27,7 @@ dependencies = [
     "pdfminer-six (>=20250506,<20250507)",
     "python-pptx (>=1.0.2,<2.0.0)",
     "python-docx (>=1.2.0,<2.0.0)",
+    "beautifulsoup4 (>=4.13.5,<5.0.0)",
 ]
 
 [project.urls]
