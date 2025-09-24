@@ -24,8 +24,11 @@ class TranslationBridge:
         span_mgr = Span_Mgr(storage)
         root_span = span_mgr.create_span("Root operation")
         TsAgent = translateAgent(LLM_client, span_mgr)
-
-        return TsAgent.translate(context, context.target_language, text, root_span)
+        logging.info("start translate URL or text")
+        logging.info(text)
+        return TsAgent.translate_URLOrText(
+            context, context.target_language, text, root_span
+        )
 
     def translate_file(self, filepath, filename):
         """翻译文件内容"""

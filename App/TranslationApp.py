@@ -242,12 +242,8 @@ class TranslationApp:
                     message_type="chat_message",
                 )
             )
-            # if URL
-            # save html
-            # save_html_page(self.new_message.value,tmp_html_file)
-            # invoke translate file
-            # 调用翻译功能
             try:
+                logging.info("send content to translation_bridge")
                 result = self.translation_bridge.translate_text(self.new_message.value)
                 logging.info(result)
                 # 添加翻译结果到聊天

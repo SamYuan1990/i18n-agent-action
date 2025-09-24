@@ -1,10 +1,13 @@
 import json
 import logging
 import os
+import re
 import threading
 
+import requests
 from AgentUtils.Agent import Agent
 from AgentUtils.tomarkdown import getfilecontent
+from bs4 import BeautifulSoup
 
 from .metric import (
     FILES_TRANSLATED,
@@ -24,10 +27,68 @@ class translateAgent(Agent):
         logging.info(file_content)
         return self.translate(TranslationContext, target_language, file_content, span)
 
-    # todo
-    # // if url
-    # // try download url content
-    # // translate as file
+    def is_web_url(self, text):
+        """判断输入文本是否为网页URL"""
+        patterns = [
+            r"^https?://",  # http:// 或 https://
+            r"^www\.",  # www开头
+            r"^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}",  # 域名格式
+        ]
+
+        for pattern in patterns:
+            if re.match(pattern, text.strip()):
+                return True
+        return False
+
+    def normalize_url(self, url):
+        """规范化URL"""
+        url = url.strip()
+        if not url.startswith(("http://", "https://")):
+            url = "https://" + url
+        return url
+
+    def extract_text_content(self, html_content):
+        """从HTML中提取文本内容，返回纯文本字符串"""
+        soup = BeautifulSoup(html_content, "html.parser")
+
+        # 移除不需要翻译的标签
+        for element in soup(
+            ["script", "style", "meta", "link", "noscript", "header", "footer", "nav"]
+        ):
+            element.decompose()
+
+        # 获取所有文本内容
+        text = soup.get_text()
+
+        # 清理文本：移除多余的空格和换行
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = " ".join(chunk for chunk in chunks if chunk)
+
+        return text
+
+    def translate_URLOrText(self, TranslationContext, target_language, content, span):
+        if self.is_web_url(content):
+            logging.info("start fetch URL")
+            timeout = 60
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            requests_session = requests.Session()
+            normalized_url = self.normalize_url(content)
+            response = requests_session.get(
+                normalized_url, stream=True, timeout=timeout, headers=headers
+            )
+            response.raise_for_status()
+            html_content = response.text
+            logging.info("from html to text")
+            text_elements = self.extract_text_content(html_content)
+            logging.info(text_elements)
+            return self.translate(
+                TranslationContext, target_language, text_elements, span
+            )
+        else:
+            return self.translate(TranslationContext, target_language, content, span)
 
     def translate(self, TranslationContext, target_language, content, span):
         # Split content into chunks of 3000 characters
