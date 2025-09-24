@@ -11,7 +11,8 @@
       "version": "mcp",
       "runtimeHint": "docker",
       "transport": {
-        "type": "sse"
+        "type": "sse",
+        "URL": "localhost:8080"
       },
       "runtimeArguments": [
         {
