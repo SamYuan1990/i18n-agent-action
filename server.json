@@ -12,7 +12,7 @@
       "runtimeHint": "docker",
       "transport": {
         "type": "sse",
-        "URL": "localhost:8080"
+        "URL": "https://example.com:8080/sse"
       },
       "runtimeArguments": [
         {
