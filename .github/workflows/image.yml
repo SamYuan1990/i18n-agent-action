@@ -26,7 +26,9 @@ jobs:
             build_args: SERVICE_TYPE=flet
           - service: mcp
             tags: ghcr.io/samyuan1990/i18n-agent-action:mcp,ghcr.io/samyuan1990/i18n-agent-action:latest-mcp
-            labels: mcp,io.github.samyuan1990/i18n-agent-action
+            labels: |
+              mcp=latest-mcp
+              io.modelcontextprotocol.server.name=io.github.samyuan1990/i18n-agent-action
             build_args: SERVICE_TYPE=mcp
             #needs_publish: true
 
