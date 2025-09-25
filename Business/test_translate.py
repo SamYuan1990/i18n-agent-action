@@ -71,7 +71,7 @@ class TestTranslateAgent:
         assert agent.is_web_url("sub.domain.co.uk")
 
         # 测试非URL文本
-        assert agent.is_web_url("This is not a URL")
+        assert not agent.is_web_url("This is not a URL")
         assert not agent.is_web_url("")
         assert not agent.is_web_url("file:///local/path")
 
