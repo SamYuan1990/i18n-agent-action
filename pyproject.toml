@@ -58,7 +58,7 @@ flet-audio = "^0.1.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.1"
-mkdocs-material = "^9.6.19"
+mkdocs-material = "^9.6.20"
 mkdocs-get-deps = "^0.2.0"
 mkdocs-git-revision-date-localized-plugin = "^1.4.7"
 mkdocs-material-extensions = "^1.3.1"
@@ -68,16 +68,16 @@ mkdocs-static-i18n = "^1.3.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
 pytest-cov = "^7.0.0"
-onnxruntime = "^1.22.1"
-sherpa-onnx = "^1.12.13"
+onnxruntime = "^1.23.0"
+sherpa-onnx = "^1.12.14"
 soundfile = "^0.13.1"
 
 
 [tool.poetry.group.mcp.dependencies]
-mcp = "^1.14.0"
+mcp = "^1.15.0"
 httpx = "^0.28.1"
-uvicorn = "^0.35.0"
-anthropic = "^0.67.0"
+uvicorn = "^0.37.0"
+anthropic = "^0.68.1"
 
 [tool.flit.sdist]
 include = ["AgentUtils/**/*","Business/**/*"]
