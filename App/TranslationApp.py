@@ -11,6 +11,7 @@ from share_manager import ShareManager  # 导入新的ShareManager类
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
 
+
 class TranslationApp:
     def __init__(self, page: ft.Page):
         self.page = page

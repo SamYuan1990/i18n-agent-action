@@ -3,11 +3,11 @@ import os
 from typing import Callable, Optional
 
 import flet as ft
-import pyttsx3
-
 import flet_audio_recorder as ftar
-import soundfile as sf
 import flet_sherpa_onnx as fso
+import pyttsx3
+import soundfile as sf
+
 
 class SoundManager:
     """声音管理类，处理所有音频相关功能"""
@@ -22,11 +22,11 @@ class SoundManager:
         self.page._services.append(self.flet_sherpa_onnx)
         # 初始化音频录制器（如果可用）
         self.audio_rec = ftar.AudioRecorder()
-            #ftar.AudioRecorderConfiguration(
-            #        sample_rate=16000,
-            #        channels=1,
-            #        encoder=ftar.AudioEncoder.PCM16BITS
-            #    )
+        # ftar.AudioRecorderConfiguration(
+        #        sample_rate=16000,
+        #        channels=1,
+        #        encoder=ftar.AudioEncoder.PCM16BITS
+        #    )
         self.page._services.append(self.audio_rec)
         self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
         self.stt_path = os.path.join(self.app_data_path, "test-audio-file1.wav")
@@ -70,16 +70,16 @@ class SoundManager:
 
     async def sound_to_text(self):
         await self.flet_sherpa_onnx.CreateRecognizer(
-            encoder=self.app_data_path+"/base-encoder.onnx",
-            decoder=self.app_data_path+"/base-decoder.onnx",
-            tokens=self.app_data_path+"/base-tokens.txt"
+            encoder=self.app_data_path + "/base-encoder.onnx",
+            decoder=self.app_data_path + "/base-decoder.onnx",
+            tokens=self.app_data_path + "/base-tokens.txt",
         )
-        audio, sample_rate = sf.read(self.recording_path, dtype="float32", always_2d=True)
+        audio, sample_rate = sf.read(
+            self.recording_path, dtype="float32", always_2d=True
+        )
         audio = audio[:, 0]
-        sf.write(self.stt_path, audio, sample_rate, subtype='PCM_16', format='WAV')
-        value = await flet_sherpa_onnx.STT(
-            inputWav=self.stt_path
-        )
+        sf.write(self.stt_path, audio, sample_rate, subtype="PCM_16", format="WAV")
+        value = await self.flet_sherpa_onnx.STT(inputWav=self.stt_path)
         return value
 
     def create_record_button(self, on_stop_click, visible=True):

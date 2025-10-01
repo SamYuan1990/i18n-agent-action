@@ -255,7 +255,6 @@ files = [
     {file = "cffi-1.17.1-cp39-cp39-win_amd64.whl", hash = "sha256:d016c76bdd850f3c626af19b0542c9677ba156e4ee4fccfdd7848803533ef662"},
     {file = "cffi-1.17.1.tar.gz", hash = "sha256:1c39c6016c32bc48dd54561950ebd6836e1670f2ae46128f67cf49e789c52824"},
 ]
-markers = {main = "platform_python_implementation != \"PyPy\""}
 
 [package.dependencies]
 pycparser = "*"
@@ -1516,7 +1515,7 @@ version = "2.3.3"
 description = "Fundamental package for array computing in Python"
 optional = false
 python-versions = ">=3.11"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "numpy-2.3.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:0ffc4f5caba7dfcbe944ed674b7eef683c7e94874046454bb79ed7ee0236f59d"},
     {file = "numpy-2.3.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:e7e946c7170858a0295f79a60214424caac2ffdb0063d4d79cb681f9aa0aa569"},
@@ -1925,7 +1924,6 @@ files = [
     {file = "pycparser-2.22-py3-none-any.whl", hash = "sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc"},
     {file = "pycparser-2.22.tar.gz", hash = "sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6"},
 ]
-markers = {main = "platform_python_implementation != \"PyPy\""}
 
 [[package]]
 name = "pydantic"
@@ -6359,7 +6357,7 @@ version = "0.13.1"
 description = "An audio library based on libsndfile, CFFI and NumPy"
 optional = false
 python-versions = "*"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "soundfile-0.13.1-py2.py3-none-any.whl", hash = "sha256:a23c717560da2cf4c7b5ae1142514e0fd82d6bbd9dfc93a50423447142f2c445"},
     {file = "soundfile-0.13.1-py2.py3-none-macosx_10_9_x86_64.whl", hash = "sha256:82dc664d19831933fe59adad199bf3945ad06d84bc111a5b4c0d3089a5b9ec33"},
@@ -6690,4 +6688,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "345c75b6fabde9899bafb808ffb736aa024d83c88abc0bbba09b6669d3f87f76"
+content-hash = "02a5bd52733c850d7bce0337aa37d04cfdb6ce1d6cda524bf87896cf879a3085"
