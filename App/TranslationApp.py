@@ -11,17 +11,6 @@ from share_manager import ShareManager  # 导入新的ShareManager类
 from soundmgr import SoundManager
 from translationbridge import TranslationBridge
 
-try:
-    import onnxruntime  # noqa: F401
-    import sherpa_onnx
-    import soundfile as sf
-
-    ONNX_AVAILABLE = True
-except ImportError:
-    ONNX_AVAILABLE = False
-    logging.warning("onnxruntime not available, audio recording disabled")
-
-
 class TranslationApp:
     def __init__(self, page: ft.Page):
         self.page = page
@@ -49,52 +38,23 @@ class TranslationApp:
         self.translation_bridge = TranslationBridge(self.left_sidebar)
         ## file mgr
         self.file_manager = FileManager(page, self.chat, self.translation_bridge)
-
         # todo/workaround
-        self.recognizer = None
-
-        if not ONNX_AVAILABLE:
-            try:
-                import onnxruntime  # noqa: F401
-            except ImportError:
-                logging.info("onnxruntime not available, audio recording disabled")
-            try:
-                import sherpa_onnx  # noqa: F401
-            except ImportError:
-                logging.info("sherpa_onnx not available, audio recording disabled")
-            try:
-                import soundfile as sf  # noqa: F401
-            except ImportError:
-                logging.info("soundfile not available, audio recording disabled")
         self.setup_ui()
 
     async def handle_stop_recording(self, e):
         """处理停止录音"""
         await self.sound_manager.stop_recording()
-        if self.recognizer == None:  # noqa: E711
-            self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
-                encoder=os.path.join(self.app_data_path, "base-encoder.onnx"),
-                decoder=os.path.join(self.app_data_path, "base-decoder.onnx"),
-                tokens=os.path.join(self.app_data_path, "base-tokens.txt"),
-                language="",
-            )
-        stream = self.recognizer.create_stream()
-        self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
-        audio, sample_rate = sf.read(
-            self.recording_path, dtype="float32", always_2d=True
-        )
-        audio = audio[:, 0]
-        stream.accept_waveform(sample_rate, audio)
-        self.recognizer.decode_stream(stream)
-        logging.info(stream.result.text)
+        ## stream.result.text is STT result
+        text = await self.sound_manager.sound_to_text()
+        logging.info(text)
         self.add_message(
             Message(
                 user_name="User",
-                text=stream.result.text,
+                text=text,
                 message_type="chat_message",
             )
         )
-        result = self.translation_bridge.translate_text(stream.result.text)
+        result = self.translation_bridge.translate_text(text)
         logging.info(result)
         # 添加翻译结果到聊天
         self.add_message(
@@ -106,8 +66,7 @@ class TranslationApp:
         )
 
     def setup_ui(self):
-        if ONNX_AVAILABLE:
-            self.file_downloader.visible()
+        self.file_downloader.visible()
         # 创建消息输入框
         self.new_message = ft.TextField(
             hint_text="请输入要翻译的文本...",

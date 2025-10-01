@@ -674,6 +674,25 @@ files = [
 flet = ">=0.70.0.dev0"
 
 [[package]]
+name = "flet-sherpa-onnx"
+version = "0.2.0"
+description = "FletSherpaOnnx control for Flet"
+optional = false
+python-versions = ">=3.12"
+groups = ["main"]
+files = []
+develop = false
+
+[package.dependencies]
+flet = ">=0.70.0.dev0"
+
+[package.source]
+type = "git"
+url = "https://github.com/SamYuan1990/flet_sherpa_onnx.git"
+reference = "HEAD"
+resolved_reference = "33ff10138a4ffd751ed838de0e005b5d1a056a2e"
+
+[[package]]
 name = "ghp-import"
 version = "2.1.0"
 description = "Copy your docs directly to the gh-pages branch."
@@ -6671,4 +6690,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "cd0bc3d184a1c1cb22cc5e23ec4d74c0a3d786e7c8fb1f38e67699ccb4fd2897"
+content-hash = "345c75b6fabde9899bafb808ffb736aa024d83c88abc0bbba09b6669d3f87f76"
