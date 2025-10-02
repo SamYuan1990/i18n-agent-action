@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 # 创建文件handler并设置级别
 app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
 app_tmp_path = os.getenv("FLET_APP_STORAGE_TEMP")
-log_file_path = os.path.join(app_tmp_path, "app.log")
+log_file_path = os.path.join(app_data_path, "app.log")
 file_handler = RotatingFileHandler(
     log_file_path, maxBytes=1024 * 1024, backupCount=2, encoding="utf-8"  # 1MB
 )

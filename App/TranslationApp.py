@@ -46,6 +46,7 @@ class TranslationApp:
         """处理停止录音"""
         await self.sound_manager.stop_recording()
         ## stream.result.text is STT result
+        logging.info("start STT processing")
         text = await self.sound_manager.sound_to_text()
         logging.info(text)
         self.add_message(
@@ -224,7 +225,7 @@ class TranslationApp:
     def add_message(self, message: Message):
         if message.message_type == "chat_message":
             m = ChatMessage(message, self.sound_manager.engine, self.page, None)
-        self.chat.controls.append(m)
+            self.chat.controls.append(m)
         self.page.update()
 
     def toggle_left_sidebar(self, e=None):

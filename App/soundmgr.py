@@ -69,6 +69,9 @@ class SoundManager:
             logging.error(f"语音合成失败: {str(e)}")
 
     async def sound_to_text(self):
+        logging.info(self.app_data_path + "/base-encoder.onnx")
+        logging.info(self.app_data_path + "/base-decoder.onnx")
+        logging.info(self.app_data_path + "/base-tokens.txt")
         await self.flet_sherpa_onnx.CreateRecognizer(
             encoder=self.app_data_path + "/base-encoder.onnx",
             decoder=self.app_data_path + "/base-decoder.onnx",
