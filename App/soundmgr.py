@@ -55,6 +55,11 @@ class SoundManager:
         try:
             output_path = await self.audio_rec.stop_recording()
             logging.info(f"StopRecording: {output_path}")
+            audio, sample_rate = sf.read(
+                self.recording_path, dtype="float32", always_2d=True
+            )
+            audio = audio[:, 0]
+            sf.write(self.stt_path, audio, sample_rate, subtype="PCM_16", format="WAV")
             return output_path
         except Exception as e:
             logging.error(f"Error stopping recording: {e}")
@@ -72,16 +77,12 @@ class SoundManager:
         logging.info(self.app_data_path + "/base-encoder.onnx")
         logging.info(self.app_data_path + "/base-decoder.onnx")
         logging.info(self.app_data_path + "/base-tokens.txt")
-        await self.flet_sherpa_onnx.CreateRecognizer(
+        value = await self.flet_sherpa_onnx.CreateRecognizer(
             encoder=self.app_data_path + "/base-encoder.onnx",
             decoder=self.app_data_path + "/base-decoder.onnx",
             tokens=self.app_data_path + "/base-tokens.txt",
         )
-        audio, sample_rate = sf.read(
-            self.recording_path, dtype="float32", always_2d=True
-        )
-        audio = audio[:, 0]
-        sf.write(self.stt_path, audio, sample_rate, subtype="PCM_16", format="WAV")
+        logging.info(value)
         value = await self.flet_sherpa_onnx.STT(inputWav=self.stt_path)
         return value
 
