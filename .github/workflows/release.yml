@@ -59,6 +59,11 @@ jobs:
             flet-platform: macos
             base-artifact-name: macos-x86-app
             artifact-path: build/macos/**/*.app  # 直接使用路径，不使用 env 变量
+          - platform: macos-x86-new
+            runs-on: macos-15-intel
+            flet-platform: macos
+            base-artifact-name: macos-15-x86-app
+            artifact-path: build/macos/**/*.app  # 直接使用路径，不使用 env 变量
           - platform: linux
             runs-on: ubuntu-latest
             flet-platform: linux
