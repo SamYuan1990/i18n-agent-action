@@ -272,6 +272,7 @@ files = [
     {file = "cffi-2.0.0-cp39-cp39-win_amd64.whl", hash = "sha256:b882b3df248017dba09d6b16defe9b5c407fe32fc7c65a9c69798e6175601be9"},
     {file = "cffi-2.0.0.tar.gz", hash = "sha256:44d1b5909021139fe36001ae048dbdde8214afa20200eda0f64c068cac5d5529"},
 ]
+markers = {main = "platform_python_implementation != \"PyPy\""}
 
 [package.dependencies]
 pycparser = {version = "*", markers = "implementation_name != \"PyPy\""}
@@ -689,21 +690,6 @@ files = [
 
 [package.dependencies]
 flet = ">=0.25.1"
-
-[[package]]
-name = "flet-audio-recorder"
-version = "0.2.0.dev504"
-description = "Adds audio recording support to Flet apps."
-optional = false
-python-versions = ">=3.10"
-groups = ["main"]
-files = [
-    {file = "flet_audio_recorder-0.2.0.dev504-py3-none-any.whl", hash = "sha256:34a08c3e345a948558bbda779e1d89d0e0a90fd5ccb8b8686db7b4378fb9b4f4"},
-    {file = "flet_audio_recorder-0.2.0.dev504.tar.gz", hash = "sha256:d307b965e0f6a75c69d0f69a5994877456b5fde27b9426b9e4498a8e0cc1f8f5"},
-]
-
-[package.dependencies]
-flet = ">=0.70.0.dev0"
 
 [[package]]
 name = "flet-sherpa-onnx"
@@ -1576,7 +1562,7 @@ version = "2.1.1"
 description = "Fundamental package for array computing in Python"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "dev"]
+groups = ["dev"]
 files = [
     {file = "numpy-2.1.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c8a0e34993b510fc19b9a2ce7f31cb8e94ecf6e924a40c0c9dd4f62d0aac47d9"},
     {file = "numpy-2.1.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:7dd86dfaf7c900c0bbdcb8b16e2f6ddf1eb1fe39c6c8cca6e94844ed3152a8fd"},
@@ -1839,11 +1825,11 @@ description = "C parser in Python"
 optional = false
 python-versions = ">=3.8"
 groups = ["main", "app", "dev"]
-markers = "implementation_name != \"PyPy\""
 files = [
     {file = "pycparser-2.23-py3-none-any.whl", hash = "sha256:e5c6e8d3fbad53479cab09ac03729e0a9faf2bee3db8208a550daf5af81a5934"},
     {file = "pycparser-2.23.tar.gz", hash = "sha256:78816d4f24add8f10a06d6f05b4d424ad9e96cfebf68a4ddc99c65c0720d00c2"},
 ]
+markers = {main = "platform_python_implementation != \"PyPy\" and implementation_name != \"PyPy\"", app = "implementation_name != \"PyPy\"", dev = "implementation_name != \"PyPy\""}
 
 [[package]]
 name = "pydantic"
@@ -6311,7 +6297,7 @@ version = "0.13.1"
 description = "An audio library based on libsndfile, CFFI and NumPy"
 optional = false
 python-versions = "*"
-groups = ["main", "dev"]
+groups = ["dev"]
 files = [
     {file = "soundfile-0.13.1-py2.py3-none-any.whl", hash = "sha256:a23c717560da2cf4c7b5ae1142514e0fd82d6bbd9dfc93a50423447142f2c445"},
     {file = "soundfile-0.13.1-py2.py3-none-macosx_10_9_x86_64.whl", hash = "sha256:82dc664d19831933fe59adad199bf3945ad06d84bc111a5b4c0d3089a5b9ec33"},
@@ -6625,4 +6611,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "84221c8f0266ef971633f0a85ca4958e6037bc0bb882c8704c17ecd4166f4c02"
+content-hash = "eb45d6dd810d6f10b0fc727e4d978a8a4bbe17e2e5566f553ef812ca12aa571e"

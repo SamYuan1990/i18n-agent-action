@@ -23,13 +23,10 @@ dependencies = [
     "asyncio (>=4.0.0,<5.0.0)",
     "requests (>=2.32.5,<3.0.0)",
     "flet (>=0.70.0.dev0)",
-    "flet-audio-recorder (==0.2.0.dev504)",
     "pdfminer-six (>=20250506,<20250507)",
     "python-docx (>=1.2.0,<2.0.0)",
     "beautifulsoup4 (>=4.13.5,<5.0.0)",
     "flet-sherpa-onnx @ git+https://github.com/SamYuan1990/flet_sherpa_onnx.git",
-    "soundfile (>=0.13.1,<0.14.0)",
-    "numpy (==2.1.1)"
 ]
 
 [project.urls]

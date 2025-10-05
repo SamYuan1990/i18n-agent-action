@@ -44,10 +44,7 @@ class TranslationApp:
 
     async def handle_stop_recording(self, e):
         """处理停止录音"""
-        await self.sound_manager.stop_recording()
-        ## stream.result.text is STT result
-        logging.info("start STT processing")
-        text = await self.sound_manager.sound_to_text()
+        text = await self.sound_manager.stop_recording()
         logging.info(text)
         self.add_message(
             Message(
