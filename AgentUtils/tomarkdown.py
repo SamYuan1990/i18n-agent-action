@@ -3,7 +3,8 @@ import os
 
 from docx import Document  # 添加docx库导入
 from pdfminer.high_level import extract_text
-from pptx import Presentation
+
+# from pptx import Presentation
 
 
 def is_pdf_file(filepath):
@@ -48,43 +49,43 @@ def is_docx_file(filepath):
     return os.path.splitext(filepath)[1].lower() == ".docx"
 
 
-def pptx_to_markdown_advanced(pptx_path):
-    prs = Presentation(pptx_path)
-    markdown_lines = []
+# def pptx_to_markdown_advanced(pptx_path):
+#    prs = Presentation(pptx_path)
+#    markdown_lines = []
 
-    for i, slide in enumerate(prs.slides):
-        markdown_lines.append(f"# Slide {i+1}\n\n")
+#    for i, slide in enumerate(prs.slides):
+#        markdown_lines.append(f"# Slide {i+1}\n\n")
 
-        if slide.shapes.title:
-            title = slide.shapes.title.text.strip()
-            markdown_lines.append(f"## {title}\n\n")
+#        if slide.shapes.title:
+#            title = slide.shapes.title.text.strip()
+#            markdown_lines.append(f"## {title}\n\n")
 
-        for shape in slide.shapes:
-            if hasattr(shape, "text") and shape != slide.shapes.title:
-                text = shape.text.strip()
-                if text:
-                    if any(char in text for char in ["•", "-", "*", "→"]):
-                        for line in text.split("\n"):
-                            if line.strip():
-                                cleaned = line.strip().lstrip("•-*→ ")
-                                markdown_lines.append(f"* {cleaned}\n")
-                        markdown_lines.append("\n")
-                    else:
-                        markdown_lines.append(f"{text}\n\n")
+#        for shape in slide.shapes:
+#            if hasattr(shape, "text") and shape != slide.shapes.title:
+#                text = shape.text.strip()
+#                if text:
+#                    if any(char in text for char in ["•", "-", "*", "→"]):
+#                        for line in text.split("\n"):
+#                            if line.strip():
+#                                cleaned = line.strip().lstrip("•-*→ ")
+#                                markdown_lines.append(f"* {cleaned}\n")
+#                        markdown_lines.append("\n")
+#                    else:
+#                        markdown_lines.append(f"{text}\n\n")
 
-            if shape.has_table:
-                table = shape.table
-                headers = [cell.text for cell in table.rows[0].cells]
-                markdown_lines.append(f"| {' | '.join(headers)} |\n")
-                markdown_lines.append(f"|{'|'.join(['---'] * len(headers))}|\n")
-                for row in table.rows[1:]:
-                    row_data = [cell.text for cell in row.cells]
-                    markdown_lines.append(f"| {' | '.join(row_data)} |\n")
-                markdown_lines.append("\n")
+#            if shape.has_table:
+#                table = shape.table
+#                headers = [cell.text for cell in table.rows[0].cells]
+#                markdown_lines.append(f"| {' | '.join(headers)} |\n")
+#                markdown_lines.append(f"|{'|'.join(['---'] * len(headers))}|\n")
+#                for row in table.rows[1:]:
+#                    row_data = [cell.text for cell in row.cells]
+#                    markdown_lines.append(f"| {' | '.join(row_data)} |\n")
+#                markdown_lines.append("\n")
 
-        markdown_lines.append("---\n\n")
+#        markdown_lines.append("---\n\n")
 
-    return "".join(markdown_lines)
+#    return "".join(markdown_lines)
 
 
 def docx_to_text(docx_path):
@@ -132,10 +133,10 @@ def getfilecontent(filepath):
             file_content = extract_text(filepath)
             return file_content
 
-        if is_pptx_file(filepath):
-            logging.info(f"{filepath} is a pptx file")
-            file_content = pptx_to_markdown_advanced(filepath)
-            return file_content
+        # if is_pptx_file(filepath):
+        #    logging.info(f"{filepath} is a pptx file")
+        #    file_content = pptx_to_markdown_advanced(filepath)
+        #    return file_content
 
         if is_docx_file(filepath):
             logging.info(f"{filepath} is a docx file")

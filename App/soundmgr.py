@@ -1,25 +1,9 @@
 import logging
 import os
-from typing import Callable, Optional
 
 import flet as ft
+import flet_sherpa_onnx as fso
 import pyttsx3
-
-# 导入音频录制库
-try:
-    import flet_audio_recorder as ftar
-
-    AUDIO_RECORDER_AVAILABLE = True
-except ImportError:
-    AUDIO_RECORDER_AVAILABLE = False
-    logging.warning("flet_audio_recorder not available, audio recording disabled")
-try:
-    import onnxruntime  # noqa: F401
-
-    ONNX_AVAILABLE = True
-except ImportError:
-    ONNX_AVAILABLE = False
-    logging.warning("onnxruntime not available, audio recording disabled")
 
 
 class SoundManager:
@@ -29,46 +13,25 @@ class SoundManager:
         self.page = page
         self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.engine = pyttsx3.init()
-        self.recording_path = ""
-        self.on_state_change_callback: Optional[Callable] = None
-
-        # 初始化音频录制器（如果可用）
-        if AUDIO_RECORDER_AVAILABLE:
-            self.audio_rec = ftar.AudioRecorder()
-            self.page._services.append(self.audio_rec)
-        else:
-            self.audio_rec = None
+        self.fso_service = fso.FletSherpaOnnx()
+        self.page._services.append(self.fso_service)
+        self.Init_Recognizer = False
 
     async def start_recording(self):
         """开始录音"""
-        if not self.audio_rec:
-            logging.warning("Audio recording not available")
-            return None
-
-        self.recording_path = os.path.join(self.app_data_path, "test-audio-file.wav")
-        logging.info(f"StartRecording: {self.recording_path}")
-
-        try:
-            await self.audio_rec.start_recording(self.recording_path)
-            return self.recording_path
-        except Exception as e:
-            logging.error(f"Error starting recording: {e}")
-            return None
+        if not self.Init_Recognizer:
+            await self.fso_service.CreateRecognizer(
+                encoder=self.app_data_path + "/base-encoder.onnx",
+                decoder=self.app_data_path + "/base-decoder.onnx",
+                tokens=self.app_data_path + "/base-tokens.txt",
+            )
+            self.Init_Recognizer = True
+        await self.fso_service.StartRecording()
 
     async def stop_recording(self):
         """停止录音"""
-        if not self.audio_rec:
-            logging.warning("Audio recording not available")
-            return None
-
-        logging.info("Stopping recording")
-        try:
-            output_path = await self.audio_rec.stop_recording()
-            logging.info(f"StopRecording: {output_path}")
-            return output_path
-        except Exception as e:
-            logging.error(f"Error stopping recording: {e}")
-            return None
+        result = await self.fso_service.StopRecording()
+        return result
 
     def speak_text(self, text):
         """使用文本转语音引擎朗读文本"""
@@ -83,12 +46,10 @@ class SoundManager:
         self.record_btn = ft.Button(
             "开始录音",
             on_click=self.start_recording,
-            visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
         self.stop_record_btn = ft.Button(
             "停止录音",
             on_click=on_stop_click,
-            visible=visible and AUDIO_RECORDER_AVAILABLE and ONNX_AVAILABLE,
         )
 
         return ft.Row([self.record_btn, self.stop_record_btn])
