@@ -57,7 +57,7 @@ class PromptGen:
         output_structure_str = json.dumps(
             self.Output_structure, indent=2, ensure_ascii=False
         )
-        parts.append(f"\nOutput Structure:\n{output_structure_str}\n")
+        parts.append(f"\nOutput Structure in json:\n{output_structure_str}\n")
 
         # 组合所有部分
         template = "".join(parts)
