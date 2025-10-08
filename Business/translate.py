@@ -104,7 +104,7 @@ class translateAgent(Agent):
             messages = [
                 {
                     "role": "system",
-                    "content": TranslationContext.get_translator_prompt(),
+                    "content": TranslationContext.to_sys_prompt(),
                 },
                 {
                     "role": "user",

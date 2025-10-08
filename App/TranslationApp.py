@@ -190,7 +190,7 @@ class TranslationApp:
             )
         )
 
-    def send_message_click(self, e):
+    async def send_message_click(self, e):
         if self.new_message.value != "":
             # 添加用户消息到聊天
             self.add_message(
@@ -216,7 +216,7 @@ class TranslationApp:
                 error_msg = f"翻译失败: {str(e)}"
                 logging.error(error_msg)
             self.new_message.value = ""
-            self.new_message.focus()
+            await self.new_message.focus()
             self.page.update()
 
     def add_message(self, message: Message):
