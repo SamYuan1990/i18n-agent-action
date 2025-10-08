@@ -27,25 +27,43 @@ class FileDownloader:
         self.downloaded_all_files_size = 0  # 所有文件已下载的总大小
         self.file_sizes = {}  # 存储每个文件的大小
         self.executor = ThreadPoolExecutor(max_workers=1)
-        self.download_progress_bar = ft.ProgressBar(value=0, width=300, visible=False)
-        self.download_progress_text = ft.Text("0%", visible=False)
-        self.download_status_text = ft.Text("等待下载模型文件...", visible=False)
+        self.download_progress_bar = ft.ProgressBar(value=0, width=300)
+        self.download_progress_text = ft.Text("0%")
+        self.download_status_text = ft.Text("等待下载模型文件...")
         self.download_btn = ft.Button(
-            "下载模型文件",
-            icon=ft.Icons.DOWNLOAD,
-            on_click=self.start_download,
-            visible=False,
+            "下载模型文件", icon=ft.Icons.DOWNLOAD, on_click=self.start_download
         )
         self.cancel_download_btn = ft.OutlinedButton(
-            "取消下载", on_click=self.cancel_download, visible=False
+            "取消下载", on_click=self.cancel_download
         )
 
-    def visible(self):
-        self.download_progress_bar.visible = True
-        self.download_progress_text.visible = True
-        self.download_status_text.visible = True
-        self.download_btn.visible = True
-        self.cancel_download_btn.visible = True
+    def get_content(self):
+        """返回下载页面的内容"""
+        return ft.Container(
+            content=ft.Column(
+                [
+                    ft.Text("模型下载", size=24, weight=ft.FontWeight.BOLD),
+                    ft.Text("下载语音识别模型文件"),
+                    self.download_status_text,
+                    self.download_progress_bar,
+                    ft.Row(
+                        [self.download_progress_text],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    ),
+                    ft.Row(
+                        [
+                            self.download_btn,
+                            self.cancel_download_btn,
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            alignment=ft.Alignment.CENTER,
+            expand=True,
+        )
 
     def start_download(self, e):
         """开始下载所有文件"""
@@ -296,7 +314,7 @@ class FileDownloader:
         # 直接调用page.update()，不需要await
         self.page.update()
 
-    def cancel_download(self):
+    def cancel_download(self, e=None):
         """取消下载"""
         self.cancelled = True
 

@@ -1,26 +1,18 @@
 import logging
-import os
 
 import flet as ft
 from chatmessage import ChatMessage, Message
-from FileDownloader import FileDownloader
 from fileMgr import FileManager
-from leftsidebar import LeftSidebar
 from logViewer import LogViewer
 from share_manager import ShareManager  # 导入新的ShareManager类
 from soundmgr import SoundManager
-from translationbridge import TranslationBridge
+from translationbridge import translate_text
 
 
 class TranslationApp:
     def __init__(self, page: ft.Page):
         self.page = page
-        self.page.title = "i18n agent"
-        self.page.theme_mode = ft.ThemeMode.LIGHT
-        self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         # 1st class area
-        ## LLM config
-        self.left_sidebar = LeftSidebar(self)
         ## Text input
         self.chat = ft.ListView(
             expand=True,
@@ -28,19 +20,19 @@ class TranslationApp:
             auto_scroll=True,
         )
         ## STT
-        self.sound_manager = SoundManager(page)
-        self.file_downloader = FileDownloader(page)
+        self.sound_manager = SoundManager(self.page)
         ## social media
-        self.share_manager = ShareManager(page)
+        self.share_manager = ShareManager(self.page)
         ## Debug
-        self.log_viewer = LogViewer(page)
-        # 2nd class area
-        ## agent
-        self.translation_bridge = TranslationBridge(self.left_sidebar)
+        self.log_viewer = LogViewer(self.page)
         ## file mgr
-        self.file_manager = FileManager(page, self.chat, self.translation_bridge)
+        self.file_manager = FileManager(self.page, self.chat)
         # todo/workaround
         self.setup_ui()
+
+    def get_content(self):
+        """返回翻译应用的内容"""
+        return self.main_content
 
     async def handle_stop_recording(self, e):
         """处理停止录音"""
@@ -53,7 +45,7 @@ class TranslationApp:
                 message_type="chat_message",
             )
         )
-        result = self.translation_bridge.translate_text(text)
+        result = translate_text(text)
         logging.info(result)
         # 添加翻译结果到聊天
         self.add_message(
@@ -65,7 +57,6 @@ class TranslationApp:
         )
 
     def setup_ui(self):
-        self.file_downloader.visible()
         # 创建消息输入框
         self.new_message = ft.TextField(
             hint_text="请输入要翻译的文本...",
@@ -94,12 +85,7 @@ class TranslationApp:
             visible=True,  # 可以根据需要设置为False来隐藏录音按钮
         )
 
-        # 创建左侧边栏切换按钮
-        self.left_sidebar_toggle = ft.IconButton(
-            icon=ft.Icons.MENU,
-            tooltip="显示/隐藏设置",
-            on_click=self.toggle_left_sidebar,
-        )
+        # 创建日志查看器切换按钮
         self.log_view_toggle = self.log_viewer.create_ui()
         self.share_button = self.share_manager.create_ui()
 
@@ -118,7 +104,6 @@ class TranslationApp:
                         ),
                         ft.Row(
                             [
-                                self.left_sidebar_toggle,
                                 self.log_view_toggle,
                                 self.share_button,  # 添加分享按钮
                             ],
@@ -126,36 +111,6 @@ class TranslationApp:
                         ),
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                ),
-                # 下载区域
-                ft.Card(
-                    content=ft.Container(
-                        content=ft.Column(
-                            [
-                                ft.Text(
-                                    "模型文件下载",
-                                    style=ft.TextThemeStyle.TITLE_MEDIUM,
-                                ),
-                                self.file_downloader.download_status_text,
-                                ft.Row(
-                                    [
-                                        self.file_downloader.download_progress_bar,
-                                        self.file_downloader.download_progress_text,
-                                    ],
-                                    alignment=ft.MainAxisAlignment.CENTER,
-                                ),
-                                ft.Row(
-                                    [
-                                        self.file_downloader.download_btn,
-                                        self.file_downloader.cancel_download_btn,
-                                    ],
-                                    alignment=ft.MainAxisAlignment.CENTER,
-                                ),
-                            ],
-                            spacing=10,
-                        ),
-                        padding=15,
-                    )
                 ),
                 ft.Container(
                     content=self.chat,
@@ -178,17 +133,8 @@ class TranslationApp:
             expand=True,
         )
 
-        # 设置页面布局
-        self.page.add(
-            ft.Row(
-                [
-                    self.left_sidebar,
-                    ft.VerticalDivider(width=1, visible=False),
-                    self.main_content,
-                ],
-                expand=True,
-            )
-        )
+        # 设置页面布局 - 直接添加主内容区域，不再包含左侧边栏
+        # 注意：这里移除了 self.page.add(self.main_content)，因为现在通过导航栏切换
 
     async def send_message_click(self, e):
         if self.new_message.value != "":
@@ -202,7 +148,7 @@ class TranslationApp:
             )
             try:
                 logging.info("send content to translation_bridge")
-                result = self.translation_bridge.translate_text(self.new_message.value)
+                result = translate_text(self.new_message.value)
                 logging.info(result)
                 # 添加翻译结果到聊天
                 self.add_message(
@@ -224,58 +170,3 @@ class TranslationApp:
             m = ChatMessage(message, self.sound_manager.engine, self.page, None)
             self.chat.controls.append(m)
         self.page.update()
-
-    def toggle_left_sidebar(self, e=None):
-        self.left_sidebar.visible = not self.left_sidebar.visible
-        # 更新分割线的可见性
-        self.page.controls[0].controls[1].visible = self.left_sidebar.visible
-        # 更新按钮图标
-        self.left_sidebar_toggle.icon = (
-            ft.Icons.MENU if not self.left_sidebar.visible else ft.Icons.ARROW_BACK
-        )
-        self.page.update()
-
-    # def save_html_page(url, filename="saved_page.html"):
-    # """
-
-
-# 保存HTML页面到本地文件
-
-# Args:
-#     url (str): 要下载的网页URL
-#     filename (str): 保存的文件名，默认为"saved_page.html"
-
-# Returns:
-#     str: 保存的文件路径
-# """
-# # 设置SSL上下文
-# ssl_context = ssl.create_default_context()
-# ssl_context.check_hostname = False
-# ssl_context.verify_mode = ssl.CERT_NONE
-
-# 设置请求头
-# headers = {
-#     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-# }
-
-# logging.info(f"正在下载: {url}")
-
-# try:
-# 下载HTML内容
-#   req = urllib.request.Request(url, headers=headers)
-#   with urllib.request.urlopen(req, context=ssl_context) as response:
-#       html_content = response.read().decode('utf-8', errors='replace')
-
-# 确保文件名以.html结尾
-#  if not filename.endswith('.html'):
-#      filename += '.html'
-
-# 保存HTML文件
-#  with open(filename, 'w', encoding='utf-8') as f:
-#      f.write(html_content)
-
-#  logging.info(f"页面已保存到: {os.path.abspath(filename)}")
-#  return os.path.abspath(filename)
-
-# except Exception as e:
-# raise Exception(f"下载失败: {str(e)}")
