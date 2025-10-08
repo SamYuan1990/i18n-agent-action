@@ -42,7 +42,7 @@ def load_translation_config(config_path: Optional[str] = None) -> dict:
         return DEFAULT_CONFIG
 
 
-class TranslationContext:
+class TranslationContext(PromptGen):
     def __init__(
         self,
         target_language: str,
@@ -65,12 +65,45 @@ class TranslationContext:
             max_files (int, optional): 最大文件数量限制
             disclaimers (bool, optional): 是否添加免责声明
         """
+        # 先初始化父类
+        super().__init__()
+
+        # 直接设置 PromptGen 默认值（硬编码）
+        self.Role = "You are a professional translator and a versatile expert with knowledge spanning various specialized fields, capable of handling technical, professional, and general content"
+        self.Situation = "translating diverse content types including technical documentation, professional reports, academic materials, and general texts"
+        self.Action = "accurately preserve the original meaning, context, and nuance during translation while maintaining specialized terminology, proper nouns, command syntax, and special content fragments unchanged"
+
+        self.Task_steps = [
+            "Analyze the source text to identify specialized terms, special formatting, and structural elements",
+            "Research appropriate expressions for proper nouns and terminology in the target language when necessary, and list all retained items in the result",
+            "Translate explanatory text while ensuring professional accuracy",
+            "Maintain terminology consistency and fully preserve all terminology and related content",
+            "Adapt culturally specific examples as needed to facilitate target audience understanding",
+            "Preserve all identified proper nouns and provide brief explanations in parentheses for ambiguous specialized terms or proper nouns",
+            "Ensure code syntax, commands, and technical examples remain functional and unchanged",
+        ]
+
+        self.Quality_assurance = [
+            "Do not add any extra explanations or markings",
+            "Do not include any document chunking information (e.g., 'This is Part X')",
+            "Strictly preserve the original formatting and structure",
+            "Ensure all specialized terms are accurately translated or retained in their original form",
+            "Verify that code syntax, commands, and technical examples remain functional",
+            "Check that formatting and document structure are consistent",
+            "Confirm that the translation maintains the same level of professional detail and accuracy as the original",
+        ]
+
+        self.Output_structure = {
+            "content": "complete and accurate translation preserving all original elements",
+            "proper_nouns": "list of all retained proper nouns and specialized terminology",
+        }
+
+        # TranslationContext 特有的属性初始化
         self._target_language = target_language
         self._file_list = file_list
         self._configfile_path = configfile_path  # 用户提供的配置文件路径
         self._doc_folder = doc_folder
         self._reserved_word = reserved_word
-        self._default_prompt_gen = self.create_translator_prompt_gen()
 
         # 设置默认配置值
         self._config = DEFAULT_CONFIG.copy()
@@ -186,48 +219,6 @@ class TranslationContext:
         logging.info(f"  Max doc limits: {self._max_files}")
         logging.info(f"  Disclaimers: {self._disclaimers}")
 
-    def create_translator_prompt_gen(self) -> PromptGen:
-        """
-        Create and configure a PromptGen instance for professional translation tasks
-
-        Returns:
-            PromptGen: Configured instance with English prompt content for translation tasks
-        """
-        # Create PromptGen instance
-        translator_prompt_gen = PromptGen()
-
-        # Set the attributes according to the original prompt requirements
-        translator_prompt_gen.Role = "You are a professional translator and a versatile expert with knowledge spanning various specialized fields, capable of handling technical, professional, and general content"
-        translator_prompt_gen.Situation = "translating diverse content types including technical documentation, professional reports, academic materials, and general texts"
-        translator_prompt_gen.Action = "accurately preserve the original meaning, context, and nuance during translation while maintaining specialized terminology, proper nouns, command syntax, and special content fragments unchanged"
-
-        translator_prompt_gen.Task_steps = [
-            "Analyze the source text to identify specialized terms, special formatting, and structural elements",
-            "Research appropriate expressions for proper nouns and terminology in the target language when necessary, and list all retained items in the result",
-            "Translate explanatory text while ensuring professional accuracy",
-            "Maintain terminology consistency and fully preserve all terminology and related content",
-            "Adapt culturally specific examples as needed to facilitate target audience understanding",
-            "Preserve all identified proper nouns and provide brief explanations in parentheses for ambiguous specialized terms or proper nouns",
-            "Ensure code syntax, commands, and technical examples remain functional and unchanged",
-        ]
-
-        translator_prompt_gen.Quality_assurance = [
-            "Do not add any extra explanations or markings",
-            "Do not include any document chunking information (e.g., 'This is Part X')",
-            "Strictly preserve the original formatting and structure",
-            "Ensure all specialized terms are accurately translated or retained in their original form",
-            "Verify that code syntax, commands, and technical examples remain functional",
-            "Check that formatting and document structure are consistent",
-            "Confirm that the translation maintains the same level of professional detail and accuracy as the original",
-        ]
-
-        translator_prompt_gen.Output_structure = {
-            "content": "complete and accurate translation preserving all original elements",
-            "proper_nouns": "list of all retained proper nouns and specialized terminology",
-        }
-
-        return translator_prompt_gen
-
     def get_translator_prompt(
         self, task_content: Optional[str] = None, example: Optional[str] = None
     ) -> str:
@@ -235,7 +226,6 @@ class TranslationContext:
         获取翻译器提示词
 
         Args:
-            config: 配置字典
             task_content: 任务内容
             example: 可选的示例
 
@@ -246,5 +236,5 @@ class TranslationContext:
         if self._config.get("prompts", {}).get("translator") is not None:
             return self._config["prompts"]["translator"]
         else:
-            # 使用to_task_prompt生成提示词
-            return self._default_prompt_gen.to_sys_prompt()
+            # 使用继承自父类的to_sys_prompt方法生成提示词
+            return self.to_sys_prompt()
