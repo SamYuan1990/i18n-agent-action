@@ -3,16 +3,16 @@ import os
 
 import flet as ft
 from chatmessage import ChatMessage, Message
+from translationbridge import translate_file  # noqa
 
 
 class FileManager:
     """文件管理类，处理所有文件相关操作"""
 
-    def __init__(self, page: ft.Page, chat, translation_bridge):
+    def __init__(self, page: ft.Page, chat):
         self.page = page
         self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         self.chat = chat
-        self.translation_bridge = translation_bridge
         # 创建文件选择器
         self.file_picker = ft.FilePicker()
         self.page._services.append(self.file_picker)
@@ -43,7 +43,7 @@ class FileManager:
         self.chat.controls.append(chat_message)
         self.page.update()
         try:
-            result = self.translation_bridge.translate_file(filepath, filename)
+            result = translate_file(filepath, filename)
             translated_filename = f"translated_{filename}"
             translated_filepath = (
                 os.path.join(self.app_data_path, translated_filename)
