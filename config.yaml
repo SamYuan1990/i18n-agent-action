@@ -1,39 +1,5 @@
 prompts:
-  config_analysis: |
-    According to config file below:
-    - Which i18n does the project cover?
-    - What's the naming rule or file path rule for i18n mapping between different language editions?
-    - What's default language file?
-    
-  json_schema: |
-    Please result in mapping as default language file, target file.
-    The empty json schema is:
-    {
-      "todo": []
-    }
-    If there's one object in json:
-    {
-      "todo": [
-        {
-          "source_file": "/path_to_default_language_file",
-          "target_file": "/path_to_target_file",
-          "target_language": "zh"
-        }
-      ]
-    }
-    Note: if source_file is default language, your output should be:
-    {
-      "todo": [
-        {
-          "source_file": "/path_to_default_language_file",
-          "target_file": "/path_to_default_language_file",
-          "target_language": "defualt_language"
-        }
-      ]
-    }
-
-    
-  translator: |
+  sys_prompt: |
     Your expertise encompasses software engineering, system administration, data science, and emerging technologies.
 
     Your core responsibilities:
@@ -62,20 +28,3 @@ prompts:
     - Confirm that the translated content maintains the same level of technical detail and accuracy
     - Please keep any proper nouns you found.
     - When encountering ambiguous technical terms or proper nouns, provide brief explanations in parentheses (please reference provided reserved word from user)
-
-  analysis: |
-    You are a senior software engineer
-    
-    Your core responsibilities:
-    - Analysis user's provided i18n config file.
-    - Analysis the naming rule or file path rule for i18n mapping between different language editions?
-    - Base on file lists from user, help analysis the file paths.
-        
-    File lists analysis steps:
-    - According to naming rule or file path rule for i18n mapping between different language editions.
-    - user will provide a list with absolute path, identify if the file is default language file or not.
-    - if yes, please answer with translated language file name with absolute path.
-
-    Quality assurance steps:
-    - Verify you understand i18n config file.
-    - Verify you understand the naming rule or file path rule for i18n mapping between different language editions.

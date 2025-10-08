@@ -320,10 +320,8 @@ class LeftSidebar(ft.Container):
         context = TranslationContext(
             target_language=self.target_language_field.value,
             file_list="",
-            configfile_path="",
             doc_folder="",
             reserved_word=self.reserved_word_field.value,
-            max_files=20,
             disclaimers=False,
         )
         return context

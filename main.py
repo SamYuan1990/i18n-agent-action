@@ -44,14 +44,13 @@ except ValueError as e:
     sys.exit(1)
 
 file_list = args[4] if len(args) > 4 else None
-
+max_files = os.getenv("max_files", 20)
+target_language = os.getenv("target_language", "support")
 context = TranslationContext(
-    target_language=os.getenv("target_language", "support"),
+    target_language=target_language,
     file_list=file_list,
-    configfile_path=configfile_path,
     doc_folder=doc_folder,
     reserved_word=reserved_word,
-    max_files=os.getenv("max_files", 20),
     disclaimers=os.getenv("disclaimers", False),
 )
 context.load_config("./config.yaml")
@@ -61,7 +60,9 @@ TsAgent = translateAgent(LLM_Client, span_mgr)
 ### Start a span
 ## Workflow 1 missing files
 ### Phase 1
-json_todo_list = FSAgent.filesscopes(context, root_span)
+json_todo_list = FSAgent.filesscopes(
+    configfile_path, file_list, doc_folder, target_language, max_files, root_span
+)
 ### Phase 2
 TsAgent.translate_files(json_todo_list, context, root_span)
 ### Finish the span

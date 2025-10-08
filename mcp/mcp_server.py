@@ -93,17 +93,14 @@ def _translate_text(text: str, target_lang: str) -> str:
 
     # 从环境变量获取或设置默认值
     file_list = os.getenv("file_list", "").split(",") if os.getenv("file_list") else []
-    configfile_path = os.getenv("configfile_path", "")
-    doc_folder = os.getenv("doc_folder", "")
     reserved_word = os.getenv("reserved_word", "")
+    doc_folder = os.getenv("doc_folder", "")
 
     context = TranslationContext(
         target_language=target_lang,
         file_list=file_list,
-        configfile_path=configfile_path,
         doc_folder=doc_folder,
         reserved_word=reserved_word,
-        max_files=int(os.getenv("max_files", 20)),
         disclaimers=os.getenv("disclaimers", "False").lower() == "true",
     )
     TsAgent = translateAgent(LLM_Client, span_mgr)

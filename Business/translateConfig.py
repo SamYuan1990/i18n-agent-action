@@ -5,19 +5,10 @@ from typing import Optional
 import yaml
 from AgentUtils.PromptGen import PromptGen
 
-# 默认配置常量
-DEFAULT_CONFIG = {
-    "prompts": {
-        "config_analysis": "According to config file below:\n- Which i18n does the project cover?\n- What's the naming rule or file path rule for i18n mapping between different language editions?",
-        "json_schema": 'Please result in mapping as default language file, target file.\nThe empty json schema is:\n{\n  "todo": []\n}\nIf there\'s one object in json:\n{\n  "todo": [\n    {\n      "source_file": "/path_to_default_language_file",\n      "target_file": "/path_to_target_file",\n      "target_language": "zh"\n    }\n  ]\n}',
-        "analysis": "You are a senior software engineer\n\nYour core responsibilities:\n- Analysis user's provided i18n config file.\n- Analysis the naming rule or file path rule for i18n mapping between different language editions?\n- Base on file lists from user, help analysis the file paths.\n\nFile lists analysis steps:\n- According to naming rule or file path rule for i18n mapping between different language editions.\n- user will provide a list with absolute path, identify if the file is default language file or not.\n- if yes, please answer with translated language file name with absolute path.\n\nQuality assurance steps:\n- Verify you understand i18n config file.\n- Verify you understand the naming rule or file path rule for i18n mapping between different language editions.",
-    }
-}
-
 
 def load_translation_config(config_path: Optional[str] = None) -> dict:
     """
-    加载翻译配置文件，如果不存在则使用默认配置
+    加载翻译配置文件，如果不存在则返回空字典
 
     参数:
         config_path (str, optional): 配置文件路径，默认为 None
@@ -35,22 +26,22 @@ def load_translation_config(config_path: Optional[str] = None) -> dict:
             with open(config_path, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f)
         else:
-            logging.info(f"配置文件 {config_path} 不存在，使用默认配置")
-            return DEFAULT_CONFIG
+            logging.info(f"配置文件 {config_path} 不存在，返回空配置")
+            return {}
     except Exception as e:
-        logging.info(f"加载配置文件 {config_path} 时出错: {e}，使用默认配置")
-        return DEFAULT_CONFIG
+        logging.info(f"加载配置文件 {config_path} 时出错: {e}，返回空配置")
+        return {}
 
 
-class TranslationContext:
+class TranslationContext(PromptGen):
     def __init__(
         self,
         target_language: str,
+        # todo remove
         file_list: Optional[str] = None,
-        configfile_path: Optional[str] = None,
+        # todo remove
         doc_folder: Optional[str] = None,
         reserved_word: Optional[str] = None,
-        max_files: Optional[int] = None,
         disclaimers: Optional[bool] = True,
     ):
         """
@@ -59,21 +50,18 @@ class TranslationContext:
         参数:
             target_language (str): 目标语言代码 (如 'zh', 'fr')
             file_list (str, optional): 逗号分隔的文件列表字符串
-            configfile_path (str, optional): 配置文件路径
             doc_folder (str, optional): 文档目录路径
             reserved_word (str, optional): 保留字/关键词
-            max_files (int, optional): 最大文件数量限制
             disclaimers (bool, optional): 是否添加免责声明
         """
+        # 先初始化父类
+        super().__init__()
+
+        # TranslationContext 特有的属性初始化
         self._target_language = target_language
         self._file_list = file_list
-        self._configfile_path = configfile_path  # 用户提供的配置文件路径
         self._doc_folder = doc_folder
         self._reserved_word = reserved_word
-        self._default_prompt_gen = self.create_translator_prompt_gen()
-
-        # 设置默认配置值
-        self._config = DEFAULT_CONFIG.copy()
 
         # 处理disclaimers参数
         if isinstance(disclaimers, bool):
@@ -91,37 +79,63 @@ class TranslationContext:
         else:
             self._disclaimers = True
 
-        # 处理max_files参数
-        try:
-            self._max_files = int(max_files) if max_files is not None else 20
-        except (ValueError, TypeError):
-            self._max_files = 20
+        # 设置默认的 PromptGen 属性（如果配置文件没有覆盖）
+        self._set_default_prompt_attributes()
+
+    def _set_default_prompt_attributes(self):
+        """
+        设置默认的 PromptGen 属性，仅在配置文件没有提供时使用
+        """
+        # 如果父类加载配置后这些属性仍然是空的，则设置默认值
+        if not self.Role:
+            self.Role = "You are a professional translator and a versatile expert with knowledge spanning various specialized fields, capable of handling technical, professional, and general content"
+        if not self.Situation:
+            self.Situation = "translating diverse content types including technical documentation, professional reports, academic materials, and general texts"
+        if not self.Action:
+            self.Action = "accurately preserve the original meaning, context, and nuance during translation while maintaining specialized terminology, proper nouns, command syntax, and special content fragments unchanged"
+        if not self.Task_steps:
+            self.Task_steps = [
+                "Analyze the source text to identify specialized terms, special formatting, and structural elements",
+                "Research appropriate expressions for proper nouns and terminology in the target language when necessary, and list all retained items in the result",
+                "Translate explanatory text while ensuring professional accuracy",
+                "Maintain terminology consistency and fully preserve all terminology and related content",
+                "Adapt culturally specific examples as needed to facilitate target audience understanding",
+                "Preserve all identified proper nouns and provide brief explanations in parentheses for ambiguous specialized terms or proper nouns",
+                "Ensure code syntax, commands, and technical examples remain functional and unchanged",
+            ]
+        if not self.Quality_assurance:
+            self.Quality_assurance = [
+                "Do not add any extra explanations or markings",
+                "Do not include any document chunking information (e.g., 'This is Part X')",
+                "Strictly preserve the original formatting and structure",
+                "Ensure all specialized terms are accurately translated or retained in their original form",
+                "Verify that code syntax, commands, and technical examples remain functional",
+                "Check that formatting and document structure are consistent",
+                "Confirm that the translation maintains the same level of professional detail and accuracy as the original",
+            ]
+        if not self.Output_structure:
+            self.Output_structure = {
+                "content": "complete and accurate translation preserving all original elements",
+                "proper_nouns": "list of all retained proper nouns and specialized terminology",
+            }
 
     def load_config(self, config_path: Optional[str] = None) -> bool:
         """
         加载配置文件，如果存在则更新当前配置
 
         参数:
-            config_path (str, optional): 要加载的配置文件路径，如果为None则使用实例的_configfile_path
+            config_path (str, optional): 要加载的配置文件路径，如果为None则使用默认路径
 
         返回:
             bool: 是否成功加载了配置文件
         """
-        # 确定要加载的配置文件路径
-        load_path = config_path
+        # 调用父类的加载配置方法
+        success = super().load_config(config_path)
 
-        if not load_path:
-            logging.info("未指定配置文件路径，使用默认配置")
-            return False
+        # 重新设置默认属性（确保未被配置覆盖的属性有默认值）
+        self._set_default_prompt_attributes()
 
-        try:
-            new_config = load_translation_config(load_path)
-            self._config = new_config
-            logging.info(f"成功从 {load_path} 加载配置")
-            return True
-        except Exception as e:
-            logging.error(f"加载配置文件时出错: {e}")
-            return False
+        return success
 
     # ----------------------
     # 属性访问器 (使用 @property)
@@ -144,11 +158,6 @@ class TranslationContext:
         return self._file_list
 
     @property
-    def configfile_path(self) -> Optional[str]:
-        """获取配置文件路径"""
-        return self._configfile_path
-
-    @property
     def doc_folder(self) -> Optional[str]:
         """获取文档目录路径"""
         return self._doc_folder
@@ -159,19 +168,9 @@ class TranslationContext:
         return self._reserved_word
 
     @property
-    def max_files(self) -> int:
-        """获取最大文件数量限制"""
-        return self._max_files
-
-    @property
     def disclaimers(self) -> bool:
         """获取是否添加免责声明"""
         return self._disclaimers
-
-    @property
-    def config(self) -> dict:
-        """获取配置字典"""
-        return self._config
 
     def show_config(self) -> None:
         """
@@ -180,71 +179,6 @@ class TranslationContext:
         logging.info("\nTranslation Context Configuration:")
         logging.info(f"  Target Language: {self._target_language}")
         logging.info(f"  File list: {self._file_list}")
-        logging.info(f"  Config file path: {self._configfile_path}")
         logging.info(f"  Doc folder: {self._doc_folder}")
         logging.info(f"  Reserved words: {self._reserved_word}")
-        logging.info(f"  Max doc limits: {self._max_files}")
         logging.info(f"  Disclaimers: {self._disclaimers}")
-
-    def create_translator_prompt_gen(self) -> PromptGen:
-        """
-        Create and configure a PromptGen instance for professional translation tasks
-
-        Returns:
-            PromptGen: Configured instance with English prompt content for translation tasks
-        """
-        # Create PromptGen instance
-        translator_prompt_gen = PromptGen()
-
-        # Set the attributes according to the original prompt requirements
-        translator_prompt_gen.Role = "You are a professional translator and a versatile expert with knowledge spanning various specialized fields, capable of handling technical, professional, and general content"
-        translator_prompt_gen.Situation = "translating diverse content types including technical documentation, professional reports, academic materials, and general texts"
-        translator_prompt_gen.Action = "accurately preserve the original meaning, context, and nuance during translation while maintaining specialized terminology, proper nouns, command syntax, and special content fragments unchanged"
-
-        translator_prompt_gen.Task_steps = [
-            "Analyze the source text to identify specialized terms, special formatting, and structural elements",
-            "Research appropriate expressions for proper nouns and terminology in the target language when necessary, and list all retained items in the result",
-            "Translate explanatory text while ensuring professional accuracy",
-            "Maintain terminology consistency and fully preserve all terminology and related content",
-            "Adapt culturally specific examples as needed to facilitate target audience understanding",
-            "Preserve all identified proper nouns and provide brief explanations in parentheses for ambiguous specialized terms or proper nouns",
-            "Ensure code syntax, commands, and technical examples remain functional and unchanged",
-        ]
-
-        translator_prompt_gen.Quality_assurance = [
-            "Do not add any extra explanations or markings",
-            "Do not include any document chunking information (e.g., 'This is Part X')",
-            "Strictly preserve the original formatting and structure",
-            "Ensure all specialized terms are accurately translated or retained in their original form",
-            "Verify that code syntax, commands, and technical examples remain functional",
-            "Check that formatting and document structure are consistent",
-            "Confirm that the translation maintains the same level of professional detail and accuracy as the original",
-        ]
-
-        translator_prompt_gen.Output_structure = {
-            "content": "complete and accurate translation preserving all original elements",
-            "proper_nouns": "list of all retained proper nouns and specialized terminology",
-        }
-
-        return translator_prompt_gen
-
-    def get_translator_prompt(
-        self, task_content: Optional[str] = None, example: Optional[str] = None
-    ) -> str:
-        """
-        获取翻译器提示词
-
-        Args:
-            config: 配置字典
-            task_content: 任务内容
-            example: 可选的示例
-
-        Returns:
-            str: 翻译器提示词
-        """
-        # 检查配置中是否存在翻译器提示词
-        if self._config.get("prompts", {}).get("translator") is not None:
-            return self._config["prompts"]["translator"]
-        else:
-            # 使用to_task_prompt生成提示词
-            return self._default_prompt_gen.to_sys_prompt()
