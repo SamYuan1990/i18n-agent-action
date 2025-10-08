@@ -6,6 +6,7 @@ import flet as ft
 from App_model import get_app_model
 from FileDownloader import FileDownloader
 from leftsidebar import LeftSidebar
+from share_manager import ShareManager  # 导入ShareManager
 from TranslationApp import TranslationApp
 
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +40,10 @@ def main(page: ft.Page):
     file_downloader = FileDownloader(page)
     left_sidebar = LeftSidebar(page)
     translation_app = TranslationApp(page)
+    share_manager = ShareManager(page)  # 创建ShareManager实例
+
+    # 将分享对话框添加到页面overlay
+    share_manager.add_to_page_overlay()
 
     # 当前选中的导航索引
     selected_index = 0
@@ -58,8 +63,34 @@ def main(page: ft.Page):
             content_area.content = left_sidebar.get_content()
         elif selected_index == 2:
             content_area.content = file_downloader.get_content()
-        # elif selected_index == 3:
-        #    content_area.content = get_profile_content()
+        elif selected_index == 3:
+            # 分享页面 - 可以显示一些分享说明或直接打开分享对话框
+            share_content = ft.Column(
+                [
+                    ft.Text("分享应用", size=24, weight=ft.FontWeight.BOLD),
+                    ft.Text("将i18n agent分享给您的朋友和同事", size=16),
+                    ft.Container(height=20),
+                    ft.Button(
+                        "打开分享选项",
+                        icon=ft.Icons.SHARE,
+                        on_click=share_manager.show_share_options,
+                    ),
+                    ft.Container(height=20),
+                    ft.Text("支持的平台:", size=16, weight=ft.FontWeight.BOLD),
+                    ft.Text("• 微信", size=14),
+                    ft.Text("• 微博", size=14),
+                    ft.Text("• Twitter/X", size=14),
+                    ft.Text("• Facebook", size=14),
+                    ft.Text("• LinkedIn", size=14),
+                ],
+                alignment=ft.MainAxisAlignment.START,
+                horizontal_alignment=ft.CrossAxisAlignment.START,
+            )
+            content_area.content = ft.Container(
+                content=share_content,
+                padding=20,
+                expand=True,
+            )
 
         page.update()
 
@@ -90,6 +121,11 @@ def main(page: ft.Page):
                 icon=ft.Icons.DOWNLOAD,
                 selected_icon=ft.Icons.DOWNLOAD,
                 label="下载模型",
+            ),
+            ft.NavigationRailDestination(  # 新增分享目的地
+                icon=ft.Icons.SHARE,
+                selected_icon=ft.Icons.SHARE,
+                label="分享应用",
             ),
         ],
         on_change=navigate,

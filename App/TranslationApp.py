@@ -4,7 +4,6 @@ import flet as ft
 from chatmessage import ChatMessage, Message
 from fileMgr import FileManager
 from logViewer import LogViewer
-from share_manager import ShareManager  # 导入新的ShareManager类
 from soundmgr import SoundManager
 from translationbridge import translate_text
 
@@ -21,8 +20,6 @@ class TranslationApp:
         )
         ## STT
         self.sound_manager = SoundManager(self.page)
-        ## social media
-        self.share_manager = ShareManager(self.page)
         ## Debug
         self.log_viewer = LogViewer(self.page)
         ## file mgr
@@ -87,8 +84,6 @@ class TranslationApp:
 
         # 创建日志查看器切换按钮
         self.log_view_toggle = self.log_viewer.create_ui()
-        self.share_button = self.share_manager.create_ui()
-
         # 创建主内容区域
         self.main_content = ft.Column(
             [
@@ -105,7 +100,6 @@ class TranslationApp:
                         ft.Row(
                             [
                                 self.log_view_toggle,
-                                self.share_button,  # 添加分享按钮
                             ],
                             spacing=5,
                         ),

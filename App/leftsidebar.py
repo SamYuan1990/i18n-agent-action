@@ -65,8 +65,6 @@ class LeftSidebar:
         settings_content = ft.Container(
             content=ft.Column(
                 [
-                    ft.Text("Settings", theme_style=ft.TextThemeStyle.HEADLINE_SMALL),
-                    ft.Divider(),
                     # API Key 输入框
                     ft.Text("API Key:"),
                     self.api_key_field,
@@ -96,33 +94,9 @@ class LeftSidebar:
             ),
             height=500,  # 限制最大高度
         )
-
-        # 创建导航栏
-        nav_rail = ft.NavigationRail(
-            selected_index=0,
-            label_type=ft.NavigationRailLabelType.ALL,
-            destinations=[
-                ft.NavigationRailDestination(
-                    label="Settings",
-                    icon=ft.Icons.SETTINGS_OUTLINED,
-                    selected_icon=ft.Icons.SETTINGS,
-                )
-            ],
-            bgcolor=ft.Colors.BLUE_GREY_50,
-            extended=True,
-            height=110,
-        )
-
         # 主内容容器
         main_content = ft.Column(
             [
-                ft.Row(
-                    [ft.Text("Option")],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                ),
-                ft.Divider(),
-                nav_rail,
-                ft.Divider(),
                 settings_content,
             ],
             expand=True,
