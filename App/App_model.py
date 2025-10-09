@@ -47,7 +47,6 @@ class _AppModel:
             logging.error("生成客户端失败: API配置不完整")
             raise ValueError("API配置不完整，请先设置api_key、base_url和model_field")
 
-        
         LLM_Client = clientInfo(
             api_key=self.api_key,
             base_url=self.base_url,

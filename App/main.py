@@ -6,8 +6,8 @@ import flet as ft
 from App_model import get_app_model
 from FileDownloader import FileDownloader
 from LLM_connect import LLM_config
-from share_manager import ShareManager  # 导入ShareManager
 from logViewer import LogViewer  # 添加LogViewer导入
+from share_manager import ShareManager  # 导入ShareManager
 from TranslationApp import TranslationApp
 
 logging.basicConfig(level=logging.INFO)
@@ -135,7 +135,7 @@ def main(page: ft.Page):
                 icon=ft.Icons.LIST_ALT,
                 selected_icon=ft.Icons.LIST_ALT,
                 label="查看日志",
-            )
+            ),
         ],
         on_change=navigate,
     )

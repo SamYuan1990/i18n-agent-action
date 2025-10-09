@@ -97,7 +97,9 @@ class LLM_config:
                     ft.Container(
                         content=ft.Row(
                             [
-                                ft.Icon(ft.Icons.SETTINGS, color=ft.Colors.BLUE_700, size=24),
+                                ft.Icon(
+                                    ft.Icons.SETTINGS, color=ft.Colors.BLUE_700, size=24
+                                ),
                                 ft.Text(
                                     "模型配置",
                                     size=20,
@@ -109,19 +111,16 @@ class LLM_config:
                         ),
                         padding=ft.Padding(bottom=20, top=10, left=0, right=0),
                     ),
-                    
                     # API Key 输入框
                     ft.Container(
                         content=self.api_key_field,
                         padding=ft.Padding(bottom=15, top=0, left=0, right=0),
                     ),
-                    
                     # Base URL 输入框
                     ft.Container(
                         content=self.base_url_field,
                         padding=ft.Padding(bottom=15, top=0, left=0, right=0),
                     ),
-                    
                     # 模型和语言在同一行
                     ft.Row(
                         [
@@ -136,7 +135,6 @@ class LLM_config:
                         ],
                         spacing=15,
                     ),
-                    
                     # 保存按钮
                     ft.Container(
                         content=ft.Row(

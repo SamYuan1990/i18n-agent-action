@@ -1,4 +1,3 @@
-import logging
 import os
 
 import flet as ft
@@ -20,7 +19,7 @@ class LogViewer:
         )
 
         self.log_display.controls.clear()
-        
+
         if os.path.exists(log_file_path):
             try:
                 with open(log_file_path, "r", encoding="utf-8") as f:
@@ -39,32 +38,38 @@ class LogViewer:
             self.log_display.controls.append(
                 ft.Text("日志文件不存在", size=12, color=ft.Colors.RED)
             )
-        
+
         self.log_display.update()
 
     def get_content(self):
         """返回日志查看器的内容区域"""
         # 首次加载时读取日志
         # self.load_logs()
-        
+
         return ft.Container(
-            content=ft.Column([
-                ft.Row([
-                    ft.Text("应用日志", size=20, weight=ft.FontWeight.BOLD),
-                    ft.Button(
-                        "刷新日志",
-                        icon=ft.Icons.REFRESH,
-                        on_click=lambda e: self.load_logs()
-                    )
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                ft.Container(
-                    content=self.log_display,
-                    border=ft.Border.all(1, ft.Colors.GREY_300),
-                    border_radius=10,
-                    padding=15,
-                    expand=True
-                )
-            ], expand=True),
+            content=ft.Column(
+                [
+                    ft.Row(
+                        [
+                            ft.Text("应用日志", size=20, weight=ft.FontWeight.BOLD),
+                            ft.Button(
+                                "刷新日志",
+                                icon=ft.Icons.REFRESH,
+                                on_click=lambda e: self.load_logs(),
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    ft.Container(
+                        content=self.log_display,
+                        border=ft.Border.all(1, ft.Colors.GREY_300),
+                        border_radius=10,
+                        padding=15,
+                        expand=True,
+                    ),
+                ],
+                expand=True,
+            ),
             padding=20,
-            expand=True
+            expand=True,
         )
