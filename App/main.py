@@ -5,8 +5,9 @@ from logging.handlers import RotatingFileHandler
 import flet as ft
 from App_model import get_app_model
 from FileDownloader import FileDownloader
-from leftsidebar import LeftSidebar
+from LLM_connect import LLM_config
 from share_manager import ShareManager  # 导入ShareManager
+from logViewer import LogViewer  # 添加LogViewer导入
 from TranslationApp import TranslationApp
 
 logging.basicConfig(level=logging.INFO)
@@ -38,8 +39,9 @@ def main(page: ft.Page):
     page.padding = 0
 
     file_downloader = FileDownloader(page)
-    left_sidebar = LeftSidebar(page)
+    llm_config = LLM_config(page)
     translation_app = TranslationApp(page)
+    log_viewer = LogViewer(page)  # 创建LogViewer实例
     share_manager = ShareManager(page)  # 创建ShareManager实例
 
     # 将分享对话框添加到页面overlay
@@ -60,7 +62,7 @@ def main(page: ft.Page):
         if selected_index == 0:
             content_area.content = translation_app.get_content()
         elif selected_index == 1:
-            content_area.content = left_sidebar.get_content()
+            content_area.content = llm_config.get_content()
         elif selected_index == 2:
             content_area.content = file_downloader.get_content()
         elif selected_index == 3:
@@ -91,6 +93,8 @@ def main(page: ft.Page):
                 padding=20,
                 expand=True,
             )
+        elif selected_index == 4:  # 添加日志查看器选项
+            content_area.content = log_viewer.get_content()
 
         page.update()
 
@@ -110,23 +114,28 @@ def main(page: ft.Page):
             ft.NavigationRailDestination(
                 icon=ft.Icons.CHAT,
                 selected_icon=ft.Icons.CHAT,
-                label="翻译助手",
+                label="输入窗口",
             ),
             ft.NavigationRailDestination(
                 icon=ft.Icons.SETTINGS,
                 selected_icon=ft.Icons.SETTINGS,
-                label="设置",
+                label="设置LLM链接",
             ),
             ft.NavigationRailDestination(
                 icon=ft.Icons.DOWNLOAD,
                 selected_icon=ft.Icons.DOWNLOAD,
-                label="下载模型",
+                label="下载语音识别",
             ),
             ft.NavigationRailDestination(  # 新增分享目的地
                 icon=ft.Icons.SHARE,
                 selected_icon=ft.Icons.SHARE,
                 label="分享应用",
             ),
+            ft.NavigationRailDestination(  # 添加日志查看器目的地
+                icon=ft.Icons.LIST_ALT,
+                selected_icon=ft.Icons.LIST_ALT,
+                label="查看日志",
+            )
         ],
         on_change=navigate,
     )

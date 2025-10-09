@@ -29,9 +29,9 @@ class FileDownloader:
         self.executor = ThreadPoolExecutor(max_workers=1)
         self.download_progress_bar = ft.ProgressBar(value=0, width=300)
         self.download_progress_text = ft.Text("0%")
-        self.download_status_text = ft.Text("等待下载模型文件...")
+        self.download_status_text = ft.Text("等待下载语音模型文件...")
         self.download_btn = ft.Button(
-            "下载模型文件", icon=ft.Icons.DOWNLOAD, on_click=self.start_download
+            "下载语音模型文件", icon=ft.Icons.DOWNLOAD, on_click=self.start_download
         )
         self.cancel_download_btn = ft.OutlinedButton(
             "取消下载", on_click=self.cancel_download
@@ -42,7 +42,7 @@ class FileDownloader:
         return ft.Container(
             content=ft.Column(
                 [
-                    ft.Text("模型下载", size=24, weight=ft.FontWeight.BOLD),
+                    ft.Text("语音模型下载", size=24, weight=ft.FontWeight.BOLD),
                     ft.Text("下载语音识别模型文件"),
                     self.download_status_text,
                     self.download_progress_bar,
