@@ -21,6 +21,7 @@ class SoundManager:
         """开始录音"""
         if not self.Init_Recognizer:
             await self.fso_service.CreateRecognizer(
+                recognizer="Whisper",
                 encoder=self.app_data_path + "/base-encoder.onnx",
                 decoder=self.app_data_path + "/base-decoder.onnx",
                 tokens=self.app_data_path + "/base-tokens.txt",

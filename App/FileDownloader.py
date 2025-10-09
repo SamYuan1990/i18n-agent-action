@@ -20,6 +20,8 @@ class FileDownloader:
             "base-encoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-encoder.onnx?download=true",  # 替换为实际URL1
             "base-decoder.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-decoder.onnx?download=true",  # 替换为实际URL2
             "base-tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-whisper-base/resolve/main/base-tokens.txt?download=true",  # 替换为实际URL3
+            "model.int8.onnx": "https://hf-mirror.com/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2025-09-09/resolve/main/model.int8.onnx?download=true",
+            "tokens.txt": "https://hf-mirror.com/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2025-09-09/blob/main/tokens.txt?download=true",
         }
         self.current_file_index = 0
         self.total_files = 0
