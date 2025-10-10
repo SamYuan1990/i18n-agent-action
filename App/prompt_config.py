@@ -2,10 +2,8 @@ import json
 import logging
 import os
 import sys
-from typing import List, Dict, Any, Optional
 
 import flet as ft
-from App_model import configure_app
 from flet.security import decrypt, encrypt
 
 # 添加项目根目录到Python路径
@@ -35,7 +33,10 @@ class PromptConfig:
         # 创建输入字段的引用，并使用保存的值或默认值
         self.role_field = ft.TextField(
             label="角色设定",
-            value=saved_config.get("role", "You are a professional translator and a versatile expert with knowledge spanning various specialized fields, capable of handling technical, professional, and general content"),
+            value=saved_config.get(
+                "role",
+                "You are a professional translator and a versatile expert with knowledge spanning various specialized fields, capable of handling technical, professional, and general content",
+            ),
             hint_text="设定AI的角色身份",
             multiline=True,
             min_lines=2,
@@ -49,7 +50,10 @@ class PromptConfig:
 
         self.situation_field = ft.TextField(
             label="情境背景",
-            value=saved_config.get("situation", "translating diverse content types including technical documentation, professional reports, academic materials, and general texts"),
+            value=saved_config.get(
+                "situation",
+                "translating diverse content types including technical documentation, professional reports, academic materials, and general texts",
+            ),
             hint_text="描述当前的使用情境",
             multiline=True,
             min_lines=2,
@@ -63,7 +67,10 @@ class PromptConfig:
 
         self.action_field = ft.TextField(
             label="行动指令",
-            value=saved_config.get("action", "accurately preserve the original meaning, context, and nuance during translation while maintaining specialized terminology, proper nouns, command syntax, and special content fragments unchanged"),
+            value=saved_config.get(
+                "action",
+                "accurately preserve the original meaning, context, and nuance during translation while maintaining specialized terminology, proper nouns, command syntax, and special content fragments unchanged",
+            ),
             hint_text="AI需要执行的具体行动",
             multiline=True,
             min_lines=2,
@@ -77,15 +84,20 @@ class PromptConfig:
 
         self.task_steps_field = ft.TextField(
             label="任务步骤 (最多7条)",
-            value=self._list_to_string(saved_config.get("task_steps", [
-                "Analyze the source text to identify specialized terms, special formatting, and structural elements",
-                "Research appropriate expressions for proper nouns and terminology in the target language when necessary, and list all retained items in the result",
-                "Translate explanatory text while ensuring professional accuracy",
-                "Maintain terminology consistency and fully preserve all terminology and related content",
-                "Adapt culturally specific examples as needed to facilitate target audience understanding",
-                "Preserve all identified proper nouns and provide brief explanations in parentheses for ambiguous specialized terms or proper nouns",
-                "Ensure code syntax, commands, and technical examples remain functional and unchanged",
-            ])),
+            value=self._list_to_string(
+                saved_config.get(
+                    "task_steps",
+                    [
+                        "Analyze the source text to identify specialized terms, special formatting, and structural elements",
+                        "Research appropriate expressions for proper nouns and terminology in the target language when necessary, and list all retained items in the result",
+                        "Translate explanatory text while ensuring professional accuracy",
+                        "Maintain terminology consistency and fully preserve all terminology and related content",
+                        "Adapt culturally specific examples as needed to facilitate target audience understanding",
+                        "Preserve all identified proper nouns and provide brief explanations in parentheses for ambiguous specialized terms or proper nouns",
+                        "Ensure code syntax, commands, and technical examples remain functional and unchanged",
+                    ],
+                )
+            ),
             hint_text="每一步骤用换行分隔，最多7条",
             multiline=True,
             min_lines=3,
@@ -95,20 +107,25 @@ class PromptConfig:
             filled=True,
             fill_color=ft.Colors.WHITE,
             expand=True,
-            on_change=self._validate_task_steps
+            on_change=self._validate_task_steps,
         )
 
         self.quality_assurance_field = ft.TextField(
             label="质量保证 (最多7条)",
-            value=self._list_to_string(saved_config.get("quality_assurance", [
-                "Do not add any extra explanations or markings",
-                "Do not include any document chunking information (e.g., 'This is Part X')",
-                "Strictly preserve the original formatting and structure",
-                "Ensure all specialized terms are accurately translated or retained in their original form",
-                "Verify that code syntax, commands, and technical examples remain functional",
-                "Check that formatting and document structure are consistent",
-                "Confirm that the translation maintains the same level of professional detail and accuracy as the original",
-            ])),
+            value=self._list_to_string(
+                saved_config.get(
+                    "quality_assurance",
+                    [
+                        "Do not add any extra explanations or markings",
+                        "Do not include any document chunking information (e.g., 'This is Part X')",
+                        "Strictly preserve the original formatting and structure",
+                        "Ensure all specialized terms are accurately translated or retained in their original form",
+                        "Verify that code syntax, commands, and technical examples remain functional",
+                        "Check that formatting and document structure are consistent",
+                        "Confirm that the translation maintains the same level of professional detail and accuracy as the original",
+                    ],
+                )
+            ),
             hint_text="质量检查要点，用换行分隔，最多7条",
             multiline=True,
             min_lines=3,
@@ -118,15 +135,22 @@ class PromptConfig:
             filled=True,
             fill_color=ft.Colors.WHITE,
             expand=True,
-            on_change=self._validate_quality_assurance
+            on_change=self._validate_quality_assurance,
         )
 
         self.output_structure_field = ft.TextField(
             label="输出结构（暂不开放修改）",
-            value=json.dumps(saved_config.get("output_structure", {
-                "content": "complete and accurate translation preserving all original elements",
-                "proper_nouns": "list of all retained proper nouns and specialized terminology"
-            }), indent=2, ensure_ascii=False),
+            value=json.dumps(
+                saved_config.get(
+                    "output_structure",
+                    {
+                        "content": "complete and accurate translation preserving all original elements",
+                        "proper_nouns": "list of all retained proper nouns and specialized terminology",
+                    },
+                ),
+                indent=2,
+                ensure_ascii=False,
+            ),
             hint_text="期望的输出JSON结构",
             multiline=True,
             min_lines=2,
@@ -174,7 +198,7 @@ class PromptConfig:
         """将字符串转换为列表，并限制最多7条"""
         if not value:
             return []
-        lines = [line.strip() for line in value.split('\n') if line.strip()]
+        lines = [line.strip() for line in value.split("\n") if line.strip()]
         return lines[:7]  # 限制最多7条
 
     def _validate_task_steps(self, e):
@@ -235,19 +259,16 @@ class PromptConfig:
                         ),
                         padding=ft.Padding(bottom=20, top=10, left=0, right=0),
                     ),
-                    
                     # 自定义提示词开关
                     ft.Container(
                         content=self.use_custom_prompt_switch,
                         padding=ft.Padding(bottom=15, top=0, left=0, right=0),
                     ),
-                    
                     # 自定义提示词字段（条件显示）
                     ft.Container(
                         content=self.custom_prompt_field,
                         padding=ft.Padding(bottom=15, top=0, left=0, right=0),
                     ),
-                    
                     # 基础配置字段（条件隐藏）
                     ft.Column(
                         [
@@ -265,13 +286,11 @@ class PromptConfig:
                                 ],
                                 spacing=15,
                             ),
-                            
                             # 行动指令
                             ft.Container(
                                 content=self.action_field,
                                 padding=ft.Padding(bottom=15, top=0, left=0, right=0),
                             ),
-                            
                             # 任务步骤和质量保证在同一行
                             ft.Row(
                                 [
@@ -286,7 +305,6 @@ class PromptConfig:
                                 ],
                                 spacing=15,
                             ),
-                            
                             # 输出结构
                             ft.Container(
                                 content=self.output_structure_field,
@@ -295,7 +313,6 @@ class PromptConfig:
                         ],
                         visible=not self.use_custom_prompt_switch.value,
                     ),
-                    
                     # 保存按钮
                     ft.Container(
                         content=ft.Row(
@@ -419,7 +436,9 @@ class PromptConfig:
             "situation": self.situation_field.value,
             "action": self.action_field.value,
             "task_steps": self._string_to_list(self.task_steps_field.value),
-            "quality_assurance": self._string_to_list(self.quality_assurance_field.value),
+            "quality_assurance": self._string_to_list(
+                self.quality_assurance_field.value
+            ),
             "output_structure": json.loads(self.output_structure_field.value),
             "use_custom_sys_prompt": self.use_custom_prompt_switch.value,
             "custom_sys_prompt": self.custom_prompt_field.value,
@@ -476,7 +495,7 @@ class PromptConfig:
             ],
             "output_structure": {
                 "content": "complete and accurate translation preserving all original elements",
-                "proper_nouns": "list of all retained proper nouns and specialized terminology"
+                "proper_nouns": "list of all retained proper nouns and specialized terminology",
             },
             "use_custom_sys_prompt": False,
             "custom_sys_prompt": "",
@@ -487,8 +506,12 @@ class PromptConfig:
         self.situation_field.value = default_config["situation"]
         self.action_field.value = default_config["action"]
         self.task_steps_field.value = self._list_to_string(default_config["task_steps"])
-        self.quality_assurance_field.value = self._list_to_string(default_config["quality_assurance"])
-        self.output_structure_field.value = json.dumps(default_config["output_structure"], indent=2, ensure_ascii=False)
+        self.quality_assurance_field.value = self._list_to_string(
+            default_config["quality_assurance"]
+        )
+        self.output_structure_field.value = json.dumps(
+            default_config["output_structure"], indent=2, ensure_ascii=False
+        )
         self.use_custom_prompt_switch.value = default_config["use_custom_sys_prompt"]
         self.custom_prompt_field.value = default_config["custom_sys_prompt"]
         self.custom_prompt_field.visible = False

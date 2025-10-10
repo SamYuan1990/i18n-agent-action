@@ -7,9 +7,9 @@ from App_model import get_app_model
 from FileDownloader import FileDownloader
 from LLM_connect import LLM_config
 from logViewer import LogViewer  # 添加LogViewer导入
+from prompt_config import PromptConfig
 from share_manager import ShareManager  # 导入ShareManager
 from TranslationApp import TranslationApp
-from prompt_config import PromptConfig
 
 logging.basicConfig(level=logging.INFO)
 
