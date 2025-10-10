@@ -7,6 +7,7 @@ from App_model import get_app_model
 from FileDownloader import FileDownloader
 from LLM_connect import LLM_config
 from logViewer import LogViewer  # 添加LogViewer导入
+from prompt_config import PromptConfig
 from share_manager import ShareManager  # 导入ShareManager
 from TranslationApp import TranslationApp
 
@@ -40,6 +41,7 @@ def main(page: ft.Page):
 
     file_downloader = FileDownloader(page)
     llm_config = LLM_config(page)
+    prompt_config = PromptConfig(page)
     translation_app = TranslationApp(page)
     log_viewer = LogViewer(page)  # 创建LogViewer实例
     share_manager = ShareManager(page)  # 创建ShareManager实例
@@ -64,8 +66,10 @@ def main(page: ft.Page):
         elif selected_index == 1:
             content_area.content = llm_config.get_content()
         elif selected_index == 2:
-            content_area.content = file_downloader.get_content()
+            content_area.content = prompt_config.get_content()
         elif selected_index == 3:
+            content_area.content = file_downloader.get_content()
+        elif selected_index == 4:
             # 分享页面 - 可以显示一些分享说明或直接打开分享对话框
             share_content = ft.Column(
                 [
@@ -93,7 +97,7 @@ def main(page: ft.Page):
                 padding=20,
                 expand=True,
             )
-        elif selected_index == 4:  # 添加日志查看器选项
+        elif selected_index == 5:  # 添加日志查看器选项
             content_area.content = log_viewer.get_content()
 
         page.update()
@@ -120,6 +124,11 @@ def main(page: ft.Page):
                 icon=ft.Icons.SETTINGS,
                 selected_icon=ft.Icons.SETTINGS,
                 label="设置LLM链接",
+            ),
+            ft.NavigationRailDestination(
+                icon=ft.Icons.EDIT_OUTLINED,
+                selected_icon=ft.Icons.EDIT,
+                label="设置Prompt",
             ),
             ft.NavigationRailDestination(
                 icon=ft.Icons.DOWNLOAD,
