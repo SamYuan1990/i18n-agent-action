@@ -4,12 +4,12 @@ from logging.handlers import RotatingFileHandler
 
 import flet as ft
 from App_model import get_app_model
+from ChatApp import ChatApp
 from FileDownloader import FileDownloader
 from LLM_connect import LLM_config
 from logViewer import LogViewer  # 添加LogViewer导入
 from prompt_config import PromptConfig
 from share_manager import ShareManager  # 导入ShareManager
-from TranslationApp import TranslationApp
 
 logging.basicConfig(level=logging.INFO)
 
@@ -42,7 +42,7 @@ def main(page: ft.Page):
     file_downloader = FileDownloader(page)
     llm_config = LLM_config(page)
     prompt_config = PromptConfig(page)
-    translation_app = TranslationApp(page)
+    translation_app = ChatApp(page)
     log_viewer = LogViewer(page)  # 创建LogViewer实例
     share_manager = ShareManager(page)  # 创建ShareManager实例
 
