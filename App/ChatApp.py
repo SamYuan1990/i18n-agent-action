@@ -7,7 +7,7 @@ from soundmgr import SoundManager
 from translationbridge import translate_text
 
 
-class TranslationApp:
+class ChatApp:
     def __init__(self, page: ft.Page):
         self.page = page
         # 1st class area
@@ -18,7 +18,7 @@ class TranslationApp:
             auto_scroll=True,
         )
         ## STT
-        self.sound_manager = SoundManager(self.page)
+        self.sound_manager = SoundManager(self.page, self.chat)
         ## file mgr
         self.file_manager = FileManager(self.page, self.chat)
         # todo/workaround
@@ -27,28 +27,6 @@ class TranslationApp:
     def get_content(self):
         """返回翻译应用的内容"""
         return self.main_content
-
-    async def handle_stop_recording(self, e):
-        """处理停止录音"""
-        text = await self.sound_manager.stop_recording()
-        logging.info(text)
-        self.add_message(
-            Message(
-                user_name="User",
-                text=text,
-                message_type="chat_message",
-            )
-        )
-        result = translate_text(text)
-        logging.info(result)
-        # 添加翻译结果到聊天
-        self.add_message(
-            Message(
-                user_name="Agent",
-                text=result,
-                message_type="chat_message",
-            )
-        )
 
     def setup_ui(self):
         # 创建消息输入框
@@ -74,10 +52,7 @@ class TranslationApp:
         self.upload_button = self.file_manager.upload_button
 
         # 创建录音按钮
-        self.record_buttons = self.sound_manager.create_record_button(
-            self.handle_stop_recording,
-            visible=True,  # 可以根据需要设置为False来隐藏录音按钮
-        )
+        self.record_buttons = self.sound_manager.create_record_button()
 
         # 创建主内容区域
         self.main_content = ft.Column(
@@ -121,29 +96,8 @@ class TranslationApp:
 
     async def send_message_click(self, e):
         if self.new_message.value != "":
-            # 添加用户消息到聊天
-            self.add_message(
-                Message(
-                    user_name="User",
-                    text=self.new_message.value,
-                    message_type="chat_message",
-                )
-            )
-            try:
-                logging.info("send content to translation_bridge")
-                result = translate_text(self.new_message.value)
-                logging.info(result)
-                # 添加翻译结果到聊天
-                self.add_message(
-                    Message(
-                        user_name="Agent",
-                        text=result,
-                        message_type="chat_message",
-                    )
-                )
-            except Exception as e:
-                error_msg = f"翻译失败: {str(e)}"
-                logging.error(error_msg)
+            text = self.new_message.value
+            await self.Add_newMsg(text)
             self.new_message.value = ""
             await self.new_message.focus()
             self.page.update()
@@ -153,3 +107,22 @@ class TranslationApp:
             m = ChatMessage(message, self.sound_manager.engine, self.page, None)
             self.chat.controls.append(m)
         self.page.update()
+
+    async def Add_newMsg(self, text):
+        self.add_message(
+            Message(
+                user_name="User",
+                text=text,
+                message_type="chat_message",
+            )
+        )
+        logging.info("send content to translation_bridge")
+        result = translate_text(self.new_message.value)
+        logging.info(result)
+        self.add_message(
+            Message(
+                user_name="Agent",
+                text=result,
+                message_type="chat_message",
+            )
+        )
