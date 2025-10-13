@@ -110,20 +110,19 @@ class ChatApp:
 
     async def Add_newMsg(self, text):
         self.add_message(
-                Message(
-                    user_name="User",
-                    text=text,
-                    message_type="chat_message",
-                )
+            Message(
+                user_name="User",
+                text=text,
+                message_type="chat_message",
             )
-        logging.info("send content to translation_bridge")    
+        )
+        logging.info("send content to translation_bridge")
         result = translate_text(self.new_message.value)
         logging.info(result)
         self.add_message(
-                    Message(
-                        user_name="Agent",
-                        text=result,
-                        message_type="chat_message",
-                    )
+            Message(
+                user_name="Agent",
+                text=result,
+                message_type="chat_message",
+            )
         )
-

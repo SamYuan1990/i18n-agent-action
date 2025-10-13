@@ -7,6 +7,7 @@ import pyttsx3
 from chatmessage import ChatMessage, Message
 from translationbridge import translate_text
 
+
 class SoundManager:
     """声音管理类，处理所有音频相关功能"""
 
@@ -34,13 +35,13 @@ class SoundManager:
         """开始录音的逻辑"""
         logging.info("开始录音")
         self.is_recording = True
-        
+
         # 更新按钮状态
         if self.record_btn:
             self.record_btn.content = ft.Text("停止录音")
             self.record_btn.icon = ft.Icons.STOP
             self.record_btn.style = ft.ButtonStyle(color=ft.Colors.RED)
-        
+
         # 初始化识别器（如果尚未初始化）
         if not self.Init_Recognizer:
             try:
@@ -56,7 +57,7 @@ class SoundManager:
                 logging.error(f"识别器初始化失败: {ex}")
                 await self.reset_recording_state()
                 return
-        
+
         # 开始录音
         try:
             await self.fso_service.StartRecording()
@@ -68,18 +69,18 @@ class SoundManager:
     async def stop_recording_logic(self):
         """停止录音的逻辑"""
         logging.info("停止录音")
-        
+
         try:
             # 停止录音并获取结果
             result = await self.fso_service.StopRecording()
             logging.info(f"识别结果: {result}")
-            
+
             # 处理识别结果
             if result and result.strip():
                 await self.Add_newMsg(result)
-            
+
             await self.reset_recording_state()
-            
+
         except Exception as ex:
             logging.error(f"停止录音时出错: {ex}")
             await self.reset_recording_state()
@@ -87,13 +88,13 @@ class SoundManager:
     async def reset_recording_state(self):
         """重置录音状态"""
         self.is_recording = False
-        
+
         # 更新按钮状态
         if self.record_btn:
             self.record_btn.content = ft.Text("开始录音")
             self.record_btn.icon = ft.Icons.MIC
             self.record_btn.style = ft.ButtonStyle(color=ft.Colors.BLUE)
-        
+
         self.page.update()
 
     def speak_text(self, text):
@@ -110,7 +111,7 @@ class SoundManager:
             content=ft.Text("开始录音"),
             icon=ft.Icons.MIC,
             on_click=self.toggle_recording,
-            style=ft.ButtonStyle(color=ft.Colors.BLUE)
+            style=ft.ButtonStyle(color=ft.Colors.BLUE),
         )
         return self.record_btn
 
@@ -131,12 +132,12 @@ class SoundManager:
                 message_type="chat_message",
             )
         )
-        
-        logging.info("send content to translation_bridge")    
+
+        logging.info("send content to translation_bridge")
         # 获取翻译结果
         result = translate_text(text)
         logging.info(result)
-        
+
         # 添加代理回复
         self.add_message(
             Message(
