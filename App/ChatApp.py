@@ -119,7 +119,7 @@ class ChatApp:
         )
         self.page.update()
         logging.info("send content to translation_bridge")
-    
+
         # 使用 run_thread 在后台执行翻译
         self.page.run_thread(self._translate_and_add_result, text)
 
