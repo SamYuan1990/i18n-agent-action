@@ -122,7 +122,7 @@ class SoundManager:
             self.chat.controls.append(m)
         self.page.update()
 
-    async def Add_newMsg(self, text):
+    def Add_newMsg(self, text):
         """添加新消息（可全局调用）"""
         # 添加用户消息
         self.add_message(
@@ -132,13 +132,14 @@ class SoundManager:
                 message_type="chat_message",
             )
         )
-
+        self.page.update()
         logging.info("send content to translation_bridge")
         # 获取翻译结果
-        result = translate_text(text)
-        logging.info(result)
+        self.page.run_thread(self._translate_and_add_result, text)
 
-        # 添加代理回复
+    def _translate_and_add_result(self, text):
+        """在后台线程中执行翻译并更新结果"""
+        result = translate_text(text)
         self.add_message(
             Message(
                 user_name="Agent",
@@ -146,3 +147,4 @@ class SoundManager:
                 message_type="chat_message",
             )
         )
+        self.page.update()
