@@ -97,7 +97,7 @@ class ChatApp:
     async def send_message_click(self, e):
         if self.new_message.value != "":
             text = self.new_message.value
-            await self.Add_newMsg(text)
+            self.Add_newMsg(text)
             self.new_message.value = ""
             await self.new_message.focus()
             self.page.update()
@@ -108,7 +108,8 @@ class ChatApp:
             self.chat.controls.append(m)
         self.page.update()
 
-    async def Add_newMsg(self, text):
+    def Add_newMsg(self, text):
+        # 立即更新 UI 显示用户消息
         self.add_message(
             Message(
                 user_name="User",
@@ -116,9 +117,15 @@ class ChatApp:
                 message_type="chat_message",
             )
         )
+        self.page.update()
         logging.info("send content to translation_bridge")
-        result = translate_text(self.new_message.value)
-        logging.info(result)
+
+        # 使用 run_thread 在后台执行翻译
+        self.page.run_thread(self._translate_and_add_result, text)
+
+    def _translate_and_add_result(self, text):
+        """在后台线程中执行翻译并更新结果"""
+        result = translate_text(text)
         self.add_message(
             Message(
                 user_name="Agent",
@@ -126,3 +133,4 @@ class ChatApp:
                 message_type="chat_message",
             )
         )
+        self.page.update()

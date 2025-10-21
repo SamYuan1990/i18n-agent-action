@@ -707,8 +707,8 @@ flet = ">=0.70.0.dev0"
 [package.source]
 type = "git"
 url = "https://github.com/SamYuan1990/flet_sherpa_onnx.git"
-reference = "HEAD"
-resolved_reference = "73a7768f5739f537b9c20b09978e98678056aeab"
+reference = "v0.0.1"
+resolved_reference = "619bfbb8e9edda3ca911d566622a318c3337cd86"
 
 [[package]]
 name = "ghp-import"
@@ -6611,4 +6611,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "eb45d6dd810d6f10b0fc727e4d978a8a4bbe17e2e5566f553ef812ca12aa571e"
+content-hash = "21245758ef9653b326f243e2690cf6786eb3bb3154d4af2580c120ef72d78f42"

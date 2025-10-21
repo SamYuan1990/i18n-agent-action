@@ -99,7 +99,8 @@ class translateAgent(Agent):
 
         translated_chunks = []
         for i, chunk in enumerate(chunks):
-            logging.info(f"Processing chunk {i+1}/{len(chunks)} of {content}")
+            display_content = content[:50] + "..." if len(content) > 50 else content
+            logging.info(f"Processing chunk {i+1}/{len(chunks)} of {display_content}")
             PN = TranslationContext.reserved_word
             messages = [
                 {
