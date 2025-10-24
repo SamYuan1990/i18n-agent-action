@@ -655,13 +655,14 @@ files = [
 
 [[package]]
 name = "flet"
-version = "0.70.0.dev6196"
+version = "0.70.0.dev6412"
 description = "Flet for Python - easily build interactive multi-platform apps in Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["main", "app"]
 files = [
-    {file = "flet-0.70.0.dev6196-py3-none-any.whl", hash = "sha256:3d40d8d1f69be2eece10b30b808409a28a1d74e8d6d4fbc49fec30b30024aa56"},
+    {file = "flet-0.70.0.dev6412-py3-none-any.whl", hash = "sha256:591fca70709980d8a7f601fccfb8c0d6d406eecdb6c5cdd6a487b5890da196a0"},
+    {file = "flet-0.70.0.dev6412.tar.gz", hash = "sha256:8af78d0d0f6d05598e8ed193391d97ac2febb5480ca5195684bc288f5eb9c986"},
 ]
 
 [package.dependencies]
@@ -693,22 +694,18 @@ flet = ">=0.25.1"
 
 [[package]]
 name = "flet-sherpa-onnx"
-version = "0.2.0"
+version = "0.0.2"
 description = "FletSherpaOnnx control for Flet"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
-files = []
-develop = false
+files = [
+    {file = "flet_sherpa_onnx-0.0.2-py3-none-any.whl", hash = "sha256:33dbc3285aa543c3242891bc2f0fa2ab43ed96bf820cb52ca535337b5ae567dc"},
+    {file = "flet_sherpa_onnx-0.0.2.tar.gz", hash = "sha256:018f428869e6f7fffef62161ba3715a2bb69eac7afd2ec6d5679bb648790285b"},
+]
 
 [package.dependencies]
 flet = ">=0.70.0.dev0"
-
-[package.source]
-type = "git"
-url = "https://github.com/SamYuan1990/flet_sherpa_onnx.git"
-reference = "HEAD"
-resolved_reference = "73a7768f5739f537b9c20b09978e98678056aeab"
 
 [[package]]
 name = "ghp-import"
@@ -6611,4 +6608,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "eb45d6dd810d6f10b0fc727e4d978a8a4bbe17e2e5566f553ef812ca12aa571e"
+content-hash = "f29faefc67373657000fdd036ee8c32e4a8dd0227be7d5752b6a19e859351b12"
