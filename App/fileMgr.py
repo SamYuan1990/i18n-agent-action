@@ -28,4 +28,5 @@ class FileManager:
         logging.info(filename)
         logging.info(filepath)
         # 添加文件消息到聊天
-        self.chat.Add_newFileMsg(filename, filepath)
+        logging.info("invoke chatlist")
+        await self.chat.Add_newFileMsg(filename, filepath)

@@ -71,6 +71,7 @@ class ChatList:
         )
 
     async def Add_newFileMsg(self, filename, filepath):
+        logging.info("start file handle process")
         self.add_message(
             Message(
                 user_name="User", text=filename, message_type="file", file_path=filepath
