@@ -45,7 +45,7 @@ class ChatApp:
         self.upload_button = self.file_manager.upload_button
 
         # 创建录音按钮
-        self.record_buttons = self.sound_manager.create_record_button()
+        self.asr_control_panel = self.sound_manager.create_control_panel()
 
         # 创建主内容区域
         self.main_content = ft.Column(
@@ -77,7 +77,7 @@ class ChatApp:
                         self.upload_button,
                     ]
                 ),
-                self.record_buttons,  # 添加录音按钮
+                self.asr_control_panel,  # 添加录音按钮
                 ft.Container(height=10),
             ],
             alignment=ft.MainAxisAlignment.START,
