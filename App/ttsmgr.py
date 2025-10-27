@@ -2,12 +2,14 @@ import pyttsx3
 
 _instance = None
 
+
 def getTTSManager():
     """获取TTSManager的单例实例"""
     global _instance
     if _instance is None:
         _instance = TTSManager()
     return _instance
+
 
 # text to sound
 class TTSManager:

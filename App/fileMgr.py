@@ -1,9 +1,8 @@
 import logging
-import os
 
 import flet as ft
-from chatmessage import ChatMessage, Message
 from chatlist import ChatList
+
 
 class FileManager:
     """文件管理类，处理所有文件相关操作"""
@@ -29,5 +28,4 @@ class FileManager:
         logging.info(filename)
         logging.info(filepath)
         # 添加文件消息到聊天
-        self.chat.Add_newFileMsg(filename,filepath)
-        
+        self.chat.Add_newFileMsg(filename, filepath)

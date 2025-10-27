@@ -5,6 +5,7 @@ import shutil
 import flet as ft
 from ttsmgr import getTTSManager
 
+
 class Message:
     def __init__(
         self,

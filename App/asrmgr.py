@@ -3,7 +3,6 @@ import os
 
 import flet as ft
 import flet_sherpa_onnx as fso
-from chatmessage import ChatMessage, Message
 from chatlist import ChatList
 
 
