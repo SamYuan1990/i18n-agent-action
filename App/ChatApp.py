@@ -1,4 +1,3 @@
-
 import flet as ft
 from asrmgr import ASRManager
 from chatlist import ChatList
