@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+from typing import Optional
 
 import flet as ft
 from flet.security import decrypt, encrypt
@@ -9,10 +10,23 @@ from flet.security import decrypt, encrypt
 # 添加项目根目录到Python路径
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
+from AgentUtils.PromptGen import PromptGen  # noqa: E402
 
 
 class PromptConfig:
-    def __init__(self, page):
+    _instance = None
+    _current_config = None
+
+    def __new__(cls, page=None):
+        if cls._instance is None:
+            cls._instance = super(PromptConfig, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self, page=None):
+        if self._initialized:
+            return
+
         self.page = page
         self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
         # 获取提示词配置存储路径
@@ -29,6 +43,7 @@ class PromptConfig:
 
         # 尝试加载保存的配置
         saved_config = self.load_config()
+        PromptConfig._current_config = saved_config
 
         # 创建输入字段的引用，并使用保存的值或默认值
         self.role_field = ft.TextField(
@@ -188,6 +203,110 @@ class PromptConfig:
         # 绑定开关变化事件
         self.use_custom_prompt_switch.on_change = self.on_custom_prompt_toggle
 
+        self._initialized = True
+
+    @classmethod
+    def get_instance(cls):
+        """获取单例实例"""
+        if cls._instance is None:
+            # 如果没有实例，创建一个不带page的实例（用于全局访问）
+            cls._instance = cls()
+        return cls._instance
+
+    @classmethod
+    def get_current_config(cls):
+        """获取当前配置"""
+        if cls._current_config is None:
+            instance = cls.get_instance()
+            cls._current_config = instance._collect_current_config()
+        return cls._current_config
+
+    @classmethod
+    def to_prompt_gen(cls) -> PromptGen:
+        """全局可调用的方法：将当前配置转换为PromptGen对象"""
+        config = cls.get_current_config()
+        return cls._config_to_prompt_gen(config)
+
+    @classmethod
+    def get_system_prompt(cls) -> str:
+        """全局可调用的方法：直接获取系统提示词字符串"""
+        prompt_gen = cls.to_prompt_gen()
+        return prompt_gen.to_sys_prompt()
+
+    @classmethod
+    def get_task_prompt(cls, task_specific: str, example: Optional[str] = None) -> str:
+        """全局可调用的方法：直接获取任务提示词字符串"""
+        prompt_gen = cls.to_prompt_gen()
+        return prompt_gen.to_task_prompt(task_specific, example)
+
+    @classmethod
+    def _config_to_prompt_gen(cls, config_data: dict) -> PromptGen:
+        """内部方法：将配置数据转换为PromptGen对象"""
+        # 创建PromptGen实例
+        prompt_gen = PromptGen()
+
+        # 映射字段到PromptGen属性
+        prompt_gen.Role = config_data.get("role", "")
+        prompt_gen.Situation = config_data.get("situation", "")
+        prompt_gen.Action = config_data.get("action", "")
+
+        # 处理列表字段
+        task_steps = config_data.get("task_steps", [])
+        if isinstance(task_steps, str):
+            task_steps = [
+                line.strip() for line in task_steps.split("\n") if line.strip()
+            ]
+        prompt_gen.Task_steps = task_steps
+
+        quality_assurance = config_data.get("quality_assurance", [])
+        if isinstance(quality_assurance, str):
+            quality_assurance = [
+                line.strip() for line in quality_assurance.split("\n") if line.strip()
+            ]
+        prompt_gen.Quality_assurance = quality_assurance
+
+        prompt_gen.Output_structure = config_data.get("output_structure", {})
+
+        # 设置自定义提示词相关属性
+        prompt_gen._use_custom_sys_prompt = config_data.get(
+            "use_custom_sys_prompt", False
+        )
+        prompt_gen._custom_sys_prompt = config_data.get("custom_sys_prompt", "")
+
+        # 设置配置字典
+        prompt_gen._config = {
+            "Role": config_data.get("role", ""),
+            "Situation": config_data.get("situation", ""),
+            "Action": config_data.get("action", ""),
+            "Task_steps": task_steps,
+            "Quality_assurance": quality_assurance,
+            "Output_structure": config_data.get("output_structure", {}),
+            "self_evaluate_vars": {},
+        }
+
+        # 如果使用自定义系统提示词，添加到配置中
+        if config_data.get("use_custom_sys_prompt", False) and config_data.get(
+            "custom_sys_prompt"
+        ):
+            prompt_gen._config["sys_prompt"] = config_data["custom_sys_prompt"]
+
+        return prompt_gen
+
+    def _collect_current_config(self):
+        """收集当前界面配置"""
+        return {
+            "role": self.role_field.value,
+            "situation": self.situation_field.value,
+            "action": self.action_field.value,
+            "task_steps": self._string_to_list(self.task_steps_field.value),
+            "quality_assurance": self._string_to_list(
+                self.quality_assurance_field.value
+            ),
+            "output_structure": json.loads(self.output_structure_field.value),
+            "use_custom_sys_prompt": self.use_custom_prompt_switch.value,
+            "custom_sys_prompt": self.custom_prompt_field.value,
+        }
+
     def _list_to_string(self, value):
         """将列表转换为字符串格式"""
         if isinstance(value, list):
@@ -223,17 +342,19 @@ class PromptConfig:
 
     def _show_warning(self, message):
         """显示警告信息"""
-        self.page.snack_bar = ft.SnackBar(
-            content=ft.Text(message, color=ft.Colors.WHITE),
-            bgcolor=ft.Colors.ORANGE,
-        )
-        self.page.snack_bar.open = True
-        self.page.update()
+        if self.page:
+            self.page.snack_bar = ft.SnackBar(
+                content=ft.Text(message, color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.ORANGE,
+            )
+            self.page.snack_bar.open = True
+            self.page.update()
 
     def on_custom_prompt_toggle(self, e):
         """切换自定义提示词显示/隐藏"""
         self.custom_prompt_field.visible = self.use_custom_prompt_switch.value
-        self.page.update()
+        if self.page:
+            self.page.update()
 
     def get_content(self):
         """返回提示词配置界面的内容"""
@@ -431,27 +552,19 @@ class PromptConfig:
     def save_settings(self, e):
         """保存设置按钮的点击事件处理函数"""
         # 收集所有配置值
-        config = {
-            "role": self.role_field.value,
-            "situation": self.situation_field.value,
-            "action": self.action_field.value,
-            "task_steps": self._string_to_list(self.task_steps_field.value),
-            "quality_assurance": self._string_to_list(
-                self.quality_assurance_field.value
-            ),
-            "output_structure": json.loads(self.output_structure_field.value),
-            "use_custom_sys_prompt": self.use_custom_prompt_switch.value,
-            "custom_sys_prompt": self.custom_prompt_field.value,
-        }
+        config = self._collect_current_config()
         # 保存配置到文件
         if self.save_config(config):
+            # 更新当前配置
+            PromptConfig._current_config = config
             # 显示保存成功的提示
-            self.page.snack_bar = ft.SnackBar(
-                content=ft.Text("提示词配置已保存!", color=ft.Colors.WHITE),
-                bgcolor=ft.Colors.GREEN,
-            )
-            self.page.snack_bar.open = True
-            self.page.update()
+            if self.page:
+                self.page.snack_bar = ft.SnackBar(
+                    content=ft.Text("提示词配置已保存!", color=ft.Colors.WHITE),
+                    bgcolor=ft.Colors.GREEN,
+                )
+                self.page.snack_bar.open = True
+                self.page.update()
 
             logging.info("=== 提示词配置已保存 ===")
             logging.info(config)
@@ -462,12 +575,13 @@ class PromptConfig:
             logging.info("=======================")
         else:
             # 显示保存失败的提示
-            self.page.snack_bar = ft.SnackBar(
-                content=ft.Text("保存提示词配置失败!", color=ft.Colors.WHITE),
-                bgcolor=ft.Colors.RED,
-            )
-            self.page.snack_bar.open = True
-            self.page.update()
+            if self.page:
+                self.page.snack_bar = ft.SnackBar(
+                    content=ft.Text("保存提示词配置失败!", color=ft.Colors.WHITE),
+                    bgcolor=ft.Colors.RED,
+                )
+                self.page.snack_bar.open = True
+                self.page.update()
 
     def reset_to_default(self, e):
         """重置为默认配置"""
@@ -516,13 +630,34 @@ class PromptConfig:
         self.custom_prompt_field.value = default_config["custom_sys_prompt"]
         self.custom_prompt_field.visible = False
 
+        # 更新当前配置
+        PromptConfig._current_config = default_config
+
         # 更新页面
-        self.page.update()
+        if self.page:
+            self.page.update()
 
         # 显示重置成功的提示
-        self.page.snack_bar = ft.SnackBar(
-            content=ft.Text("已重置为默认配置!", color=ft.Colors.WHITE),
-            bgcolor=ft.Colors.BLUE,
-        )
-        self.page.snack_bar.open = True
-        self.page.update()
+        if self.page:
+            self.page.snack_bar = ft.SnackBar(
+                content=ft.Text("已重置为默认配置!", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.BLUE,
+            )
+            self.page.snack_bar.open = True
+            self.page.update()
+
+
+# 全局函数，保持向后兼容性
+def to_prompt_gen() -> PromptGen:
+    """全局函数：将当前配置转换为PromptGen对象"""
+    return PromptConfig.to_prompt_gen()
+
+
+def get_system_prompt() -> str:
+    """全局函数：直接获取系统提示词字符串"""
+    return PromptConfig.get_system_prompt()
+
+
+def get_task_prompt(task_specific: str, example: Optional[str] = None) -> str:
+    """全局函数：直接获取任务提示词字符串"""
+    return PromptConfig.get_task_prompt(task_specific, example)

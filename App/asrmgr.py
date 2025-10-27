@@ -243,15 +243,3 @@ class ASRManager:
             border_radius=10,
             margin=10,
         )
-
-    # 保持向后兼容性
-    def create_record_button(self):
-        """创建录音按钮组件（向后兼容）"""
-        if not self.record_btn:
-            self.record_btn = ft.Button(
-                content=ft.Text("开始录音"),
-                icon=ft.Icons.MIC,
-                on_click=self.toggle_recording,
-                style=ft.ButtonStyle(color=ft.Colors.BLUE),
-            )
-        return self.record_btn
