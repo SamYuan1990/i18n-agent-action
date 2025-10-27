@@ -3,7 +3,7 @@ import os
 import shutil
 
 import flet as ft
-
+from ttsmgr import getTTSManager
 
 class Message:
     def __init__(
@@ -22,9 +22,8 @@ class Message:
 
 
 class ChatMessage(ft.Row):
-    def __init__(self, message, engine, page, file_picker):
+    def __init__(self, message, page, file_picker):
         super().__init__()
-        self.engine = engine
         self.text = message.text
         self.user_name = message.user_name
         self.message_type = message.message_type
@@ -106,8 +105,7 @@ class ChatMessage(ft.Row):
             await self.download_file()
         else:
             # 文本消息：朗读
-            self.engine.say(self.text)
-            self.engine.runAndWait()
+            getTTSManager().say(self.text)
 
     async def download_file(self):
         """下载文件到用户选择的路径"""

@@ -3,24 +3,19 @@ import logging
 import flet as ft
 from chatmessage import ChatMessage, Message
 from fileMgr import FileManager
-from soundmgr import SoundManager
-from translationbridge import translate_text
-
+from asrmgr import ASRManager
+from chatlist import ChatList
 
 class ChatApp:
     def __init__(self, page: ft.Page):
         self.page = page
         # 1st class area
         ## Text input
-        self.chat = ft.ListView(
-            expand=True,
-            spacing=10,
-            auto_scroll=True,
-        )
+        self.chat = ChatList.getChatList(self.page)
         ## STT
-        self.sound_manager = SoundManager(self.page, self.chat)
+        self.sound_manager = ASRManager(self.page)
         ## file mgr
-        self.file_manager = FileManager(self.page, self.chat)
+        self.file_manager = FileManager(self.page)
         # todo/workaround
         self.setup_ui()
 
@@ -71,7 +66,7 @@ class ChatApp:
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 ),
                 ft.Container(
-                    content=self.chat,
+                    content=self.chat.get_widget(),
                     border=ft.Border.all(),
                     border_radius=5,
                     padding=10,
@@ -97,32 +92,7 @@ class ChatApp:
     async def send_message_click(self, e):
         if self.new_message.value != "":
             text = self.new_message.value
-            await self.Add_newMsg(text)
+            await self.chat.Add_newMsg(text)
             self.new_message.value = ""
             await self.new_message.focus()
             self.page.update()
-
-    def add_message(self, message: Message):
-        if message.message_type == "chat_message":
-            m = ChatMessage(message, self.sound_manager.engine, self.page, None)
-            self.chat.controls.append(m)
-        self.page.update()
-
-    async def Add_newMsg(self, text):
-        self.add_message(
-            Message(
-                user_name="User",
-                text=text,
-                message_type="chat_message",
-            )
-        )
-        logging.info("send content to translation_bridge")
-        result = translate_text(self.new_message.value)
-        logging.info(result)
-        self.add_message(
-            Message(
-                user_name="Agent",
-                text=result,
-                message_type="chat_message",
-            )
-        )

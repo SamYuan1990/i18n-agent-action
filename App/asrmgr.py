@@ -3,19 +3,17 @@ import os
 
 import flet as ft
 import flet_sherpa_onnx as fso
-import pyttsx3
 from chatmessage import ChatMessage, Message
-from translationbridge import translate_text
+from chatlist import ChatList
 
 
-class SoundManager:
+class ASRManager:
     """声音管理类，处理所有音频相关功能"""
 
-    def __init__(self, page: ft.Page, chat):
+    def __init__(self, page: ft.Page):
         self.page = page
         self.app_data_path = os.getenv("FLET_APP_STORAGE_DATA")
-        self.engine = pyttsx3.init()
-        self.chat = chat
+        self.chat = ChatList.getChatList(self.page)
         self.fso_service = fso.FletSherpaOnnx()
         self.page._services.append(self.fso_service)
         self.Init_Recognizer = False
@@ -77,7 +75,7 @@ class SoundManager:
 
             # 处理识别结果
             if result and result.strip():
-                await self.Add_newMsg(result)
+                await self.chat.Add_newMsg(result)
 
             await self.reset_recording_state()
 
@@ -97,14 +95,6 @@ class SoundManager:
 
         self.page.update()
 
-    def speak_text(self, text):
-        """使用文本转语音引擎朗读文本"""
-        try:
-            self.engine.say(text)
-            self.engine.runAndWait()
-        except Exception as e:
-            logging.error(f"语音合成失败: {str(e)}")
-
     def create_record_button(self):
         """创建录音按钮组件"""
         self.record_btn = ft.Button(
@@ -114,35 +104,3 @@ class SoundManager:
             style=ft.ButtonStyle(color=ft.Colors.BLUE),
         )
         return self.record_btn
-
-    def add_message(self, message: Message):
-        """添加消息到聊天界面"""
-        if message.message_type == "chat_message":
-            m = ChatMessage(message, self.engine, self.page, None)
-            self.chat.controls.append(m)
-        self.page.update()
-
-    async def Add_newMsg(self, text):
-        """添加新消息（可全局调用）"""
-        # 添加用户消息
-        self.add_message(
-            Message(
-                user_name="User",
-                text=text,
-                message_type="chat_message",
-            )
-        )
-
-        logging.info("send content to translation_bridge")
-        # 获取翻译结果
-        result = translate_text(text)
-        logging.info(result)
-
-        # 添加代理回复
-        self.add_message(
-            Message(
-                user_name="Agent",
-                text=result,
-                message_type="chat_message",
-            )
-        )
