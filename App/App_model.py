@@ -2,6 +2,8 @@ import logging
 import os
 import sys
 
+from prompt_config import to_prompt_gen
+
 # 添加项目根目录到Python路径
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
@@ -73,6 +75,9 @@ class _AppModel:
         if not self.target_language:
             logging.warning("目标语言未设置，使用默认值")
 
+        ## invoke PromptConfig to init a TranslationContext
+        # 获取PromptGen对象
+        prompt_gen = to_prompt_gen()
         context = TranslationContext(
             target_language=self.target_language,
             file_list=file_list,
@@ -80,6 +85,13 @@ class _AppModel:
             reserved_word=reserved_word,
             disclaimers=disclaimers,
         )
+        context.Role = prompt_gen.Role
+        context.Situation = prompt_gen.Situation
+        context.Action = prompt_gen.Action
+        context.Task_steps = prompt_gen.Task_steps
+        context.Quality_assurance = prompt_gen.Quality_assurance
+        context.Output_structure = prompt_gen.Output_structure
+
         logging.info(f"翻译上下文创建完成 - 目标语言: {self.target_language}")
         return context
 
