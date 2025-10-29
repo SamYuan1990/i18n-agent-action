@@ -52,7 +52,7 @@ docs = [
 [tool.poetry.group.app.dependencies]
 pyttsx3 = "^2.99"
 sounddevice = "^0.5.2"
-cryptography = "^45.0.6"
+cryptography = "^46.0.3"
 flet-audio = "^0.1.0"
 
 [tool.poetry.group.docs.dependencies]
