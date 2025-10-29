@@ -694,14 +694,14 @@ flet = ">=0.25.1"
 
 [[package]]
 name = "flet-sherpa-onnx"
-version = "0.2.1"
+version = "0.2.2"
 description = "FletSherpaOnnx control for Flet"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "flet_sherpa_onnx-0.2.1-py3-none-any.whl", hash = "sha256:1370704b141ecaacf1ef84e7d829432c8341f311f8835487da114b8656d0b857"},
-    {file = "flet_sherpa_onnx-0.2.1.tar.gz", hash = "sha256:ff5727659f66155306921cd68d567d08d9e3d16a736301b0f3323510912c40df"},
+    {file = "flet_sherpa_onnx-0.2.2-py3-none-any.whl", hash = "sha256:878068661f11da5656a101c804900b1174893da7203dfe276f95d7f05b3f4a3c"},
+    {file = "flet_sherpa_onnx-0.2.2.tar.gz", hash = "sha256:711683bf4316554ce3e6b8998d30683a2e86a0ef8c12686dcf7dd692e92a0140"},
 ]
 
 [package.dependencies]
@@ -6608,4 +6608,4 @@ docs = ["mkdocs", "mkdocs-get-deps", "mkdocs-git-revision-date-localized-plugin"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "c8a6b2076702b40486e9ed0c2c7d7c266c57f145c0d99b0e2b0d8945482b7330"
+content-hash = "38409a8ff911ee1b44f3f884bdf6697b977d82a722291a9d7ebf5a010402ad30"

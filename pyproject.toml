@@ -26,7 +26,7 @@ dependencies = [
     "pdfminer-six (>=20250506,<20250507)",
     "python-docx (>=1.2.0,<2.0.0)",
     "beautifulsoup4 (>=4.13.5,<5.0.0)",
-    "flet-sherpa-onnx>=0.2.1",
+    "flet-sherpa-onnx (>=0.2.2)",
 ]
 
 [project.urls]
