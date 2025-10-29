@@ -250,14 +250,53 @@ class ASRManager:
 
     async def _vad_result(self):
         """VAD数据监听循环"""
+        # 保存上一轮处理的VAD数据
+        last_vad_data = [""] * 5  # 初始化为5个空字符串
+
         while self.is_recording:
             await asyncio.sleep(10)
             if not self.is_recording:
                 return
+
             vad_data = await self.fso_service.GetVADData()
-            formatted_data = ""
-            if isinstance(vad_data, (list, tuple)):
-                formatted_data = "\n".join(str(item) for item in vad_data)
+
+            # 检查vad_data是否为空或全为空字符
+            if not vad_data or all(item == "" for item in vad_data):
+                continue
+
+            # 检查是否有新的数据（与上一轮比较）
+            new_data_found = False
+            current_formatted_data = ""
+
+            if isinstance(vad_data, (list, tuple)) and len(vad_data) == 5:
+                # 构建当前轮次的数据，只保留与上一轮不同的非空数据
+                new_data_lines = []
+                for i, current_item in enumerate(vad_data):
+                    if (
+                        i < len(last_vad_data)
+                        and current_item != last_vad_data[i]
+                        and current_item != ""
+                    ):
+                        new_data_lines.append(str(current_item))
+                        new_data_found = True
+
+                if new_data_lines:
+                    current_formatted_data = "\n".join(new_data_lines)
             else:
-                formatted_data = str(vad_data)
-            await self.chat.Add_newMsg(formatted_data)
+                # 如果不是预期的数组格式，转换为字符串比较
+                current_str = str(vad_data)
+                last_str = "".join(str(x) for x in last_vad_data)
+                if current_str != last_str and current_str != "":
+                    current_formatted_data = current_str
+                    new_data_found = True
+
+            # 只有在有新数据时才发送
+            if new_data_found and current_formatted_data:
+                await self.chat.Add_newMsg(current_formatted_data)
+
+            # 更新上一轮数据
+            if isinstance(vad_data, (list, tuple)) and len(vad_data) == 5:
+                last_vad_data = list(vad_data)  # 创建副本
+            else:
+                # 如果不是数组格式，清空上一轮数据
+                last_vad_data = [""] * 5
