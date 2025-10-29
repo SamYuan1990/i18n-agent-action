@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from pathlib import Path
@@ -67,6 +68,9 @@ class ASRManager:
             # 开始录音
             await self.fso_service.StartRecording()
             logging.info("录音已开始")
+            # todo vad voice logic here
+            if self.use_vad:
+                self.page.run_task(self._vad_result)
 
         except Exception as ex:
             logging.error(f"开始录音时出错: {ex}")
@@ -243,3 +247,17 @@ class ASRManager:
             border_radius=10,
             margin=10,
         )
+
+    async def _vad_result(self):
+        """VAD数据监听循环"""
+        while self.is_recording:
+            await asyncio.sleep(10)
+            if not self.is_recording:
+                return
+            vad_data = await self.fso_service.GetVADData()
+            formatted_data = ""
+            if isinstance(vad_data, (list, tuple)):
+                formatted_data = "\n".join(str(item) for item in vad_data)
+            else:
+                formatted_data = str(vad_data)
+            await self.chat.Add_newMsg(formatted_data)
