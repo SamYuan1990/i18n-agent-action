@@ -40,7 +40,7 @@ class ChatMessage(ft.Row):
 
         # 根据消息类型创建不同的内容
         if self.message_type == "file":
-            # 文件消息
+            # 文件消息 - 同样应用自适应布局
             if self.file_path:
                 file_name = os.path.basename(self.file_path)
             elif self.file_data:
@@ -58,8 +58,19 @@ class ChatMessage(ft.Row):
                     ft.Column(
                         [
                             ft.Text(message.user_name, weight="bold"),
-                            ft.Text(f"发送了一个文件: {file_name}", selectable=True),
-                            ft.Text(message.text, selectable=True),
+                            ft.Text(
+                                f"发送了一个文件: {file_name}",
+                                selectable=True,
+                                max_lines=3,
+                            ),
+                            ft.Text(
+                                message.text,
+                                selectable=True,
+                                overflow=ft.TextOverflow.ELLIPSIS,
+                                weight=ft.FontWeight.NORMAL,
+                                width=700,
+                                no_wrap=False,
+                            ),
                             ft.Text(
                                 "点击下载文件",
                                 size=12,
@@ -67,13 +78,14 @@ class ChatMessage(ft.Row):
                                 italic=True,
                             ),
                         ],
-                        tight=True,
                         spacing=5,
+                        wrap=True,
                     ),
-                ]
+                ],
+                vertical_alignment=ft.CrossAxisAlignment.START,
             )
         else:
-            # 文本消息
+            # 文本消息 - 完整的自适应方案
             content = ft.Row(
                 controls=[
                     ft.CircleAvatar(
@@ -84,12 +96,20 @@ class ChatMessage(ft.Row):
                     ft.Column(
                         [
                             ft.Text(message.user_name, weight="bold"),
-                            ft.Text(message.text, selectable=True),
+                            ft.Text(
+                                message.text,
+                                selectable=True,
+                                overflow=ft.TextOverflow.ELLIPSIS,
+                                weight=ft.FontWeight.NORMAL,
+                                width=700,
+                                no_wrap=False,
+                            ),
                         ],
-                        tight=True,
                         spacing=5,
+                        wrap=True,
                     ),
-                ]
+                ],
+                vertical_alignment=ft.CrossAxisAlignment.START,
             )
 
         # 用GestureDetector包装内容以添加点击事件
