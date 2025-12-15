@@ -672,14 +672,14 @@ files = [
 
 [[package]]
 name = "flet"
-version = "0.70.0.dev6957"
+version = "0.70.0.dev7001"
 description = "Flet for Python - easily build interactive multi-platform apps in Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["main", "app"]
 files = [
-    {file = "flet-0.70.0.dev6957-py3-none-any.whl", hash = "sha256:9425b9b1f9b030835ae00fad915456d0106846457443c78ad314d18344a462dc"},
-    {file = "flet-0.70.0.dev6957.tar.gz", hash = "sha256:fb1e02f9c65311d1ef6f5acbd3b54f928a98f51c13213deb6c2fc42397df2b3e"},
+    {file = "flet-0.70.0.dev7001-py3-none-any.whl", hash = "sha256:c9c15a78e884b7fcbe783232e277b0915486721d3fc4b27d28cc89e98bdbbaf3"},
+    {file = "flet-0.70.0.dev7001.tar.gz", hash = "sha256:73d39323f700893134f72673cfce862b4e8f729bf24cb556728c687f6534fa49"},
 ]
 
 [package.dependencies]
