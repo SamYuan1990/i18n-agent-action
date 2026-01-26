@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v6.0.2
         with:
           ref: ${{ github.head_ref || 'main' }}  # 使用当前分支或main分支
           fetch-depth: 0  # 获取所有历史记录以便创建分支
