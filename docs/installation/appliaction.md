@@ -13,7 +13,7 @@ Go to [link](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/
 Find the latest build
 ![](../img/install_step1.png)  
 
-Find you package
+Find your package
 ![](../img/install_step2.png)  
 
 ## Usage
@@ -22,7 +22,7 @@ Find you package
 
 1. Download and install the software.  
 
-> You may encounter trust issues with the signature. Try a few times if needed, or if you were developer `
+> You may encounter trust issues with the signature. Try a few times if needed, or if you are a developer, `
 sudo xattr -d com.apple.quarantine ~/i18n-agent-action.app 
 codesign --force --deep --sign - --preserve-metadata=entitlements --options runtime ~/i18n-agent-action.app`
 may help.
@@ -41,4 +41,4 @@ Please refer to https://api-docs.deepseek.com/zh-cn/ or create one via the web p
 ![](../img/step3.png) 
 
 5. Optional feature: Reserved words.  
-Back to Step 1, adding reserved word and reproduce to step 4.
+Back to Step 1, add reserved words and proceed to step 4.

@@ -4,17 +4,16 @@
 
 | macOS (x86) | macOS (arm) | Windows | Linux (x86?) | iOS | Android |
 | ----------- | ----------- | ------- | ------------ | --- | ------- |
-| ✅      | ✅       | طلب للاختبار | طلب للاختبار | طلب للاختبار | طلب للاختبار |
+| ✅      | ✅       | اتصل للاختبار | اتصل للاختبار | اتصل للاختبار | اتصل للاختبار |
 
 ## التنزيل من GHA
 
-اذهب إلى 
-[link](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule)
+انتقل إلى [رابط](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule)
 
 ابحث عن أحدث بناء
 ![](../img/install_step1.png)  
 
-ابحث عن حزمتك
+ابحث عن حزمة الخاص بك
 ![](../img/install_step2.png)  
 
 ## الاستخدام
@@ -23,20 +22,22 @@
 
 1. قم بتنزيل وتثبيت البرنامج.  
 
-> قد تواجه مشكلات ثقة مع التوقيع. حاول عدة مرات إذا لزم الأمر، أو إذا كنت مطورًا، قد يساعد `sudo xattr -d com.apple.quarantine ~/i18n-agent-action.app 
-codesign --force --deep --sign - --preserve-metadata=entitlements --options runtime ~/i18n-agent-action.app`.
+> قد تواجه مشكلات ثقة مع التوقيع. حاول عدة مرات إذا لزم الأمر، أو إذا كنت مطورًا `
+sudo xattr -d com.apple.quarantine ~/i18n-agent-action.app 
+codesign --force --deep --sign - --preserve-metadata=entitlements --options runtime ~/i18n-agent-action.app`
+قد يساعد.
 
-2. قم بتكوين مفتاح API من DeepSeek.  
-يرجى الرجوع إلى https://api-docs.deepseek.com/zh-cn/ أو إنشاء واحد عبر المنصة الإلكترونية.  
+2. قم بتكوين مفتاح DeepSeek API.  
+يرجى الرجوع إلى https://api-docs.deepseek.com/zh-cn/ أو إنشاء واحد عبر منصة الويب.  
 ![](../img/step1.png)  
 
 > بالطبع، الجميع مرحب بهم أيضًا لاستخدام نماذج اللغة الكبيرة الحالية بتنسيق OpenAI لتوسيع نطاق الاختبار.  
 
-3. قم بتكوين معلومات الوصول لنموذج اللغة الكبيرة وحفظها.  
+3. قم بتكوين معلومات الوصول إلى نموذج اللغة الكبيرة وحفظها.  
 ![](../img/step2.png) 
 
 4. أدخل المحتوى المراد ترجمته وانقر على "ترجمة" لانتظار النتيجة (ملاحظة: إخراج الصوت مفعل افتراضيًا).  
 ![](../img/step3.png) 
 
 5. ميزة اختيارية: الكلمات المحجوزة.  
-ارجع إلى الخطوة 1، أضف كلمة محجوزة وكرر حتى الخطوة 4.
+ارجع إلى الخطوة 1، أضف كلمة محجوزة وأعد إنتاج الخطوة 4.

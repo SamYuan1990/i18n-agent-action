@@ -1,6 +1,6 @@
 # Ejecutar como aplicación de escritorio o aplicación móvil
 
-## Plataformas soportadas
+## Plataformas compatibles
 
 | macOS (x86) | macOS (arm) | Windows | Linux (x86?) | iOS | Android |
 | ----------- | ----------- | ------- | ------------ | --- | ------- |
@@ -8,10 +8,9 @@
 
 ## Descargar desde GHA
 
-Ir a 
-[link](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule)
+Ir a [enlace](https://github.com/SamYuan1990/i18n-agent-action/actions/workflows/release.yml?query=event%3Aschedule)
 
-Encontrar la compilación más reciente
+Encontrar la última compilación
 ![](../img/install_step1.png)  
 
 Encontrar tu paquete
@@ -23,7 +22,7 @@ Encontrar tu paquete
 
 1. Descargar e instalar el software.  
 
-> Puedes encontrar problemas de confianza con la firma. Intenta algunas veces si es necesario, o si eres desarrollador, `
+> Puedes encontrar problemas de confianza con la firma. Intenta algunas veces si es necesario, o si eras desarrollador `
 sudo xattr -d com.apple.quarantine ~/i18n-agent-action.app 
 codesign --force --deep --sign - --preserve-metadata=entitlements --options runtime ~/i18n-agent-action.app`
 puede ayudar.
@@ -35,7 +34,7 @@ Por favor, consulta https://api-docs.deepseek.com/zh-cn/ o crea una a través de
 
 > Por supuesto, todos también son bienvenidos a usar sus modelos de lenguaje grandes existentes en formato OpenAI para ampliar el alcance de las pruebas.  
 
-3. Configurar la información de acceso al modelo de lenguaje grande y guardarla.  
+3. Configurar la información de acceso del modelo de lenguaje grande y guardarla.  
 ![](../img/step2.png) 
 
 4. Ingresar el contenido a traducir y hacer clic en "Traducir" para esperar el resultado (nota: la salida de voz está habilitada por defecto).  
